@@ -7,7 +7,7 @@ Usage:
   python3 scripts/create-issues.py --graph         # print a Mermaid dependency graph of issues
   python3 scripts/create-issues.py --repo OWNER/REPO --apply
 
-Requires: Python 3.9+ (stdlib only) and an authenticated `gh` CLI for --apply.
+Requires: Python 3.9+ (stdlib only) and an authenticated `gh` CLI for --apply (REST API only, via `gh api`).
 Idempotent: issues are matched by their ID prefix ("E6-04:") and are updated rather than duplicated.
 """
 from __future__ import annotations
@@ -17,6 +17,8 @@ import json
 import re
 import subprocess
 import sys
+import time
+from urllib.parse import quote
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -138,12 +140,29 @@ def render_epic_body(e: Epic, num: dict[str, int]) -> str:
     )
 
 
-# ---------------------------------------------------------------- gh helpers
-def gh(args: list[str], stdin: str | None = None, check: bool = True) -> str:
-    r = subprocess.run(["gh", *args], input=stdin, capture_output=True, text=True)
-    if check and r.returncode != 0:
-        raise RuntimeError(f"gh {' '.join(args)} failed: {r.stderr.strip()}")
-    return r.stdout.strip()
+# ---------------------------------------------------------------- GitHub REST helpers (via `gh api`; no GraphQL)
+def api(method: str, path: str, data: dict | None = None, check: bool = True) -> object:
+    args = ["gh", "api", "-X", method, path, "-H", "Accept: application/vnd.github+json"]
+    if data is not None:
+        args += ["--input", "-"]
+    r = subprocess.run(args, input=json.dumps(data) if data is not None else None, capture_output=True, text=True)
+    if r.returncode != 0:
+        if check:
+            raise RuntimeError(f"{method} {path} failed: {(r.stderr or r.stdout).strip()[:500]}")
+        return None
+    return json.loads(r.stdout) if r.stdout.strip() else {}
+
+
+def api_pages(path: str) -> list:
+    out: list = []
+    page = 1
+    while True:
+        sep = "&" if "?" in path else "?"
+        chunk = api("GET", f"{path}{sep}per_page=100&page={page}")
+        if not chunk:
+            return out
+        out += chunk
+        page += 1
 
 
 def ensure_labels(repo: str, epics: list[Epic]) -> None:
@@ -152,87 +171,86 @@ def ensure_labels(repo: str, epics: list[Epic]) -> None:
         names.update(e.labels)
         for i in e.issues:
             names.update(issue_labels(i))
+    have = {lb["name"] for lb in api_pages(f"repos/{repo}/labels")}
     for n in sorted(names):
         color = LABEL_COLORS.get(n) or next((c for p, c in LABEL_COLORS.items() if p.endswith(":") and n.startswith(p)), "ededed")
-        args = ["label", "create", n, "--repo", repo, "--color", color, "--force"]
+        body = {"name": n, "color": color}
         if n in LABEL_DESCRIPTIONS:
-            args += ["--description", LABEL_DESCRIPTIONS[n]]
-        gh(args)
+            body["description"] = LABEL_DESCRIPTIONS[n]
+        if n in have:
+            api("PATCH", f"repos/{repo}/labels/{quote(n, safe='')}", {"color": color, **({"description": body["description"]} if "description" in body else {})})
+        else:
+            api("POST", f"repos/{repo}/labels", body)
     print(f"labels: {len(names)} ensured")
 
 
-def ensure_milestones(repo: str) -> None:
-    existing = json.loads(gh(["api", f"repos/{repo}/milestones?state=all&per_page=100"]) or "[]")
-    have = {m["title"] for m in existing}
+def ensure_milestones(repo: str) -> dict[str, int]:
+    have = {m["title"]: m["number"] for m in api_pages(f"repos/{repo}/milestones?state=all")}
     for title, desc in MILESTONES.values():
         if title not in have:
-            gh(["api", f"repos/{repo}/milestones", "-f", f"title={title}", "-f", f"description={desc}"])
+            have[title] = api("POST", f"repos/{repo}/milestones", {"title": title, "description": desc})["number"]
     print(f"milestones: {len(MILESTONES)} ensured")
+    return have
 
 
 def existing_issue_numbers(repo: str) -> dict[str, int]:
-    data = json.loads(gh(["issue", "list", "--repo", repo, "--state", "all", "--limit", "1000", "--json", "number,title"]) or "[]")
     out: dict[str, int] = {}
-    for it in data:
+    for it in api_pages(f"repos/{repo}/issues?state=all"):
+        if "pull_request" in it:
+            continue
         m = re.match(r"^(E\d+(?:-\d+)?):", it["title"])
         if m:
             out[m.group(1)] = it["number"]
     return out
 
 
-def create_or_update(repo: str, key: str, title: str, body: str, labels: list[str], milestone: str, num: dict[str, int]) -> None:
+def create_or_update(repo: str, key: str, title: str, body: str, labels: list[str], milestone: int,
+                     num: dict[str, int]) -> None:
     full_title = f"{key}: {title}"
     if key in num:
-        args = ["issue", "edit", str(num[key]), "--repo", repo, "--title", full_title, "--body-file", "-",
-                "--milestone", milestone]
-        for lb in labels:
-            args += ["--add-label", lb]
-        gh(args, stdin=body)
+        api("PATCH", f"repos/{repo}/issues/{num[key]}", {"title": full_title, "body": body, "milestone": milestone})
+        api("POST", f"repos/{repo}/issues/{num[key]}/labels", {"labels": labels})
         print(f"  updated #{num[key]} {full_title}")
     else:
-        args = ["issue", "create", "--repo", repo, "--title", full_title, "--body-file", "-", "--milestone", milestone]
-        for lb in labels:
-            args += ["--label", lb]
-        url = gh(args, stdin=body)
-        num[key] = int(url.rstrip("/").rsplit("/", 1)[1])
+        res = api("POST", f"repos/{repo}/issues", {"title": full_title, "body": body, "labels": labels, "milestone": milestone})
+        num[key] = res["number"]
         print(f"  created #{num[key]} {full_title}")
+        time.sleep(1)  # stay well under GitHub's content-creation rate limit
 
 
 def link_sub_issues(repo: str, epics: list[Epic], num: dict[str, int]) -> None:
-    ok = fail = 0
+    ok = skipped = 0
     for e in epics:
+        existing = {s["number"] for s in (api("GET", f"repos/{repo}/issues/{num[e.id]}/sub_issues?per_page=100", check=False) or [])}
         for i in e.issues:
-            try:
-                iid = gh(["api", f"repos/{repo}/issues/{num[i.id]}", "--jq", ".id"])
-                r = subprocess.run(["gh", "api", "-X", "POST", f"repos/{repo}/issues/{num[e.id]}/sub_issues",
-                                    "-F", f"sub_issue_id={iid}"], capture_output=True, text=True)
-                if r.returncode == 0 or "already" in (r.stderr + r.stdout).lower():
-                    ok += 1
-                else:
-                    fail += 1
-            except RuntimeError:
-                fail += 1
-    print(f"sub-issues linked: {ok} ok, {fail} skipped/failed (task lists in epic bodies still track them)")
+            if num[i.id] in existing:
+                ok += 1
+                continue
+            iid = api("GET", f"repos/{repo}/issues/{num[i.id]}")["id"]
+            if api("POST", f"repos/{repo}/issues/{num[e.id]}/sub_issues", {"sub_issue_id": iid}, check=False) is None:
+                skipped += 1
+            else:
+                ok += 1
+    print(f"sub-issues linked: {ok} ok, {skipped} skipped (task lists in epic bodies still track them)")
 
 
 def apply(repo: str, epics: list[Epic]) -> None:
     ensure_labels(repo, epics)
-    ensure_milestones(repo)
+    ms = ensure_milestones(repo)
     num = existing_issue_numbers(repo)
     epic_titles = {e.id: e.title for e in epics}
     print("pass 1: epics")
     for e in epics:
-        create_or_update(repo, e.id, e.title, render_epic_body(e, num), ["epic", *e.labels], MILESTONES[e.milestone][0], num)
+        create_or_update(repo, e.id, e.title, render_epic_body(e, num), ["epic", *e.labels], ms[MILESTONES[e.milestone][0]], num)
     print("pass 2: issues (dependency order)")
     for i in topo_order(epics):
         create_or_update(repo, i.id, i.title, render_issue_body(i, num, epic_titles[i.epic]), issue_labels(i),
-                         MILESTONES[i.milestone][0], num)
+                         ms[MILESTONES[i.milestone][0]], num)
     print("pass 3: resolve cross-references")
     for e in epics:
-        gh(["issue", "edit", str(num[e.id]), "--repo", repo, "--body-file", "-"], stdin=render_epic_body(e, num))
+        api("PATCH", f"repos/{repo}/issues/{num[e.id]}", {"body": render_epic_body(e, num)})
         for i in e.issues:
-            gh(["issue", "edit", str(num[i.id]), "--repo", repo, "--body-file", "-"],
-               stdin=render_issue_body(i, num, epic_titles[i.epic]))
+            api("PATCH", f"repos/{repo}/issues/{num[i.id]}", {"body": render_issue_body(i, num, epic_titles[i.epic])})
     link_sub_issues(repo, epics, num)
     MAP_FILE.write_text(json.dumps(dict(sorted(num.items(), key=lambda kv: kv[1])), indent=2) + "\n")
     print(f"wrote {MAP_FILE.relative_to(ROOT)}")
