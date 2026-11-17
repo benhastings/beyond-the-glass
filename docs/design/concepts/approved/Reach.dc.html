@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Reach: journey map</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eef5f1}
+a{color:#0a5a61}a:hover{color:#063b40}
+a:focus-visible,button:focus-visible{outline:3px solid #10272c;outline-offset:3px;border-radius:10px}
+button{cursor:pointer;font:inherit}
+.pin:hover{background:#fff3c9 !important}
+.cta:hover{filter:brightness(1.12)}
+</style>
+</helmet>
+<div style="background: #eef5f1; color: #10272c; font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 18px; line-height: 1.55; min-height: 100vh">
+
+<header style="background: #ffffff; border-bottom: 1px solid #6f8a8c">
+<div style="max-width: 1320px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #10272c; text-decoration: none; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 22px">
+<svg aria-hidden="true" width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="3" y="5" width="28" height="22" rx="5" stroke="#10272c" stroke-width="2"></rect><path d="M9 16c2.5-3 5.5-3 8 0s5.5 3 8 0" stroke="#0a5a61" stroke-width="2" stroke-linecap="round"></path><path d="M11 21c2-2 4-2 6 0s4 2 6 0" stroke="#0a5a61" stroke-width="2" stroke-linecap="round" opacity=".6"></path><path d="M13 31h8" stroke="#10272c" stroke-width="2" stroke-linecap="round"></path></svg>
+Beyond the Glass
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px">
+<a href="Reach.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #10272c; font-weight: 700; text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 8px">The Reach</a>
+<a href="#glossary" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #10272c; text-decoration: none; font-weight: 500">Field glossary</a>
+<a href="Trail.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #10272c; text-decoration: none; font-weight: 500">My trail</a>
+<a href="#settings" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #10272c; text-decoration: none; font-weight: 500">Settings</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1320px; margin: 0 auto; padding: 36px 32px 72px; display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 1; letter-spacing: -0.03em">The Reach</h1>
+<p style="margin: 0; font-size: 20px; color: #2f4a4e">Seven places on one trail. Go in order or wander. Every place is open.</p>
+</div>
+<div role="group" aria-label="Show the journey as" style="display: inline-flex; padding: 4px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c">
+<button type="button" aria-pressed="{{isMap}}" onClick="{{showMap}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; font-weight: 700; font-size: 17px; background: {{mapBg}}; color: {{mapFg}}">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"></path></svg>Map</button>
+<button type="button" aria-pressed="{{isList}}" onClick="{{showList}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; font-weight: 700; font-size: 17px; background: {{listBg}}; color: {{listFg}}">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>List</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+
+<section aria-label="Journey" style="flex: 999 1 640px; min-width: 0">
+<sc-if value="{{isMap}}" hint-placeholder-val="{{true}}">
+<div style="position: relative; border-radius: 28px; overflow: hidden; border: 2px solid #10272c; background: #a9ecdf">
+<svg role="img" aria-label="Illustrated map of the Reach. A dotted trail climbs in switchbacks: from a glowing glass doorway at lower left, along a harbor with stacked containers, up to a stone keep on a mound, past a domed chartroom, around a still lake, through a dense wood, and up to a watchtower under a storm cloud on the far ridge. The List view holds the same places and statuses as text." viewBox="0 0 900 640" style="display: block; width: 100%; height: auto">
+<defs>
+<linearGradient id="pSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fe6da"></stop><stop offset=".5" stop-color="#fff3c9"></stop></linearGradient>
+<radialGradient id="pDoor" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#7de8d8" stop-opacity=".9"></stop><stop offset="1" stop-color="#7de8d8" stop-opacity="0"></stop></radialGradient>
+</defs>
+<rect width="900" height="640" fill="url(#pSky)"></rect>
+<circle cx="730" cy="92" r="44" fill="#fffbe6"></circle><circle cx="730" cy="92" r="70" fill="none" stroke="#fffbe6" stroke-width="2" opacity=".7"></circle>
+<path d="M0 210C120 130 250 150 330 150s260 60 570 10v480H0z" fill="#bfe6d6"></path>
+<path d="M262 62c0-22 32-30 46-14 12-18 50-10 50 14 22 0 24 30 0 30h-96c-22 0-22-30 0-30z" fill="#3b4368"></path>
+<path d="M316 152V84h-8V70h12V58h20v12h12v14h-8v68z" fill="#3b4368"></path><rect x="325" y="92" width="10" height="14" rx="5" fill="#ffd35c"></rect>
+<path d="M300 96l-10 16h12l-8 18" fill="none" stroke="#ffd35c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M0 300C200 236 400 272 600 250s200-10 300 20v370H0z" fill="#7cc9b2"></path>
+<g fill="#1f6b62"><path d="M110 250l16 34H94z"></path><path d="M144 238l18 40h-36z"></path><path d="M180 248l16 34h-32z"></path><path d="M216 236l18 40h-36z"></path><path d="M252 250l16 34h-32z"></path><path d="M128 272l18 38h-36z"></path><path d="M166 268l18 40h-36z"></path><path d="M204 272l18 38h-36z"></path><path d="M240 270l16 36h-32z"></path></g>
+<g fill="#ffd35c"><circle cx="150" cy="262" r="3"></circle><circle cx="196" cy="282" r="3"></circle><circle cx="232" cy="258" r="3"></circle></g>
+<ellipse cx="490" cy="304" rx="118" ry="30" fill="#e3f9f4"></ellipse><ellipse cx="490" cy="304" rx="78" ry="16" fill="none" stroke="#3f9d8b" stroke-width="2.5" opacity=".6"></ellipse><ellipse cx="520" cy="300" rx="20" ry="5" fill="#fffbe6"></ellipse>
+<path d="M742 290v-30a30 30 0 0 1 60 0v30z" fill="#b0652a"></path><path d="M772 230v-18" stroke="#b0652a" stroke-width="5" stroke-linecap="round"></path><circle cx="772" cy="266" r="10" fill="none" stroke="#fff3c9" stroke-width="3"></circle><path d="M772 258v16M764 266h16" stroke="#fff3c9" stroke-width="2"></path>
+<path d="M0 446C200 400 420 432 600 412s220-34 300-12v240H0z" fill="#2f8f80"></path>
+<path d="M610 452c20-34 120-34 140 0z" fill="#236f66"></path>
+<path d="M646 440v-70l-8-8v-22h14v10h12v-10h18v10h12v-10h14v22l-8 8v70z" fill="#6f5b93"></path><path d="M670 440v-24a10 10 0 0 1 20 0v24z" fill="#2b2147"></path><path d="M680 340v-22l16 7-16 7" fill="#ffb84d" stroke="#ffb84d" stroke-width="2" stroke-linejoin="round"></path>
+<path d="M230 640c10-80 250-100 290 0z" fill="#156a70"></path><path d="M290 610c20-8 40-8 60 0M400 620c20-8 40-8 60 0" fill="none" stroke="#7de8d8" stroke-width="2.5" stroke-linecap="round"></path>
+<g><rect x="318" y="476" width="50" height="22" fill="#ffb84d"></rect><rect x="372" y="476" width="50" height="22" fill="#ef7f5a"></rect><rect x="344" y="452" width="50" height="22" fill="#e3f9f4"></rect><rect x="318" y="500" width="50" height="22" fill="#e3f9f4"></rect><rect x="372" y="500" width="50" height="22" fill="#ffb84d"></rect><path d="M450 522V420h52M450 420l-24 30M490 420v26" fill="none" stroke="#10272c" stroke-width="5" stroke-linecap="round"></path></g>
+<circle cx="112" cy="470" r="64" fill="url(#pDoor)"></circle>
+<rect x="84" y="428" width="56" height="74" rx="10" fill="#d2c8ad"></rect><rect x="92" y="436" width="40" height="52" rx="6" fill="#12151a"></rect><rect x="98" y="444" width="16" height="4" fill="#58c98a"></rect><rect x="98" y="452" width="24" height="4" fill="#58c98a"></rect><rect x="98" y="460" width="12" height="4" fill="#ffb84d"></rect>
+<path d="M146 506c110 26 150 16 224 2s210-4 300-52 180-86 110-150-180 40-300 30-200-6-270-46 40-100 112-138" fill="none" stroke="#10272c" stroke-width="9" stroke-linecap="round" stroke-dasharray="1 16" opacity=".25"></path>
+<path d="M146 506c110 26 150 16 224 2s210-4 300-52 180-86 110-150-180 40-300 30-200-6-270-46 40-100 112-138" fill="none" stroke="#fffbe6" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 16"></path>
+</svg>
+
+<a class="pin" href="Main.dc.html" style="position: absolute; left: 3%; top: 82%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.500 3.500L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">1 &middot; Console Room</strong><span style="font-size: 14px; color: #2f4a4e">Complete</span></span></a>
+
+<a class="pin" href="#harbor" style="position: absolute; left: 32%; top: 85%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.500 3.500L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">2 &middot; The Harbor</strong><span style="font-size: 14px; color: #2f4a4e">Complete</span></span></a>
+
+<a class="pin" href="#keep" style="position: absolute; left: 66%; top: 72%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.500 3.500L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">3 &middot; Helm Keep</strong><span style="font-size: 14px; color: #2f4a4e">Complete</span></span></a>
+
+<a class="pin" href="Lesson.dc.html" style="position: absolute; left: 70%; top: 48%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #fff3c9; border: 3px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2; box-shadow: 0 0 0 4px #ffb84d">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="#10272c"></path></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">4 &middot; The Chartroom</strong><span style="font-size: 14px; color: #2f4a4e">In progress &middot; you are here</span></span></a>
+
+<a class="pin" href="#lake" style="position: absolute; left: 42%; top: 54%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2" stroke-dasharray="3 3"></circle></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">5 &middot; Mirror Lake</strong><span style="font-size: 14px; color: #2f4a4e">Not started</span></span></a>
+
+<a class="pin" href="#signalwood" style="position: absolute; left: 9%; top: 50%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2" stroke-dasharray="3 3"></circle></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">6 &middot; Signalwood</strong><span style="font-size: 14px; color: #2f4a4e">Not started</span></span></a>
+
+<a class="pin" href="WarRoom.dc.html" style="position: absolute; left: 42%; top: 11%; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 14px 4px 10px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c; color: #10272c; text-decoration: none; line-height: 1.2">
+<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2" stroke-dasharray="3 3"></circle></svg>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 16px">7 &middot; Stormwatch</strong><span style="font-size: 14px; color: #2f4a4e">Not started</span></span></a>
+</div>
+</sc-if>
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x: auto; border-radius: 20px; background: #ffffff; border: 2px solid #10272c">
+<table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 17px">
+<caption style="text-align: left; padding: 18px 20px 6px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 22px">Places on the trail, in order</caption>
+<thead><tr>
+<th scope="col" style="text-align: left; padding: 12px 20px; border-bottom: 2px solid #10272c">Place</th>
+<th scope="col" style="text-align: left; padding: 12px 20px; border-bottom: 2px solid #10272c">What it teaches</th>
+<th scope="col" style="text-align: left; padding: 12px 20px; border-bottom: 2px solid #10272c">Status</th>
+</tr></thead>
+<tbody>
+<tr><th scope="row" style="text-align: left; padding: 6px 20px; border-bottom: 1px solid #6f8a8c"><a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">1 &middot; Console Room</a></th><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c">Overview, placement, the mindset shift</td><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c; white-space: nowrap">Complete &middot; 3 of 3 lessons</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 6px 20px; border-bottom: 1px solid #6f8a8c"><a href="#harbor" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">2 &middot; The Harbor</a></th><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c">Containers, images, registries</td><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c; white-space: nowrap">Complete &middot; 5 of 5 lessons</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 6px 20px; border-bottom: 1px solid #6f8a8c"><a href="#keep" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">3 &middot; Helm Keep</a></th><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c">Pods, deployments, services, reconciliation</td><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c; white-space: nowrap">Complete &middot; 6 of 6 lessons</td></tr>
+<tr style="background: #fff3c9"><th scope="row" style="text-align: left; padding: 6px 20px; border-bottom: 1px solid #6f8a8c"><a href="Lesson.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">4 &middot; The Chartroom</a></th><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c">kubectl and the triage flow</td><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c; white-space: nowrap"><strong>In progress &middot; 2 of 5 lessons &middot; you are here</strong></td></tr>
+<tr><th scope="row" style="text-align: left; padding: 6px 20px; border-bottom: 1px solid #6f8a8c"><a href="#lake" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">5 &middot; Mirror Lake</a></th><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c">GitLab CI, Argo CD, GitOps</td><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c; white-space: nowrap">Not started &middot; 5 lessons</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 6px 20px; border-bottom: 1px solid #6f8a8c"><a href="#signalwood" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">6 &middot; Signalwood</a></th><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c">Metrics, traces, logs</td><td style="padding: 6px 20px; border-bottom: 1px solid #6f8a8c; white-space: nowrap">Not started &middot; 7 lessons</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 6px 20px"><a href="WarRoom.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 700">7 &middot; Stormwatch</a></th><td style="padding: 6px 20px">Capstone: The Long Night</td><td style="padding: 6px 20px; white-space: nowrap">Not started &middot; 4 acts</td></tr>
+</tbody>
+</table>
+</div>
+</sc-if>
+</section>
+
+<aside aria-label="Where to go next" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section aria-labelledby="next-h" style="display: flex; flex-direction: column; gap: 12px; padding: 28px; border-radius: 24px; background: #0a5a61; color: #ffffff">
+<p id="next-h" style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #fff3c9">Recommended next</p>
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.015em">Logs, and the logs from before the crash</h2>
+<p style="margin: 0; font-size: 17px; color: #e3f9f4">The Chartroom &middot; lesson 3 of 5. A pod on Ravenpost keeps restarting. Find out what it said on the way down.</p>
+<a class="cta" href="Lesson.dc.html" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; margin-top: 6px; border-radius: 14px; background: #fff3c9; color: #10272c; font-weight: 700; font-size: 18px; text-decoration: none">Continue
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10272c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+<p style="margin: 0; font-size: 16px; color: #e3f9f4">Or choose any place on the map. Nothing is locked.</p>
+</section>
+
+<section aria-labelledby="prog-h" style="display: flex; flex-direction: column; gap: 12px; padding: 24px 28px; border-radius: 24px; background: #ffffff; border: 1px solid #6f8a8c">
+<h2 id="prog-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">So far</h2>
+<div aria-hidden="true" style="display: flex; align-items: center; gap: 6px">
+<span style="width: 26px; height: 26px; border-radius: 9px 12px 10px 13px; background: #0a5a61; border: 2px solid #0a5a61"></span><span style="width: 26px; height: 26px; border-radius: 12px 9px 13px 10px; background: #0a5a61; border: 2px solid #0a5a61"></span><span style="width: 26px; height: 26px; border-radius: 9px 12px 10px 13px; background: #0a5a61; border: 2px solid #0a5a61"></span><span style="width: 26px; height: 26px; border-radius: 12px 9px 13px 10px; background: linear-gradient(90deg, #10272c 50%, #ffffff 50%); border: 2px solid #10272c"></span><span style="width: 26px; height: 26px; border-radius: 9px 12px 10px 13px; border: 2px dashed #10272c"></span><span style="width: 26px; height: 26px; border-radius: 12px 9px 13px 10px; border: 2px dashed #10272c"></span><span style="width: 26px; height: 26px; border-radius: 9px 12px 10px 13px; border: 2px dashed #10272c"></span>
+</div>
+<p style="margin: 0; font-size: 17px">3 places complete, 1 in progress, 3 still ahead. 16 lessons done.</p>
+<p style="margin: 0; font-size: 16px; color: #2f4a4e">Saved in this browser only.</p>
+</section>
+
+<section aria-labelledby="key-h" style="display: flex; flex-direction: column; gap: 10px; padding: 24px 28px; border-radius: 24px; border: 1px solid #6f8a8c">
+<h2 id="key-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Map key</h2>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 17px">
+<li style="display: flex; align-items: center; gap: 10px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.500 3.500L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>Complete</li>
+<li style="display: flex; align-items: center; gap: 10px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="#10272c"></path></svg>In progress</li>
+<li style="display: flex; align-items: center; gap: 10px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2" stroke-dasharray="3 3"></circle></svg>Not started, and open</li>
+</ul>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"defaultView":{"editor":"enum","options":["map","list"],"default":"map"},"$preview":{"width":1440,"height":1620}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { view: null };
+}
+renderVals() {
+const view = this.state.view || this.props.defaultView || 'map';
+const isMap = view === 'map';
+return {
+isMap: isMap, isList: !isMap,
+mapBg: isMap ? '#10272c' : 'transparent', mapFg: isMap ? '#ffffff' : '#10272c',
+listBg: isMap ? 'transparent' : '#10272c', listFg: isMap ? '#10272c' : '#ffffff',
+showMap: () => this.setState({ view: 'map' }),
+showList: () => this.setState({ view: 'list' })
+};
+}
+}
+</script>
+</body>
+</html>

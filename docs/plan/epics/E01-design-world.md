@@ -14,18 +14,22 @@
 ## E1-01 · Art direction brief and design tokens
 <!-- meta: milestone=M0; size=M; labels=area:design,type:design,needs-human; depends= -->
 
-**Context:** This anchors every visual choice an agent makes. Read ROADMAP §3 first.
+**Context:** This anchors every visual choice an agent makes. **The direction is already approved:** see [`docs/design/README.md`](../../design/README.md) and the concept screens in `docs/design/concepts/approved/`. This issue turns them into a written spec and tokens; it does not reopen the direction.
 
 **Scope:** Write `docs/design/art-direction.md` containing:
-- **Two moods**: *Console* (dark, phosphor green/amber CRT glow, beige hardware, scanlines used sparingly) and *Reach* (luminous, natural, painterly; dawn light; distinct accent per region)
-- Region palettes and motifs: Harbor, Helm Keep, Chartroom, Mirror Lake, Signalwood, Stormwatch
-- Typography: one humanist sans for body text, one monospace for the terminal, one display face for headings. All self-hosted and open-licensed (OFL), with license files committed.
-- Illustration style rules: layered flat SVG, limited palette per scene, no franchise imagery (list explicitly what to avoid)
+- **Three moods** taken from the approved concepts:
+  - *Console Room*: near-black blue-grey, beige CRT plastic, amber/green phosphor, aqua only where the glass glows
+  - *The Reach*: pale mist green, deep lagoon teal ink, sun-gold, with a distinct accent per region
+  - *Stormwatch*: indigo night, lightning yellow for focus, coral for alerts
+- Region accents and motifs for Harbor, Helm Keep, Chartroom, Mirror Lake, Signalwood and Stormwatch, plus the recurring **ripple rings** and **waystones**
+- Typography: Bricolage Grotesque (display), Atkinson Hyperlegible Next (body), Atkinson Hyperlegible Mono (terminal, queries, labels). All self-hosted with their OFL license files committed, and subset to the characters we use.
+- Illustration rules: flat, layered cut-paper SVG; a limited palette per scene; no people, faces, logos or franchise imagery (list explicitly what to avoid)
 - Motion principles: duration scale, easing, what may animate, reduced-motion behavior
-- Design tokens exported as `src/app/styles/tokens.css` (CSS variables) + `tokens.ts`
+- Design tokens exported as `src/app/styles/tokens.css` (CSS variables) and `tokens.ts`
+- Resolve the five open review points listed in `docs/design/README.md`
 
 **Acceptance criteria**
-- [ ] `AC1` `manual` Doc includes a moodboard of **original** sketches or descriptions (no copyrighted reference images committed)
+- [ ] `AC1` `manual` Doc references the approved concept screens for each mood and region, with no copyrighted reference images committed
 - [ ] `AC2` Token contrast test (`tokens.test.ts`) checks every declared foreground/background pair against AA and passes
 - [ ] `AC3` `manual` Ben signs off in the PR (label `needs-human`)
 

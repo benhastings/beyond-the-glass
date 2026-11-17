@@ -69,6 +69,9 @@ flowchart LR
 | **Signalwood** | A forest that speaks in signals: metrics, logs and traces | RED/USE, Grafana dashboards, PromQL basics, OTel spans and context propagation, the Collector, log/trace correlation, alerts and SLOs |
 | **Stormwatch** | A storm night at the watchtower | **Capstone, "The Long Night":** the fictional *Ravenpost* service fails in several layered ways |
 
+### Visual direction (approved)
+There are three moods: the **Console Room** (dark CRT glow), **the Reach** (luminous cut-paper landscapes) and **Stormwatch** (indigo storm night). Type is Bricolage Grotesque for display and Atkinson Hyperlegible Next/Mono for body and terminal. See [`docs/design/README.md`](../design/README.md).
+
 ### Ranks (placement output, shown as a trail rather than a grade)
 Wayfarer → Deckhand → Navigator → Pathfinder. A rank applies **per domain**, not globally.
 

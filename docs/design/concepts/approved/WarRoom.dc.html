@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stormwatch war room: Act 3, The slow creep</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0e1220}
+a{color:#7de8d8}a:hover{color:#b4f5ea}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #ffd35c;outline-offset:3px;border-radius:8px}
+button{cursor:pointer;font:inherit}
+code,pre{font-family:'Atkinson Hyperlegible Mono',ui-monospace,monospace}
+svg text{font-family:'Atkinson Hyperlegible Mono',ui-monospace,monospace}
+</style>
+</helmet>
+<div style="background: #0e1220; color: #e8ebf5; font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 17px; line-height: 1.5; min-height: 100vh">
+
+<header style="border-bottom: 1px solid #6a7396; background: #131829">
+<div style="max-width: 1380px; margin: 0 auto; padding: 12px 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px">
+<a href="Reach.dc.html" style="display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: #e8ebf5; text-decoration: none; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 20px">
+<svg aria-hidden="true" width="30" height="30" viewBox="0 0 34 34" fill="none"><rect x="3" y="5" width="28" height="22" rx="5" stroke="#e8ebf5" stroke-width="2"></rect><path d="M9 16c2.5-3 5.5-3 8 0s5.5 3 8 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round"></path><path d="M13 31h8" stroke="#e8ebf5" stroke-width="2" stroke-linecap="round"></path></svg>
+Beyond the Glass</a>
+<span style="color: #b4bbd3">Stormwatch &middot; The Long Night</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<div role="status" style="display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #3a2408; border: 2px solid #ffb84d; color: #ffe2ad">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffb84d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18h.01"></path></svg>
+<span><strong>Warning: production.</strong> Context <code style="font-size: 16px">prod ▸ ravenpost</code></span>
+</div>
+<a href="Reach.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Leave the war room</a>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1380px; margin: 0 auto; padding: 28px 28px 64px; display: flex; flex-direction: column; gap: 24px">
+
+<section aria-labelledby="act-h" style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 24px">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<ol aria-label="Acts of The Long Night" style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 15px">
+<li style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; border: 1px solid #6a7396; color: #b4bbd3"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8be0b4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg>Act 1 &middot; done</li>
+<li style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; border: 1px solid #6a7396; color: #b4bbd3"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8be0b4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg>Act 2 &middot; done</li>
+<li aria-current="step" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: #ffd35c; color: #1a1400; font-weight: 700">Act 3 &middot; now</li>
+<li style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; border: 1px dashed #8a93b5; color: #b4bbd3">Act 4 &middot; ahead</li>
+</ol>
+<p style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #ffd35c">Act 3 of 4</p>
+<h1 id="act-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 1; letter-spacing: -0.03em">The slow creep</h1>
+<p style="margin: 0; max-width: 40em; font-size: 19px; color: #d5d9e8">The crash loop is behind you and errors are down to 0.4% (from 31%). Nothing is falling over. But since the last deploy every send is taking a little longer than the one before, and <code>scribe</code> is starting to sweat.</p>
+</div>
+
+<div role="alert" style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 22px 24px; border-radius: 18px; background: #3b1a12; border: 2px solid #ffa07a">
+<div style="display: flex; align-items: center; gap: 12px">
+<svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffa07a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 3H4z"></path><path d="M10 21a2 2 0 0 0 4 0M12 2v2"></path></svg>
+<strong style="font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: #ffd0bd">Alert firing &middot; for 6 minutes</strong>
+</div>
+<h2 style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 22px; font-weight: 600; overflow-wrap: anywhere">RavenpostSendLatencyHigh</h2>
+<p style="margin: 0; color: #ffe6dc">p99 latency for <code>gate &middot; GET /send</code> is 2.41 s. The threshold is 2 s.</p>
+<dl style="margin: 6px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+<div><dt style="font-size: 14px; color: #ffd0bd">Error rate</dt><dd style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 20px">0.4% <span style="font-size: 14px">(down from 31%)</span></dd></div>
+<div><dt style="font-size: 14px; color: #ffd0bd">scribe memory</dt><dd style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 20px">97% <span style="font-size: 14px">of limit</span></dd></div>
+<div><dt style="font-size: 14px; color: #ffd0bd">scribe queue</dt><dd style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 20px">18.2k</dd></div>
+</dl>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 20px; align-items: start">
+
+<section aria-labelledby="dash-h" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 18px; background: #171c2e; border: 1px solid #6a7396">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px">
+<div><h2 id="dash-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 700">Dashboard &middot; Ravenpost send path</h2><p style="margin: 0; font-size: 15px; color: #b4bbd3">Grafana &middot; metrics from Prometheus &middot; last 30 minutes</p></div>
+<div role="group" aria-label="Show latency as" style="display: inline-flex; padding: 3px; border-radius: 12px; border: 2px solid #8a93b5">
+<button type="button" aria-pressed="{{isChart}}" onClick="{{showChart}}" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; font-weight: 700; background: {{chartBg}}; color: {{chartFg}}">Chart</button>
+<button type="button" aria-pressed="{{isTable}}" onClick="{{showTable}}" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; font-weight: 700; background: {{tableBg}}; color: {{tableFg}}">Table</button>
+</div>
+</div>
+<h3 style="margin: 0; font-size: 16px; font-weight: 600">p99 latency &middot; gate GET /send (seconds)</h3>
+<sc-if value="{{isChart}}" hint-placeholder-val="{{true}}">
+<svg role="img" aria-label="Line chart of p99 latency for gate GET /send over 30 minutes. Latency holds near 0.3 seconds until a deploy of ledger at 02:14, then climbs steadily to 2.41 seconds at 02:30, crossing the 2 second alert threshold at about 02:26. Four exemplar markers sit on the rising part of the line; the last one links to trace 4bf92f35. Use the Table button for the values." viewBox="0 0 540 250" style="display: block; width: 100%; height: auto">
+<g stroke="#39405c" stroke-width="1"><path d="M50 200H510M50 140H510M50 80H510M50 20H510"></path></g>
+<g fill="#b4bbd3" font-size="12"><text x="40" y="204" text-anchor="end">0</text><text x="40" y="144" text-anchor="end">1 s</text><text x="40" y="84" text-anchor="end">2 s</text><text x="40" y="24" text-anchor="end">3 s</text><text x="50" y="222" text-anchor="middle">02:00</text><text x="200" y="222" text-anchor="middle">02:10</text><text x="350" y="222" text-anchor="middle">02:20</text><text x="500" y="222" text-anchor="middle">02:30</text></g>
+<path d="M50 80H510" stroke="#ffa07a" stroke-width="1.5" stroke-dasharray="6 5"></path><text x="54" y="72" fill="#ffa07a" font-size="12">alert threshold 2 s</text>
+<path d="M260 20V200" stroke="#c7a6ff" stroke-width="2" stroke-dasharray="3 4"></path><path d="M254 200h12l-6-9z" fill="#c7a6ff"></path><text x="266" y="34" fill="#c7a6ff" font-size="12">deploy &#183; ledger 2.7.0 &#183; 02:14</text>
+<path d="M50 181L110 182L170 180L230 181L260 180L290 163L350 129L410 96L470 68L500 55" fill="none" stroke="#7de8d8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+<g fill="#ffd35c" stroke="#0e1220" stroke-width="1.5"><path d="M350 121l7 8-7 8-7-8z"></path><path d="M410 88l7 8-7 8-7-8z"></path><path d="M470 60l7 8-7 8-7-8z"></path><path d="M500 47l7 8-7 8-7-8z"></path></g>
+<circle cx="500" cy="55" r="13" fill="none" stroke="#ffd35c" stroke-width="2"></circle>
+<text x="484" y="38" fill="#ffd35c" font-size="12" text-anchor="end">exemplar &#183; 2.41 s &#183; trace 4bf92f35&#8230;</text>
+<g font-size="12" fill="#b4bbd3"><path d="M56 240h18" stroke="#7de8d8" stroke-width="2.5"></path><text x="80" y="244">p99</text><path d="M128 233l6 7-6 7-6-7z" fill="#ffd35c"></path><text x="140" y="244">exemplar (opens a trace)</text><path d="M316 240h18" stroke="#c7a6ff" stroke-width="2" stroke-dasharray="3 4"></path><text x="340" y="244">deploy</text></g>
+</svg>
+</sc-if>
+<sc-if value="{{isTable}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px">
+<thead><tr><th scope="col" style="text-align: left; padding: 6px 10px; border-bottom: 2px solid #6a7396">Time</th><th scope="col" style="text-align: left; padding: 6px 10px; border-bottom: 2px solid #6a7396">p99</th><th scope="col" style="text-align: left; padding: 6px 10px; border-bottom: 2px solid #6a7396">Note</th></tr></thead>
+<tbody>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:00</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">0.31 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c"></td></tr>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:10</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">0.32 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c"></td></tr>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:14</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">0.33 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">Deploy: ledger 2.7.0</td></tr>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:16</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">0.62 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c"></td></tr>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:20</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">1.18 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">Exemplar</td></tr>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:24</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">1.74 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">Exemplar</td></tr>
+<tr><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">02:28</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">2.20 s</td><td style="padding: 6px 10px; border-bottom: 1px solid #39405c">Exemplar &middot; above the 2 s threshold</td></tr>
+<tr><td style="padding: 6px 10px">02:30</td><td style="padding: 6px 10px">2.41 s</td><td style="padding: 6px 10px">Exemplar &middot; trace 4bf92f35&hellip;</td></tr>
+</tbody>
+</table>
+</div>
+</sc-if>
+<p style="margin: 0; font-size: 15px; color: #b4bbd3">Each diamond is an exemplar: one real request behind the number. Opening one takes you to its trace.</p>
+</section>
+
+<section aria-labelledby="trace-h" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 18px; background: #171c2e; border: 1px solid #6a7396">
+<div><h2 id="trace-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 700">Trace 4bf92f35&hellip; &middot; 2.41 s</h2><p style="margin: 0; font-size: 15px; color: #b4bbd3">Tempo &middot; opened from the 02:30 exemplar</p></div>
+<pre tabindex="0" aria-label="TraceQL query" style="margin: 0; padding: 10px 12px; border-radius: 10px; background: #0e1220; border: 1px solid #6a7396; font-size: 14px; overflow-x: auto">{{traceql}}</pre>
+<ol aria-label="Spans, in call order" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 15px">
+<li style="display: flex; flex-direction: column; gap: 3px"><div style="display: flex; justify-content: space-between; gap: 12px"><span><strong>gate</strong> &middot; GET /send</span><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace">2.41 s</span></div><div aria-hidden="true" style="height: 12px; border-radius: 4px; background: #232a42"><div style="margin-left: 0%; width: 100%; height: 12px; border-radius: 4px; background: #7de8d8"></div></div></li>
+<li style="display: flex; flex-direction: column; gap: 3px; padding-left: 18px"><div style="display: flex; justify-content: space-between; gap: 12px"><span><strong>ravenpost-api</strong> &middot; POST /messages</span><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace">2.38 s</span></div><div aria-hidden="true" style="height: 12px; border-radius: 4px; background: #232a42"><div style="margin-left: 0.6%; width: 98.7%; height: 12px; border-radius: 4px; background: #c7a6ff"></div></div></li>
+<li style="display: flex; flex-direction: column; gap: 3px; padding-left: 36px"><div style="display: flex; justify-content: space-between; gap: 12px"><span><strong>ledger</strong> &middot; getRecipients</span><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace">2.21 s</span></div><div aria-hidden="true" style="height: 12px; border-radius: 4px; background: #232a42"><div style="margin-left: 2.1%; width: 91.7%; height: 12px; border-radius: 4px; background: #ffd35c"></div></div></li>
+<li style="display: flex; flex-direction: column; gap: 6px; margin-left: 54px; padding: 10px 12px; border-radius: 12px; border: 2px dashed #ffa07a">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px"><span><strong>42 &times; postgres</strong> &middot; SELECT recipients</span><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace">~50 ms each</span></div>
+<div aria-hidden="true" style="height: 14px; border-radius: 4px; background: #232a42"><div style="margin-left: 1.5%; width: 93%; height: 14px; background: repeating-linear-gradient(90deg, #ffa07a 0 1.7%, #232a42 1.7% 2.381%)"></div></div>
+<p style="margin: 0; display: flex; gap: 8px; color: #ffe6dc"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffa07a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.500h.01"></path></svg><span>42 sequential spans under one <code>ledger</code> call: one query per recipient, each waiting for the last. This shape is called an N+1 query.</span></p>
+<button type="button" aria-expanded="{{spansOpen}}" onClick="{{toggleSpans}}" style="align-self: flex-start; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 2px solid #8a93b5; background: transparent; color: #e8ebf5; font-weight: 600">{{spansLabel}}</button>
+<sc-if value="{{spansOpen}}" hint-placeholder-val="{{false}}">
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 14px">
+<sc-for list="{{spans}}" as="s" hint-placeholder-count="5">
+<li style="display: flex; justify-content: space-between; gap: 12px; padding: 4px 8px; border-radius: 6px; background: #0e1220"><span>{{s.name}}</span><span>{{s.at}}</span></li>
+</sc-for>
+<li style="padding: 4px 8px; color: #b4bbd3">&hellip; 37 more, each starting as the one before ends</li>
+</ol>
+</sc-if>
+</li>
+<li style="display: flex; flex-direction: column; gap: 3px; padding-left: 18px"><div style="display: flex; justify-content: space-between; gap: 12px"><span><strong>scribe</strong> &middot; enqueue</span><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace">12 ms</span></div><div aria-hidden="true" style="height: 12px; border-radius: 4px; background: #232a42"><div style="margin-left: 95.4%; width: 0.5%; min-width: 5px; height: 12px; border-radius: 2px; background: #8be0b4"></div></div></li>
+</ol>
+</section>
+
+<section aria-labelledby="logs-h" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 18px; background: #171c2e; border: 1px solid #6a7396">
+<div><h2 id="logs-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 700">Logs for this trace</h2><p style="margin: 0; font-size: 15px; color: #b4bbd3">Loki &middot; linked from the trace by <code>trace_id</code></p></div>
+<pre tabindex="0" aria-label="LogQL query" style="margin: 0; padding: 10px 12px; border-radius: 10px; background: #0e1220; border: 1px solid #6a7396; font-size: 14px; overflow-x: auto">{{logql}}</pre>
+<div role="log" aria-label="Log lines" tabindex="0" style="overflow-x: auto; padding: 12px; border-radius: 10px; background: #0e1220; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 13.500px; line-height: 1.7">
+<sc-for list="{{logs}}" as="l" hint-placeholder-count="6">
+<pre style="margin: 0; font: inherit; background: {{l.bg}}">{{l.text}}</pre>
+</sc-for>
+</div>
+<a href="#trace-h" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600">Back to trace 4bf92f35&hellip;</a>
+</section>
+
+<section aria-labelledby="sh-h" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 18px; background: #171c2e; border: 1px solid #6a7396">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px"><h2 id="sh-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 700">Terminal</h2>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 2px 12px; border-radius: 999px; border: 2px solid #ffb84d; color: #ffe2ad; font-size: 15px; font-weight: 700"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffb84d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18h.01"></path></svg>prod</span></div>
+<div role="log" aria-label="Terminal output" tabindex="0" style="overflow-x: auto; padding: 12px; border-radius: 10px; background: #0e1220; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 14px; line-height: 1.7">
+<pre style="margin: 0; font: inherit"><span style="color: #ffb84d">prod ▸ ravenpost</span> <span style="color: #b4bbd3">$</span> <strong>kubectl get pods -l app=scribe</strong></pre>
+<sc-for list="{{term}}" as="l" hint-placeholder-count="7">
+<pre style="margin: 0; font: inherit; background: {{l.bg}}">{{l.text}}</pre>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 16px; color: #d5d9e8"><code>scribe</code> is at 97% of its memory limit with 2 restarts in 20 min and 18.2k messages queued. Slow sends upstream are piling work up here.</p>
+</section>
+
+<section aria-labelledby="argo-h" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 18px; background: #171c2e; border: 1px solid #6a7396">
+<div><h2 id="argo-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 700">Delivery &middot; sync and health</h2><p style="margin: 0; font-size: 15px; color: #b4bbd3">Argo CD &middot; project ravenpost &middot; prod</p></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 440px; border-collapse: collapse; font-size: 15px">
+<thead><tr><th scope="col" style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #6a7396">Application</th><th scope="col" style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #6a7396">Sync</th><th scope="col" style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #6a7396">Health</th><th scope="col" style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #6a7396">Last sync</th></tr></thead>
+<tbody>
+<tr><th scope="row" style="text-align: left; padding: 8px 10px; border-bottom: 1px solid #39405c; font-weight: 600">gate</th><td style="padding: 8px 10px; border-bottom: 1px solid #39405c">Synced</td><td style="padding: 8px 10px; border-bottom: 1px solid #39405c"><span style="display: inline-flex; align-items: center; gap: 6px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8be0b4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg>Healthy</span></td><td style="padding: 8px 10px; border-bottom: 1px solid #39405c">2 days ago</td></tr>
+<tr><th scope="row" style="text-align: left; padding: 8px 10px; border-bottom: 1px solid #39405c; font-weight: 600">ravenpost-api</th><td style="padding: 8px 10px; border-bottom: 1px solid #39405c">Synced</td><td style="padding: 8px 10px; border-bottom: 1px solid #39405c"><span style="display: inline-flex; align-items: center; gap: 6px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8be0b4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg>Healthy</span></td><td style="padding: 8px 10px; border-bottom: 1px solid #39405c">01:52</td></tr>
+<tr style="background: #2a2440"><th scope="row" style="text-align: left; padding: 8px 10px; border-bottom: 1px solid #39405c; font-weight: 600">ledger</th><td style="padding: 8px 10px; border-bottom: 1px solid #39405c">Synced</td><td style="padding: 8px 10px; border-bottom: 1px solid #39405c"><span style="display: inline-flex; align-items: center; gap: 6px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8be0b4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg>Healthy</span></td><td style="padding: 8px 10px; border-bottom: 1px solid #39405c"><strong>02:14 &middot; to 2.7.0</strong></td></tr>
+<tr><th scope="row" style="text-align: left; padding: 8px 10px; font-weight: 600">scribe</th><td style="padding: 8px 10px">Synced</td><td style="padding: 8px 10px"><span style="display: inline-flex; align-items: center; gap: 6px; color: #ffd0bd; font-weight: 700"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffa07a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18h.01"></path></svg>Degraded</span></td><td style="padding: 8px 10px">2 days ago</td></tr>
+</tbody>
+</table>
+</div>
+<p style="margin: 0; font-size: 16px; color: #d5d9e8">Everything matches Git, so nothing has drifted. &ldquo;Synced and Healthy&rdquo; says <code>ledger</code> is running what was asked for. It doesn't say what was asked for is fast.</p>
+</section>
+
+<section aria-labelledby="objs-h" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 18px; background: #1d2338; border: 2px solid #ffd35c">
+<h2 id="objs-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 700">Act 3 objectives</h2>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; font-size: 16px">
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="10" fill="#8be0b4"></circle><path d="M7 12.500l3.500 3.500L17 9" fill="none" stroke="#0e1220" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>Confirm the crash loop from Act 1 is over <span style="color: #b4bbd3">&middot; done</span></span></li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="10" fill="#8be0b4"></circle><path d="M7 12.500l3.500 3.500L17 9" fill="none" stroke="#0e1220" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>Follow an exemplar from the latency panel to a trace <span style="color: #b4bbd3">&middot; done</span></span></li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9" fill="none" stroke="#e8ebf5" stroke-width="2"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="#e8ebf5"></path></svg><span><strong>Name the service and the pattern that is eating the time</strong> <span style="color: #b4bbd3">&middot; in progress</span></span></li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9" fill="none" stroke="#e8ebf5" stroke-width="2" stroke-dasharray="3 3"></circle></svg><span>Explain why <code>scribe</code> is running out of memory <span style="color: #b4bbd3">&middot; to do</span></span></li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9" fill="none" stroke="#e8ebf5" stroke-width="2" stroke-dasharray="3 3"></circle></svg><span>Make the call: roll <code>ledger</code> back through Git, or hold <span style="color: #b4bbd3">&middot; to do</span></span></li>
+</ul>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="min-height: 48px; padding: 0 20px; border-radius: 12px; border: 2px solid #ffd35c; background: #ffd35c; color: #1a1400; font-weight: 700">Write up what I've found</button>
+<button type="button" style="min-height: 48px; padding: 0 20px; border-radius: 12px; border: 2px solid #8a93b5; background: transparent; color: #e8ebf5; font-weight: 600">Ask for a hint</button>
+</div>
+<p style="margin: 0; font-size: 15px; color: #b4bbd3">Take the time you need. The night waits for you, and you can step out and come back to this exact moment.</p>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { view: 'chart', spansOpen: false };
+}
+renderVals() {
+const isChart = this.state.view === 'chart';
+const on = '#e8ebf5', onFg = '#0e1220', offFg = '#e8ebf5';
+const T = '4bf92f35…';
+const logs = [
+['02:30:11.204 {"level":"info","app":"ledger","msg":"getRecipients start","recipients":42,"trace_id":"' + T + '"}', ''],
+['02:30:11.257 {"level":"debug","app":"ledger","msg":"query","sql":"SELECT recipients","took_ms":51,"trace_id":"' + T + '"}', ''],
+['02:30:11.309 {"level":"debug","app":"ledger","msg":"query","sql":"SELECT recipients","took_ms":49,"trace_id":"' + T + '"}', ''],
+['02:30:11.362 {"level":"debug","app":"ledger","msg":"query","sql":"SELECT recipients","took_ms":52,"trace_id":"' + T + '"}', ''],
+['             … 38 more "query" lines …', ''],
+['02:30:13.414 {"level":"warn","app":"ledger","msg":"getRecipients slow","queries":42,"took_ms":2210,"trace_id":"' + T + '"}', '#4a3410']
+].map((l) => ({ text: l[0], bg: l[1] || 'transparent' }));
+const term = [
+['NAME                     READY   STATUS      RESTARTS     AGE', ''],
+['scribe-84f6c7d9b-x8pqd   0/1     OOMKilled   2 (3m ago)   2d4h', '#4d221c'],
+[' ', ''],
+['prod ▸ ravenpost $ kubectl describe pod scribe-84f6c7d9b-x8pqd | grep -A3 "Last State"', ''],
+['    Last State:     Terminated', ''],
+['      Reason:       OOMKilled', '#4d221c'],
+['      Exit Code:    137', '']
+].map((l) => ({ text: l[0], bg: l[1] || 'transparent' }));
+const spans = [1, 2, 3, 4, 5].map((n) => ({ name: 'postgres · SELECT recipients #' + n, at: '+' + (80 + (n - 1) * 50) + ' ms · ' + [51, 49, 52, 50, 48][n - 1] + ' ms' }));
+return {
+traceql: '{ resource.service.name = "ravenpost-api" && duration > 1s }',
+logql: '{app="ledger"} | json | trace_id="' + T + '"',
+logs: logs, term: term, spans: spans,
+isChart: isChart, isTable: !isChart,
+chartBg: isChart ? on : 'transparent', chartFg: isChart ? onFg : offFg,
+tableBg: isChart ? 'transparent' : on, tableFg: isChart ? offFg : onFg,
+showChart: () => this.setState({ view: 'chart' }),
+showTable: () => this.setState({ view: 'table' }),
+spansOpen: this.state.spansOpen,
+spansLabel: this.state.spansOpen ? 'Hide the individual spans' : 'Show the first 5 of 42 spans',
+toggleSpans: () => this.setState({ spansOpen: !this.state.spansOpen })
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chartroom lesson with simulated terminal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eef5f1}
+a{color:#0a5a61}a:hover{color:#063b40}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #10272c;outline-offset:3px;border-radius:10px}
+.term input:focus-visible,.term button:focus-visible{outline-color:#ffd35c}
+button{cursor:pointer;font:inherit}
+code{font-family:'Atkinson Hyperlegible Mono',ui-monospace,monospace}
+</style>
+</helmet>
+<div style="background: #eef5f1; color: #10272c; font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 18px; line-height: 1.55; min-height: 100vh">
+
+<header style="background: #ffffff; border-bottom: 1px solid #6f8a8c">
+<div style="max-width: 1360px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #10272c; text-decoration: none; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 22px">
+<svg aria-hidden="true" width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="3" y="5" width="28" height="22" rx="5" stroke="#10272c" stroke-width="2"></rect><path d="M9 16c2.5-3 5.5-3 8 0s5.5 3 8 0" stroke="#0a5a61" stroke-width="2" stroke-linecap="round"></path><path d="M11 21c2-2 4-2 6 0s4 2 6 0" stroke="#0a5a61" stroke-width="2" stroke-linecap="round" opacity=".6"></path><path d="M13 31h8" stroke="#10272c" stroke-width="2" stroke-linecap="round"></path></svg>
+Beyond the Glass
+</a>
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 17px">
+<a href="Reach.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; font-weight: 600">The Reach</a><span aria-hidden="true">/</span>
+<a href="Reach.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; font-weight: 600">The Chartroom</a><span aria-hidden="true">/</span>
+<span aria-current="page" style="padding: 0 6px">Lesson 3 of 5</span>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 32px 32px 72px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+
+<nav aria-label="Steps in this lesson" style="flex: 1 1 230px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 20px; background: #ffffff; border: 1px solid #6f8a8c">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a4b17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg>
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 20px; font-weight: 700">Steps</h2>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 17px">
+<li><a href="#step1" style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 10px; border-radius: 10px; color: #10272c; text-decoration: none"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>1. The first look <span style="color: #2f4a4e; font-size: 15px">(done)</span></span></a></li>
+<li><a href="#step2" style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 10px; border-radius: 10px; color: #10272c; text-decoration: none"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>2. Find the pod that's struggling <span style="color: #2f4a4e; font-size: 15px">(done)</span></span></a></li>
+<li><a href="#step3" style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 10px; border-radius: 10px; color: #10272c; text-decoration: none"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>3. Read what it said before it fell <span style="color: #2f4a4e; font-size: 15px">(done)</span></span></a></li>
+<li><a href="#step4" aria-current="step" style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 10px; border-radius: 10px; color: #10272c; text-decoration: none; background: #fff3c9; border: 2px solid #10272c; font-weight: 700"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2"></circle><circle cx="12" cy="12" r="4" fill="#10272c"></circle></svg><span>4. Name the root cause <span style="font-size: 15px; font-weight: 400">(you are here)</span></span></a></li>
+<li><a href="#step5" style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 10px; border-radius: 10px; color: #10272c; text-decoration: none"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2" stroke-dasharray="3 3"></circle></svg><span>5. What you'd do next <span style="color: #2f4a4e; font-size: 15px">(not started)</span></span></a></li>
+</ol>
+</nav>
+
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+
+<article style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<p style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #8a4b17">The Chartroom &middot; kubectl and the triage flow</p>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: clamp(34px, 4vw, 50px); line-height: 1.05; letter-spacing: -0.025em">Logs, and the logs from before the crash</h1>
+</div>
+
+<div>
+<div role="tablist" aria-label="How deep to go" style="display: inline-flex; flex-wrap: wrap; padding: 4px; gap: 2px; border-radius: 14px; background: #ffffff; border: 2px solid #10272c">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<button type="button" role="tab" aria-selected="{{t.selected}}" onClick="{{t.pick}}" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; font-weight: 700; font-size: 17px; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button>
+</sc-for>
+</div>
+<div role="tabpanel" style="margin-top: 16px; max-width: 46em; font-size: 19px">
+<sc-if value="{{isEli5}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0">When a pod crashes, the Keep gives it a fresh start, a bit like a console session that was closed and opened again. The new session's screen is blank. Adding <code>--previous</code> asks for the screen from the session that closed, which is where the bad news was written.</p>
+</sc-if>
+<sc-if value="{{isOperator}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0">When a container exits, it is restarted in place inside the same pod. <code>kubectl logs</code> shows the container running now, which may be only seconds old and have said nothing useful. <code>kubectl logs --previous</code> shows the output of the one that last terminated. For a pod in <code>CrashLoopBackOff</code>, that is where the reason lives.</p>
+</sc-if>
+<sc-if value="{{isDeep}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0">The node keeps the log file of the current container and of the one before it, one generation back, for each container in the pod. Each restart bumps the restart count and lengthens the back-off, from 10 seconds up to a 5 minute cap. Those files live on the node, so when the pod is deleted or lands on another node, <code>--previous</code> has nothing to show. That gap is why clusters ship logs somewhere durable, such as Loki, which you'll meet in Signalwood.</p>
+</sc-if>
+</div>
+</div>
+
+<section aria-labelledby="then-h" style="display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 20px; background: #ffffff; border: 1px solid #6f8a8c">
+<h2 id="then-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Then &rarr; Now</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px">
+<div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 14px; background: #12151a; color: #efe9dc">
+<span style="font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #ffb84d">Then &middot; the Console Room</span>
+<code style="font-size: 18px; color: #6fe0a0">tail -f /var/log/messages</code>
+<span style="font-size: 16px; color: #d3d8de">One box, one log. You watched it scroll, and yesterday's lines were still on the disk.</span>
+</div>
+<div aria-hidden="true" style="display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8a4b17" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"></path></svg></div>
+<div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 14px; background: #d9f6f0; border: 2px solid #0a5a61">
+<span style="font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #0a5a61">Now &middot; the Reach</span>
+<code style="font-size: 18px; color: #10272c; font-weight: 600">kubectl logs --previous</code>
+<span style="font-size: 16px; color: #10272c">The box is replaced on every crash. You ask for the log of the one that fell, not the one that got back up.</span>
+</div>
+</div>
+</section>
+</article>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+<section class="term" aria-labelledby="term-h" style="flex: 999 1 560px; min-width: 0; border-radius: 20px; overflow: hidden; background: #0f1a1d; color: #e6efe9; border: 2px solid #10272c">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 12px 18px; background: #1a2a2e; border-bottom: 1px solid #5d7b7d">
+<h2 id="term-h" style="margin: 0; font-size: 16px; font-weight: 700">Simulated terminal</h2>
+<span style="display: inline-flex; align-items: center; gap: 8px; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.500 8-8 9-4.500-1-8-4-8-9V7z"></path></svg>context: stage &middot; namespace: ravenpost &middot; practice only</span>
+</div>
+<div role="log" aria-label="Terminal output" tabindex="0" style="overflow-x: auto; padding: 18px; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; line-height: 1.7">
+<pre style="margin: 0; font: inherit"><span style="color: #7de8d8">stage ▸ ravenpost</span> <span style="color: #b9c8c4">$</span> <strong>kubectl get pods</strong></pre>
+<sc-for list="{{out1}}" as="ln" hint-placeholder-count="5">
+<pre style="margin: 0; font: inherit; background: {{ln.bg}}">{{ln.text}}</pre>
+</sc-for>
+<pre style="margin: 0; font: inherit"> </pre>
+<pre style="margin: 0; font: inherit"><span style="color: #7de8d8">stage ▸ ravenpost</span> <span style="color: #b9c8c4">$</span> <strong>kubectl logs ravenpost-api-7c9f8d6b4-h7tnm --previous</strong></pre>
+<sc-for list="{{out2}}" as="ln" hint-placeholder-count="3">
+<pre style="margin: 0; font: inherit; background: {{ln.bg}}">{{ln.text}}</pre>
+</sc-for>
+</div>
+<form style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 18px 16px; border-top: 1px solid #5d7b7d">
+<label for="cmd" style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8; white-space: nowrap">stage ▸ ravenpost <span style="color: #b9c8c4">$</span><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%)"> Type a command</span></label>
+<input id="cmd" type="text" autocomplete="off" spellcheck="false" placeholder="type a command, or use a hint" style="flex: 1 1 240px; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 2px solid #8fb0b0; background: #0f1a1d; color: #e6efe9; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 16px">
+<button type="button" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 2px solid #7de8d8; background: #7de8d8; color: #06282b; font-weight: 700">Run</button>
+</form>
+</section>
+
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section aria-labelledby="obj-h" style="display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: 20px; background: #ffffff; border: 1px solid #6f8a8c">
+<h2 id="obj-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Objectives</h2>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 17px">
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>List the pods in <code>ravenpost</code> <span style="color: #2f4a4e">&middot; done</span></span></li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>Spot the pod that isn't Ready <span style="color: #2f4a4e">&middot; done</span></span></li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>Read the logs from its previous container <span style="color: #2f4a4e">&middot; done</span></span></li>
+<li style="display: flex; gap: 10px">
+<sc-if value="{{solved}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10" fill="#0a5a61"></circle><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
+<sc-if value="{{unsolved}}" hint-placeholder-val="{{true}}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#10272c" stroke-width="2" stroke-dasharray="3 3"></circle></svg></sc-if>
+<span><strong>State the root cause</strong> <span style="color: #2f4a4e">&middot; {{obj4}}</span></span></li>
+</ul>
+</section>
+
+<section id="step4" aria-labelledby="rc-h" style="display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 20px; background: #fff3c9; border: 2px solid #10272c">
+<h2 id="rc-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Your call</h2>
+<label for="rc" style="font-size: 17px; font-weight: 600">In your own words, why does <code>ravenpost-api</code> keep crashing?</label>
+<textarea id="rc" rows="3" value="{{answer}}" onChange="{{onAnswer}}" style="box-sizing: border-box; width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #10272c; background: #ffffff; color: #10272c; font: inherit; font-size: 17px; resize: vertical"></textarea>
+<button type="button" onClick="{{check}}" style="align-self: flex-start; min-height: 48px; padding: 0 22px; border-radius: 12px; border: 2px solid #10272c; background: #10272c; color: #ffffff; font-weight: 700; font-size: 17px">Check my reasoning</button>
+<div aria-live="polite" style="font-size: 17px">
+<sc-if value="{{solved}}" hint-placeholder-val="{{false}}"><p style="margin: 0"><strong>That's the root cause.</strong> The container starts, reaches for <code>LEDGER_POOL_SIZE</code>, finds nothing, and exits. The Keep restarts it and it falls the same way.</p></sc-if>
+<sc-if value="{{retry}}" hint-placeholder-val="{{false}}"><p style="margin: 0"><strong>Close, keep going.</strong> Look at the last line the pod logged before it went down. What was it looking for?</p></sc-if>
+</div>
+</section>
+
+<section aria-labelledby="hint-h" style="display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 20px; background: #ffffff; border: 1px solid #6f8a8c">
+<h2 id="hint-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Hints</h2>
+<p style="margin: 0; font-size: 16px; color: #2f4a4e">Three rungs: a nudge, a pointer, then the exact command. Using them costs nothing.</p>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 17px">
+<sc-if value="{{h1}}" hint-placeholder-val="{{false}}"><li style="padding: 12px 14px; border-radius: 12px; background: #eef5f1; border: 1px solid #6f8a8c"><strong>Nudge.</strong> The error line names something the service expected to be handed at start-up.</li></sc-if>
+<sc-if value="{{h2}}" hint-placeholder-val="{{false}}"><li style="padding: 12px 14px; border-radius: 12px; background: #eef5f1; border: 1px solid #6f8a8c"><strong>Pointer.</strong> Environment settings for a pod come from its deployment. Compare what the deployment provides with what the log asks for.</li></sc-if>
+<sc-if value="{{h3}}" hint-placeholder-val="{{false}}"><li style="padding: 12px 14px; border-radius: 12px; background: #eef5f1; border: 1px solid #6f8a8c"><strong>Exact command.</strong> <code style="display: block; margin-top: 6px; font-size: 16px; overflow-wrap: anywhere">kubectl describe deployment ravenpost-api</code></li></sc-if>
+</ol>
+<sc-if value="{{moreHints}}" hint-placeholder-val="{{true}}">
+<button type="button" onClick="{{nextHint}}" style="align-self: flex-start; min-height: 48px; padding: 0 20px; border-radius: 12px; border: 2px solid #10272c; background: #ffffff; color: #10272c; font-weight: 700; font-size: 17px">{{hintLabel}}</button>
+</sc-if>
+</section>
+</div>
+</div>
+
+<nav aria-label="Lesson" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px">
+<a href="#step3" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 18px; border-radius: 12px; border: 2px solid #10272c; color: #10272c; text-decoration: none; font-weight: 700">Back: step 3</a>
+<a href="#step5" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 12px; background: #0a5a61; color: #ffffff; text-decoration: none; font-weight: 700">Next: what you'd do next</a>
+</nav>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"depth":{"editor":"enum","options":["eli5","operator","deep"],"default":"operator"},"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { depth: null, hints: 0, answer: '', result: null };
+}
+renderVals() {
+const depth = this.state.depth || this.props.depth || 'operator';
+const HL = '#4a3410';
+const ER = '#4d221c';
+const out1 = [
+['NAME                            READY   STATUS             RESTARTS      AGE', ''],
+['gate-6d9f7c8b5-4xkzp            1/1     Running            0             2d4h', ''],
+['ledger-5b8c9d7f6-q2wrt          1/1     Running            0             2d4h', ''],
+['ravenpost-api-7c9f8d6b4-h7tnm   0/1     CrashLoopBackOff   5 (38s ago)   4m12s', HL],
+['scribe-84f6c7d9b-m5jlp          1/1     Running            1 (2h ago)    2d4h', '']
+].map((l) => ({ text: l[0], bg: l[1] || 'transparent' }));
+const out2 = [
+['{"level":"info","msg":"starting ravenpost-api","version":"1.14.2"}', ''],
+['{"level":"info","msg":"connecting to ledger","host":"ledger.ravenpost.svc"}', ''],
+['{"level":"error","msg":"missing required config key","key":"LEDGER_POOL_SIZE"}', ER]
+].map((l) => ({ text: l[0], bg: l[1] || 'transparent' }));
+const tabs = [['eli5', 'ELI5'], ['operator', 'Operator'], ['deep', 'Deep dive']].map((t) => ({
+label: t[1], selected: depth === t[0],
+bg: depth === t[0] ? '#10272c' : 'transparent', fg: depth === t[0] ? '#ffffff' : '#10272c',
+pick: () => this.setState({ depth: t[0] })
+}));
+const hints = this.state.hints;
+const solved = this.state.result === 'ok';
+return {
+out1: out1, out2: out2, tabs: tabs,
+isEli5: depth === 'eli5', isOperator: depth === 'operator', isDeep: depth === 'deep',
+h1: hints >= 1, h2: hints >= 2, h3: hints >= 3, moreHints: hints < 3,
+hintLabel: ['Show a nudge', 'Show a pointer', 'Show the exact command'][Math.min(hints, 2)],
+nextHint: () => this.setState({ hints: Math.min(3, hints + 1) }),
+answer: this.state.answer,
+onAnswer: (e) => this.setState({ answer: e.target.value }),
+check: () => this.setState({ result: /LEDGER_POOL_SIZE|pool.?size|config|env/i.test(this.state.answer) ? 'ok' : 'retry' }),
+solved: solved, unsolved: !solved, retry: this.state.result === 'retry',
+obj4: solved ? 'done' : 'to do'
+};
+}
+}
+</script>
+</body>
+</html>
