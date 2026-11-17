@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your trail: placement results</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12151a}
+a{color:#7de8d8}a:hover{color:#b4f5ea}
+a:focus-visible,button:focus-visible{outline:3px solid #ffd35c;outline-offset:3px;border-radius:8px}
+label:focus-within{outline:3px solid #ffd35c;outline-offset:3px}
+button{cursor:pointer;font:inherit}
+.cta:hover{filter:brightness(1.08)}
+</style>
+</helmet>
+<div style="background: #12151a; color: #efe9dc; font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 18px; line-height: 1.55; min-height: 100vh">
+
+<header style="max-width: 1240px; margin: 0 auto; padding: 20px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #efe9dc; text-decoration: none; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 22px">
+<svg aria-hidden="true" width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="3" y="5" width="28" height="22" rx="5" stroke="#efe9dc" stroke-width="2"></rect><path d="M9 16c2.5-3 5.5-3 8 0s5.5 3 8 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round"></path><path d="M11 21c2-2 4-2 6 0s4 2 6 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" opacity=".6"></path><path d="M13 31h8" stroke="#efe9dc" stroke-width="2" stroke-linecap="round"></path></svg>
+Beyond the Glass
+</a>
+<a href="Threshold.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Review my answers</a>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 16px 32px 72px; display: flex; flex-direction: column; gap: 56px">
+
+<section aria-labelledby="trail-h" style="display: flex; flex-wrap: wrap; align-items: center; gap: 48px">
+<div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
+<p style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #ffb84d">Your trail &middot; all 12 questions answered</p>
+<h1 id="trail-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 1.04; letter-spacing: -0.025em">Your trail begins at {{startName}}</h1>
+<p style="margin: 0; font-size: 20px; color: #d3d8de; max-width: 32em">You already think like an operator. The trail starts where the new vocabulary starts, and skips nothing you'd want to see.</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+<a class="cta" href="Crossing.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 28px; border-radius: 14px; background: #7de8d8; color: #06282b; font-weight: 700; font-size: 19px; text-decoration: none; box-shadow: 0 10px 40px rgba(125,232,216,.28)">Step through the glass
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06282b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+<button type="button" aria-expanded="{{chooserOpen}}" aria-controls="chooser" onClick="{{toggleChooser}}" style="display: inline-flex; align-items: center; min-height: 56px; padding: 0 22px; border-radius: 14px; background: transparent; color: #efe9dc; border: 2px solid #8a94a3; font-weight: 600; font-size: 18px">Change my starting point</button>
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Start from the very beginning</a>
+</div>
+<sc-if value="{{chooserOpen}}" hint-placeholder-val="{{false}}">
+<fieldset id="chooser" style="margin: 0; padding: 20px; border-radius: 16px; border: 1px solid #6b7686; background: #1a1f27; display: flex; flex-direction: column; gap: 10px; min-width: 0">
+<legend style="padding: 0 8px; font-weight: 700">Pick any place. Nothing is locked.</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px">
+<sc-for list="{{places}}" as="p" hint-placeholder-count="6">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 14px; border-radius: 12px; cursor: pointer; border: 2px solid {{p.border}}; background: {{p.bg}}">
+<input type="radio" name="start" checked="{{p.checked}}" onChange="{{p.pick}}" style="width: 22px; height: 22px; margin: 0; flex: none; accent-color: #7de8d8">
+<span>{{p.label}}</span>
+</label>
+</sc-for>
+</div>
+</fieldset>
+</sc-if>
+</div>
+
+<figure style="flex: 1 1 440px; min-width: 0; margin: 0">
+<svg role="img" aria-label="A glimpse of the Reach through the glass: a pale gold trail runs downhill past a harbor with stacked containers and a crane, around a still lake, toward wooded hills and a distant watchtower under a low sun." viewBox="0 0 560 400" style="display: block; width: 100%; height: auto">
+<defs>
+<linearGradient id="rSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9ecdf"></stop><stop offset=".65" stop-color="#fff3c9"></stop><stop offset="1" stop-color="#ffdf9c"></stop></linearGradient>
+<clipPath id="rClip"><rect x="24" y="24" width="512" height="352" rx="28"></rect></clipPath>
+<radialGradient id="rHalo" cx="50%" cy="50%" r="50%"><stop offset=".7" stop-color="#7de8d8" stop-opacity=".0"></stop><stop offset=".86" stop-color="#7de8d8" stop-opacity=".35"></stop><stop offset="1" stop-color="#7de8d8" stop-opacity="0"></stop></radialGradient>
+</defs>
+<rect width="560" height="400" fill="url(#rHalo)"></rect>
+<g clip-path="url(#rClip)">
+<rect x="24" y="24" width="512" height="352" fill="url(#rSky)"></rect>
+<circle cx="392" cy="150" r="34" fill="#fffbe6"></circle>
+<path d="M24 210c70-50 130-58 190-30s110 26 160-6 110-30 162 8v194H24z" fill="#8fd3bd"></path>
+<path d="M470 168v-46h-6v-10h8v-8h12v8h8v10h-6v46z" fill="#3b4368"></path>
+<path d="M24 250c80-34 160-30 230-6s150 20 282-26v158H24z" fill="#3f9d8b"></path>
+<g fill="#1f6b62"><path d="M330 226l12 22h-24z"></path><path d="M352 220l14 26h-28z"></path><path d="M378 226l12 22h-24z"></path><path d="M404 216l14 28h-28z"></path></g>
+<ellipse cx="300" cy="286" rx="92" ry="20" fill="#d9f6f0"></ellipse><ellipse cx="300" cy="286" rx="60" ry="11" fill="none" stroke="#3f9d8b" stroke-width="2" opacity=".6"></ellipse>
+<path d="M24 300c60-20 120-14 180 4s200 30 332-10v82H24z" fill="#156a70"></path>
+<g><rect x="60" y="262" width="44" height="20" fill="#ffb84d"></rect><rect x="106" y="262" width="44" height="20" fill="#ef7f5a"></rect><rect x="82" y="240" width="44" height="20" fill="#d9f6f0"></rect><rect x="60" y="284" width="44" height="20" fill="#d9f6f0"></rect><rect x="106" y="284" width="44" height="20" fill="#ffb84d"></rect><path d="M170 304v-92h46M170 212l-22 28M206 212v22" fill="none" stroke="#10272c" stroke-width="5" stroke-linecap="round"></path></g>
+<path d="M250 376c-30-36 10-44-40-62s-20-30 30-38 60 22 110 10 70-58 118-108" fill="none" stroke="#fff3c9" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 16"></path>
+</g>
+<rect x="24" y="24" width="512" height="352" rx="28" fill="none" stroke="#7de8d8" stroke-width="4"></rect>
+</svg>
+<figcaption style="margin-top: 10px; font-size: 15px; color: #b9c0c9">A first look through the glass.</figcaption>
+</figure>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px; padding: 32px; border-radius: 24px; background: #1a1f27; border: 1px solid #6b7686">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -0.015em">Where you are today</h2>
+<p style="margin: 0; font-size: 17px; color: #d3d8de">Four waystones mark each trail: Wayfarer, Deckhand, Navigator, Pathfinder. A filled stone is ground you've already covered.</p>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<sc-for list="{{domains}}" as="d" hint-placeholder-count="5">
+<li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 18px 0; border-top: 1px solid #39424e">
+<span style="flex: 1 1 170px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 21px; font-weight: 600">{{d.name}}</span>
+<span aria-hidden="true" style="display: flex; align-items: center; gap: 0; flex: none">
+<sc-for list="{{d.stones}}" as="s" hint-placeholder-count="4">
+<span style="display: inline-flex; align-items: center">
+<span style="width: 26px; height: 26px; border-radius: 9px 12px 10px 13px; transform: rotate(8deg); border: 2px solid {{s.border}}; background: {{s.bg}}"></span>
+<span style="width: {{s.link}}; height: 2px; background: #6b7686"></span>
+</span>
+</sc-for>
+</span>
+<span style="flex: 1 1 220px; font-size: 17px"><strong style="color: #7de8d8">{{d.level}}</strong> <span style="color: #b9c0c9">&middot; stone {{d.n}} of 4</span></span>
+</li>
+</sc-for>
+</ul>
+<details style="border-top: 1px solid #39424e; padding-top: 14px">
+<summary style="min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; color: #7de8d8">What the four levels mean</summary>
+<ol style="margin: 8px 0 0; padding-left: 22px; color: #d3d8de; font-size: 17px; display: flex; flex-direction: column; gap: 6px">
+<li><strong>Wayfarer:</strong> new ground. The terms are unfamiliar and that's fine.</li>
+<li><strong>Deckhand:</strong> you know the pieces and have seen them used.</li>
+<li><strong>Navigator:</strong> you can work a problem here on your own.</li>
+<li><strong>Pathfinder:</strong> you could show someone else the way.</li>
+</ol>
+</details>
+</div>
+
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 32px; border-radius: 24px; border: 2px solid #ffb84d">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 26px; font-weight: 700">Why we suggested this</h2>
+<sc-if value="{{isSuggested}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0; color: #d3d8de">Your Foundations answers were strong: networking, processes and logs are home ground. Containers and Kubernetes were mostly &ldquo;I'm not sure yet&rdquo;, and everything later in the trail builds on them.</p>
+</sc-if>
+<sc-if value="{{isCustom}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0; color: #d3d8de">You chose {{startName}}, and that's a fine place to begin. Our suggestion was the Harbor, because containers and Kubernetes were mostly &ldquo;I'm not sure yet&rdquo; and later places build on them. The Harbor stays open if you want to double back.</p>
+</sc-if>
+<p style="margin: 0; color: #d3d8de">This is a suggestion, not a ruling. Every place in the Reach is open, and you can move your starting point whenever you like.</p>
+</div>
+</section>
+
+<section aria-labelledby="first-h" style="display: flex; flex-direction: column; gap: 20px">
+<h2 id="first-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -0.015em">Your first three lessons</h2>
+<ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px">
+<sc-for list="{{lessons}}" as="l" hint-placeholder-count="3">
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 24px; border-radius: 18px; background: #1a1f27; border: 1px solid #6b7686">
+<span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #ffb84d">{{l.tag}}</span>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 600; line-height: 1.25">{{l.title}}</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">{{l.blurb}}</p>
+</li>
+</sc-for>
+</ol>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { start: 'harbor', chooserOpen: false };
+}
+renderVals() {
+const PLACES = [
+{ id: 'harbor', name: 'the Harbor', label: 'The Harbor (suggested)' },
+{ id: 'keep', name: 'Helm Keep', label: 'Helm Keep' },
+{ id: 'chart', name: 'the Chartroom', label: 'The Chartroom' },
+{ id: 'lake', name: 'Mirror Lake', label: 'Mirror Lake' },
+{ id: 'wood', name: 'Signalwood', label: 'Signalwood' },
+{ id: 'storm', name: 'Stormwatch', label: 'Stormwatch' }
+];
+const LESSONS = {
+harbor: [['What a container is, and what it isn\'t', 'A process with its own view of the world. Closer to a chroot jail than to a virtual machine.'], ['Images, tags and registries', 'How software is packed once, labeled, and pulled wherever it needs to run.'], ['From image to running process', 'Start one, look inside it, stop it, and see what is left behind.']],
+keep: [['Pods: the smallest thing the Keep looks after', 'One or more containers that live and are replaced together.'], ['Deployments and the count you declared', 'You state how many copies you want. The stewards keep making it true.'], ['Services: a steady door to moving pods', 'Pods come and go. The name you call stays put.']],
+chart: [['Reading the room with kubectl get', 'One command for the first look, and how to read every column.'], ['describe: the story of one pod', 'Events, restarts and reasons, in the order they happened.'], ['Logs, and the logs from before the crash', 'What the last container said before it went down.']],
+lake: [['The pipeline: from commit to image', 'What GitLab CI does between a merge and a tagged image.'], ['Desired state lives in Git', 'The repository is the reflection. The cluster is the shore.'], ['Synced, drifted, degraded', 'Reading an Argo CD application and finding what changed.']],
+wood: [['Three signals, one request', 'Metrics, traces and logs describe the same event from three sides.'], ['Reading a latency panel', 'Averages, percentiles, and why p99 tells you who is hurting.'], ['Following a trace', 'One request, every hop, and where the time went.']],
+storm: [['Before the storm: the Ravenpost map', 'Four services, who calls whom, and what healthy looks like.'], ['The Long Night, Act 1', 'The first alert. One pod will not stay up.'], ['The Long Night, Act 2', 'A fix that will not stick, and a lake that does not match its shore.']]
+};
+const TAGS = { harbor: 'The Harbor', keep: 'Helm Keep', chart: 'The Chartroom', lake: 'Mirror Lake', wood: 'Signalwood', storm: 'Stormwatch' };
+const LEVELS = ['Wayfarer', 'Deckhand', 'Navigator', 'Pathfinder'];
+const start = this.state.start;
+const cur = PLACES.find((p) => p.id === start);
+const domains = [['Foundations', 3], ['Containers', 1], ['Kubernetes', 1], ['Delivery', 2], ['Observability', 2]].map((d) => ({
+name: d[0], n: d[1], level: LEVELS[d[1] - 1],
+stones: [1, 2, 3, 4].map((k) => ({ bg: k <= d[1] ? '#7de8d8' : 'transparent', border: k <= d[1] ? '#7de8d8' : '#8a94a3', link: k < 4 ? '22px' : '0px' }))
+}));
+return {
+startName: cur.name,
+chooserOpen: this.state.chooserOpen,
+toggleChooser: () => this.setState({ chooserOpen: !this.state.chooserOpen }),
+isSuggested: start === 'harbor', isCustom: start !== 'harbor',
+places: PLACES.map((p) => ({ label: p.label, checked: p.id === start, border: p.id === start ? '#7de8d8' : '#6b7686', bg: p.id === start ? '#143236' : '#12151a', pick: () => this.setState({ start: p.id }) })),
+domains: domains,
+lessons: LESSONS[start].map((l, k) => ({ tag: TAGS[start] + ' · lesson ' + (k + 1), title: l[0], blurb: l[1] }))
+};
+}
+}
+</script>
+</body>
+</html>

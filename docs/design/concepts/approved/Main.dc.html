@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Console Room: journey overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12151a}
+a{color:#7de8d8}a:hover{color:#b4f5ea}
+a:focus-visible,button:focus-visible{outline:3px solid #ffd35c;outline-offset:3px;border-radius:8px}
+.cta:hover{filter:brightness(1.08)}
+@keyframes glassBreath{0%,100%{opacity:.55}50%{opacity:1}}
+.breath{animation:glassBreath 5s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.breath{animation:none;opacity:.85}}
+</style>
+</helmet>
+<div style="background: #12151a; color: #efe9dc; font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 18px; line-height: 1.55; min-height: 100vh">
+
+<header style="max-width: 1240px; margin: 0 auto; padding: 20px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" style="display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #efe9dc; text-decoration: none; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.01em">
+<svg aria-hidden="true" width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="3" y="5" width="28" height="22" rx="5" stroke="#efe9dc" stroke-width="2"></rect><path d="M9 16c2.5-3 5.5-3 8 0s5.500 3 8 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round"></path><path d="M11 21c2-2 4-2 6 0s4 2 6 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" opacity=".6"></path><path d="M13 31h8" stroke="#efe9dc" stroke-width="2" stroke-linecap="round"></path></svg>
+Beyond the Glass
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="#places" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #efe9dc; text-decoration: none; font-weight: 500">The journey</a>
+<a href="#outcomes" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #efe9dc; text-decoration: none; font-weight: 500">What you'll learn</a>
+<a href="#privacy" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #efe9dc; text-decoration: none; font-weight: 500">Your data</a>
+</nav>
+</header>
+
+<main id="top">
+<section style="max-width: 1240px; margin: 0 auto; padding: 32px 32px 72px; display: flex; flex-wrap: wrap; align-items: center; gap: 48px">
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<p style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #ffb84d">The Console Room &middot; where you came from</p>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: clamp(40px, 5.2vw, 68px); line-height: 1.02; letter-spacing: -0.025em">You've watched the glass for years. One screen is about to let you through.</h1>
+<p style="margin: 0; font-size: 20px; color: #d3d8de; max-width: 34em">Everything you know about keeping systems alive still counts. Beyond the Glass carries that experience into containers, Kubernetes, GitOps and modern telemetry, in a simulated world where nothing real can break.</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 20px; margin-top: 8px">
+<sc-if value="{{firstVisit}}" hint-placeholder-val="{{true}}">
+<a class="cta" href="Threshold.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 28px; border-radius: 14px; background: #7de8d8; color: #06282b; font-weight: 700; font-size: 19px; text-decoration: none; box-shadow: 0 0 0 1px #7de8d8, 0 10px 40px rgba(125,232,216,.28)">Step up to the Threshold
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06282b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+</a>
+</sc-if>
+<sc-if value="{{returning}}" hint-placeholder-val="{{false}}">
+<a class="cta" href="Reach.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 28px; border-radius: 14px; background: #7de8d8; color: #06282b; font-weight: 700; font-size: 19px; text-decoration: none; box-shadow: 0 0 0 1px #7de8d8, 0 10px 40px rgba(125,232,216,.28)">Continue: Reading the room with kubectl
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06282b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+</a>
+</sc-if>
+<a href="Reach.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Skip the quiz and look around</a>
+</div>
+<p style="margin: 0; color: #b9c0c9; font-size: 16px">The Threshold is 12 short scenario questions that find a good starting point. There are no wrong answers, nothing is graded, and you can change your path at any time.</p>
+</div>
+
+<figure style="flex: 1 1 520px; min-width: 0; margin: 0">
+<svg role="img" aria-label="A dim operations room around 1998. Three CRT monitors sit on a desk under a wall of small status lights. The left and right screens show green and amber text. The middle screen glows aqua and gold, its surface rippling like water, with a bright landscape visible inside it. A beige tower PC, a keyboard, a pager and a coffee mug sit on the desk." viewBox="0 0 640 540" style="display: block; width: 100%; height: auto; border-radius: 24px">
+<defs>
+<radialGradient id="mSpill" cx="50%" cy="46%" r="55%"><stop offset="0" stop-color="#7de8d8" stop-opacity=".42"></stop><stop offset=".55" stop-color="#7de8d8" stop-opacity=".08"></stop><stop offset="1" stop-color="#7de8d8" stop-opacity="0"></stop></radialGradient>
+<linearGradient id="mSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff4ea"></stop><stop offset=".6" stop-color="#fff1bf"></stop><stop offset="1" stop-color="#ffd98a"></stop></linearGradient>
+<linearGradient id="mWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1f27"></stop><stop offset="1" stop-color="#232a34"></stop></linearGradient>
+<pattern id="mLights" width="22" height="22" patternUnits="userSpaceOnUse"><rect x="4" y="6" width="10" height="6" rx="2" fill="#2f6a4c"></rect></pattern>
+<clipPath id="mGlass"><rect x="232" y="172" width="176" height="132" rx="14"></rect></clipPath>
+</defs>
+<rect width="640" height="540" fill="url(#mWall)"></rect>
+<rect x="40" y="36" width="560" height="96" rx="8" fill="#161b22" stroke="#39424e" stroke-width="2"></rect>
+<rect x="52" y="44" width="536" height="80" fill="url(#mLights)"></rect>
+<rect x="144" y="50" width="10" height="6" rx="2" fill="#6fe0a0"></rect><rect x="320" y="72" width="10" height="6" rx="2" fill="#6fe0a0"></rect><rect x="474" y="50" width="10" height="6" rx="2" fill="#6fe0a0"></rect><rect x="210" y="94" width="10" height="6" rx="2" fill="#ffb84d"></rect><rect x="430" y="94" width="10" height="6" rx="2" fill="#ffb84d"></rect><rect x="518" y="72" width="10" height="6" rx="2" fill="#ff7a66"></rect><rect x="78" y="94" width="10" height="6" rx="2" fill="#6fe0a0"></rect>
+<ellipse class="breath" cx="320" cy="250" rx="300" ry="230" fill="url(#mSpill)"></ellipse>
+<rect x="0" y="392" width="640" height="148" fill="#2b241d"></rect>
+<rect x="0" y="392" width="640" height="10" fill="#4a3d30"></rect>
+<path d="M210 402h220l70 138H140z" fill="#7de8d8" opacity=".10"></path>
+
+<g>
+<rect x="44" y="196" width="160" height="150" rx="12" fill="#b9af95"></rect><rect x="44" y="330" width="160" height="16" rx="6" fill="#9a9079"></rect>
+<rect x="58" y="210" width="132" height="106" rx="10" fill="#0c140f"></rect>
+<g fill="#58c98a"><rect x="68" y="222" width="74" height="5"></rect><rect x="68" y="234" width="104" height="5"></rect><rect x="68" y="246" width="56" height="5"></rect><rect x="68" y="258" width="96" height="5"></rect><rect x="68" y="270" width="66" height="5"></rect><rect x="68" y="282" width="88" height="5"></rect><rect x="68" y="294" width="12" height="7"></rect></g>
+<rect x="100" y="346" width="48" height="46" fill="#9a9079"></rect><rect x="84" y="384" width="80" height="10" rx="4" fill="#b9af95"></rect>
+</g>
+
+<g>
+<rect x="436" y="196" width="160" height="150" rx="12" fill="#b9af95"></rect><rect x="436" y="330" width="160" height="16" rx="6" fill="#9a9079"></rect>
+<rect x="450" y="210" width="132" height="106" rx="10" fill="#17100a"></rect>
+<g fill="#ffb84d"><rect x="460" y="222" width="110" height="5"></rect><rect x="460" y="238" width="30" height="20"></rect><rect x="496" y="238" width="30" height="20" opacity=".5"></rect><rect x="532" y="238" width="30" height="20"></rect><rect x="460" y="264" width="30" height="20" opacity=".5"></rect><rect x="496" y="264" width="30" height="20"></rect><rect x="532" y="264" width="30" height="20" opacity=".5"></rect><rect x="460" y="294" width="84" height="5"></rect></g>
+<rect x="492" y="346" width="48" height="46" fill="#9a9079"></rect><rect x="476" y="384" width="80" height="10" rx="4" fill="#b9af95"></rect>
+</g>
+
+<g>
+<rect x="212" y="152" width="216" height="186" rx="16" fill="#d2c8ad"></rect><rect x="212" y="318" width="216" height="20" rx="8" fill="#b0a68c"></rect>
+<circle cx="404" cy="328" r="4" fill="#7de8d8"></circle>
+<rect x="232" y="172" width="176" height="132" rx="14" fill="url(#mSky)"></rect>
+<g clip-path="url(#mGlass)">
+<circle cx="352" cy="232" r="22" fill="#fff8dc"></circle>
+<path d="M232 262c30-26 58-26 86-6s56 16 90-14v62H232z" fill="#58b7a4"></path>
+<path d="M232 280c36-18 70-14 100 0s52 10 76-6v30H232z" fill="#1f7f7c"></path>
+<path d="M300 304c8-18 22-30 44-36" stroke="#fff1bf" stroke-width="5" stroke-linecap="round" fill="none"></path>
+<g class="breath" fill="none" stroke="#ffffff" stroke-width="2.5"><ellipse cx="320" cy="238" rx="26" ry="16" opacity=".9"></ellipse><ellipse cx="320" cy="238" rx="54" ry="34" opacity=".6"></ellipse><ellipse cx="320" cy="238" rx="84" ry="54" opacity=".35"></ellipse></g>
+</g>
+<rect x="232" y="172" width="176" height="132" rx="14" fill="none" stroke="#7de8d8" stroke-width="3"></rect>
+<rect x="290" y="338" width="60" height="54" fill="#b0a68c"></rect><rect x="266" y="382" width="108" height="12" rx="5" fill="#d2c8ad"></rect>
+</g>
+
+<g>
+<rect x="232" y="420" width="176" height="46" rx="6" fill="#cfc5aa"></rect>
+<g fill="#a79d84"><rect x="240" y="427" width="160" height="7" rx="2"></rect><rect x="240" y="438" width="160" height="7" rx="2"></rect><rect x="240" y="449" width="38" height="9" rx="2"></rect><rect x="284" y="449" width="76" height="9" rx="2"></rect><rect x="366" y="449" width="34" height="9" rx="2"></rect></g>
+</g>
+<g>
+<rect x="76" y="430" width="74" height="40" rx="8" fill="#20262e" stroke="#59636f" stroke-width="2"></rect><rect x="84" y="438" width="44" height="14" rx="3" fill="#8fb39a"></rect><rect x="88" y="443" width="26" height="4" fill="#20262e"></rect><circle cx="139" cy="458" r="4" fill="#ff7a66"></circle>
+</g>
+<g>
+<path d="M470 424h48v40a10 10 0 0 1-10 10h-28a10 10 0 0 1-10-10z" fill="#e7dfcc"></path><path d="M518 434h8a9 9 0 0 1 0 18h-8" fill="none" stroke="#e7dfcc" stroke-width="6"></path><ellipse cx="494" cy="424" rx="24" ry="5" fill="#3a2a1e"></ellipse>
+<path d="M486 410c-6-8 6-12 0-20M500 410c-6-8 6-12 0-20" fill="none" stroke="#8a929c" stroke-width="2" stroke-linecap="round" opacity=".7"></path>
+</g>
+<g>
+<rect x="560" y="404" width="64" height="124" rx="6" fill="#cfc5aa"></rect><rect x="568" y="414" width="48" height="12" rx="2" fill="#a79d84"></rect><rect x="568" y="432" width="48" height="12" rx="2" fill="#a79d84"></rect><rect x="574" y="436" width="22" height="3" fill="#59636f"></rect><circle cx="576" cy="462" r="4" fill="#6fe0a0"></circle><rect x="590" y="458" width="22" height="8" rx="3" fill="#a79d84"></rect>
+</g>
+</svg>
+<figcaption style="margin-top: 12px; font-size: 15px; color: #b9c0c9">The middle monitor has started to ripple. That one is your way in.</figcaption>
+</figure>
+</section>
+
+<section id="places" aria-labelledby="places-h" style="background: #1a1f27; border-top: 1px solid #39424e; border-bottom: 1px solid #39424e">
+<div style="max-width: 1240px; margin: 0 auto; padding: 64px 32px; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h2 id="places-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 38px; line-height: 1.1; letter-spacing: -0.02em">Seven places, one trail</h2>
+<p style="margin: 0; color: #d3d8de; max-width: 44em">You start here and walk out into the Reach. Every place is open from the first minute; the trail is a suggestion, not a gate.</p>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 2px solid #ffb84d">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #ffb84d">01</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffb84d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path></svg><span style="margin-left: auto; font-size: 14px; font-weight: 700; color: #12151a; background: #ffb84d; padding: 2px 10px; border-radius: 999px">You are here</span></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Console Room</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">The overview, a placement quiz, and the shift from watching boxes to steering systems.</p>
+</li>
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 1px solid #6b7686">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8">02</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"></circle><path d="M12 7v14M5 13a7 7 0 0 0 14 0M9 11h6"></path></svg></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">The Harbor</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">Containers, images and registries: how software gets packed and shipped.</p>
+</li>
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 1px solid #6b7686">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8">03</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V9L4 8V4h3v2h2V4h6v2h2V4h3v4l-1 1v12z"></path><path d="M10 21v-5a2 2 0 0 1 4 0v5"></path></svg></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Helm Keep</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">Pods, deployments and services, and the stewards that keep restoring order.</p>
+</li>
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 1px solid #6b7686">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8">04</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">The Chartroom</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">kubectl and a triage flow you can run when a pager goes off.</p>
+</li>
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 1px solid #6b7686">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8">05</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 13c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0"></path></svg></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Mirror Lake</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">GitLab CI, Argo CD and GitOps: the reflection is what you asked for, the shore is what you have.</p>
+</li>
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 1px solid #6b7686">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8">06</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l6 8h-3l4 6H5l4-6H6z"></path><path d="M12 17v4"></path></svg></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Signalwood</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">Metrics, traces and logs with Prometheus, Grafana, Tempo, Loki and OpenTelemetry.</p>
+</li>
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 16px; background: #12151a; border: 1px solid #6b7686">
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 15px; color: #7de8d8">07</span><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L5 14h6l-1 8 8-12h-6z"></path></svg></div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">Stormwatch</h3>
+<p style="margin: 0; font-size: 16px; color: #d3d8de">The capstone. The Long Night: several things fail at once on a service called Ravenpost.</p>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="outcomes" aria-labelledby="outcomes-h" style="max-width: 1240px; margin: 0 auto; padding: 64px 32px; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 id="outcomes-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 38px; line-height: 1.1; letter-spacing: -0.02em">By the end you'll be able to&hellip;</h2>
+<p style="margin: 0; color: #d3d8de">Five things you can do at a real keyboard, on a real bad night.</p>
+</div>
+<ul style="flex: 2 1 560px; min-width: 0; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+<li style="display: flex; gap: 16px; padding: 18px 0; border-top: 1px solid #39424e"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M4 12l5 5L20 6"></path></svg><span>Explain what a container image is and trace one from a registry to a running pod.</span></li>
+<li style="display: flex; gap: 16px; padding: 18px 0; border-top: 1px solid #39424e"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M4 12l5 5L20 6"></path></svg><span>Triage a failing pod with <code style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 16px; background: #232a34; padding: 2px 6px; border-radius: 6px">kubectl get</code>, <code style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 16px; background: #232a34; padding: 2px 6px; border-radius: 6px">describe</code> and <code style="font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 16px; background: #232a34; padding: 2px 6px; border-radius: 6px">logs --previous</code>, and name the root cause.</span></li>
+<li style="display: flex; gap: 16px; padding: 18px 0; border-top: 1px solid #39424e"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M4 12l5 5L20 6"></path></svg><span>Read an Argo CD application: tell synced from drifted, healthy from degraded, and find what changed.</span></li>
+<li style="display: flex; gap: 16px; padding: 18px 0; border-top: 1px solid #39424e"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M4 12l5 5L20 6"></path></svg><span>Follow one slow request from a Grafana panel to its trace in Tempo and its log lines in Loki.</span></li>
+<li style="display: flex; gap: 16px; padding: 18px 0; border-top: 1px solid #39424e; border-bottom: 1px solid #39424e"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7de8d8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M4 12l5 5L20 6"></path></svg><span>Work a multi-failure incident on a microservice from first alert to a written root cause.</span></li>
+</ul>
+</section>
+
+<section id="privacy" aria-labelledby="privacy-h" style="max-width: 1240px; margin: 0 auto; padding: 0 32px 72px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px 28px; padding: 28px; border-radius: 20px; background: #1a1f27; border: 1px solid #6b7686">
+<svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffb84d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<h2 id="privacy-h" style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 24px; font-weight: 700">Your progress stays in this browser</h2>
+<p style="margin: 0; color: #d3d8de">No account, no tracking, and nothing is sent anywhere. Quiz answers and progress are saved on this device only, and you can export or erase them whenever you like.</p>
+</div>
+<a href="#privacy" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Manage saved progress</a>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"returning":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":2100}}'>
+class Component extends DCLogic {
+renderVals() {
+const returning = !!(this.props.returning ?? false);
+return { returning: returning, firstVisit: !returning };
+}
+}
+</script>
+</body>
+</html>

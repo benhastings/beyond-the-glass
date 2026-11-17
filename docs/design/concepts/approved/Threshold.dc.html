@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Threshold: placement quiz</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#12151a}
+a{color:#7de8d8}a:hover{color:#b4f5ea}
+a:focus-visible,button:focus-visible{outline:3px solid #ffd35c;outline-offset:3px;border-radius:8px}
+label:focus-within{outline:3px solid #ffd35c;outline-offset:3px}
+label:hover{filter:brightness(1.15)}
+button{cursor:pointer;font:inherit}
+</style>
+</helmet>
+<div style="background: #12151a; color: #efe9dc; font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 18px; line-height: 1.55; min-height: 100vh">
+
+<header style="max-width: 1180px; margin: 0 auto; padding: 20px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: #efe9dc; text-decoration: none; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 22px">
+<svg aria-hidden="true" width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="3" y="5" width="28" height="22" rx="5" stroke="#efe9dc" stroke-width="2"></rect><path d="M9 16c2.5-3 5.5-3 8 0s5.5 3 8 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round"></path><path d="M11 21c2-2 4-2 6 0s4 2 6 0" stroke="#7de8d8" stroke-width="2" stroke-linecap="round" opacity=".6"></path><path d="M13 31h8" stroke="#efe9dc" stroke-width="2" stroke-linecap="round"></path></svg>
+Beyond the Glass
+</a>
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Save and come back later</a>
+</header>
+
+<main style="max-width: 1180px; margin: 0 auto; padding: 24px 32px 72px; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+
+<section aria-labelledby="q-h" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<p style="margin: 0; font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-size: 16px; letter-spacing: 0.04em; color: #efe9dc">The Threshold &middot; <strong>Question {{number}} of 12</strong></p>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; border-radius: 999px; border: 1px solid #ffb84d; color: #ffb84d; font-size: 15px; font-weight: 600">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffb84d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"></path></svg>
+Domain: {{domain}}</span>
+</div>
+<div aria-hidden="true" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{segs}}" as="s" hint-placeholder-count="12">
+<span style="height: 8px; border-radius: 4px; background: {{s.bg}}"></span>
+</sc-for>
+</div>
+</div>
+
+<form style="display: flex; flex-direction: column; gap: 24px; padding: 36px; border-radius: 24px; background: #1a1f27; border: 1px solid #6b7686">
+<fieldset style="border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<legend id="q-h" style="padding: 0; margin: 0 0 14px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 600; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.2; letter-spacing: -0.015em">{{question}}</legend>
+<sc-for list="{{options}}" as="opt" hint-placeholder-count="4">
+<label style="display: flex; align-items: center; gap: 16px; min-height: 60px; padding: 10px 20px; border-radius: 14px; cursor: pointer; border: 2px solid {{opt.border}}; background: {{opt.bg}}">
+<input type="radio" name="answer" checked="{{opt.checked}}" onChange="{{opt.pick}}" style="width: 24px; height: 24px; flex: none; margin: 0; accent-color: #7de8d8">
+<span style="flex: 1 1 auto; font-size: 18px">{{opt.text}}</span>
+<sc-if value="{{opt.checked}}" hint-placeholder-val="{{false}}">
+<span style="font-size: 14px; font-weight: 700; color: #7de8d8; white-space: nowrap">Selected</span>
+</sc-if>
+</label>
+</sc-for>
+</fieldset>
+<p style="margin: 0; font-size: 16px; color: #b9c0c9">You can leave a question blank. We treat that the same as &ldquo;I'm not sure yet&rdquo;.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px">
+<button type="button" onClick="{{back}}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 22px; border-radius: 14px; background: transparent; color: #efe9dc; border: 2px solid #8a94a3; font-weight: 600; font-size: 18px">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#efe9dc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back</button>
+<button type="button" onClick="{{next}}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 28px; border-radius: 14px; background: #7de8d8; color: #06282b; border: 2px solid #7de8d8; font-weight: 700; font-size: 18px">Next
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06282b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+</form>
+</section>
+
+<aside aria-label="About this quiz" style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<svg role="img" aria-label="The middle monitor, seen close up. Rings of light spread across its surface; a few more appear with each question you answer." viewBox="0 0 320 250" style="display: block; width: 100%; height: auto">
+<defs>
+<radialGradient id="tGlow" cx="50%" cy="48%" r="60%"><stop offset="0" stop-color="#7de8d8" stop-opacity=".35"></stop><stop offset="1" stop-color="#7de8d8" stop-opacity="0"></stop></radialGradient>
+<linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#123a3f"></stop><stop offset="1" stop-color="#1c5a5c"></stop></linearGradient>
+</defs>
+<rect width="320" height="250" fill="url(#tGlow)"></rect>
+<rect x="40" y="20" width="240" height="190" rx="18" fill="#d2c8ad"></rect><rect x="40" y="190" width="240" height="20" rx="8" fill="#b0a68c"></rect><circle cx="256" cy="200" r="4" fill="#7de8d8"></circle>
+<rect x="60" y="38" width="200" height="140" rx="14" fill="url(#tSky)" stroke="#7de8d8" stroke-width="3"></rect>
+<g fill="none" stroke="#bff4ea" stroke-width="2.5"><ellipse cx="160" cy="108" rx="14" ry="9"></ellipse><ellipse cx="160" cy="108" rx="34" ry="22" opacity=".8"></ellipse><ellipse cx="160" cy="108" rx="56" ry="36" opacity=".55"></ellipse><ellipse cx="160" cy="108" rx="80" ry="52" opacity=".3" stroke-dasharray="4 8"></ellipse></g>
+<circle cx="160" cy="108" r="4" fill="#fff1bf"></circle>
+<rect x="130" y="210" width="60" height="24" fill="#b0a68c"></rect><rect x="104" y="232" width="112" height="10" rx="5" fill="#d2c8ad"></rect>
+</svg>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 24px; border-radius: 20px; border: 1px solid #6b7686">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 22px; font-weight: 700">There are no wrong answers here</h2>
+<p style="margin: 0; font-size: 17px; color: #d3d8de">This finds a good place to start. It isn't a test. Nothing is graded and nobody sees your answers.</p>
+<p style="margin: 0; font-size: 17px; color: #d3d8de">&ldquo;I'm not sure yet&rdquo; is a useful answer. It points the trail at the right lesson.</p>
+<p style="margin: 0; font-size: 17px; color: #d3d8de">Go at your own pace. You can change your starting point afterwards.</p>
+</div>
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { i: 1, answers: {} };
+}
+renderVals() {
+const QS = [
+{ n: 3, domain: 'Containers', q: 'A colleague says the same container image runs in test and in production. What does that tell you?', o: ['The same packaged files and dependencies run in both places; settings can still differ', 'Both environments have identical settings and data', 'Not much, because an image is rebuilt on every server it lands on', 'I\'m not sure yet'] },
+{ n: 4, domain: 'Kubernetes', q: 'At 02:10 one instance of a service disappears. A few seconds later a new one appears with a different name, and nobody on shift touched it. What most likely happened?', o: ['The platform saw fewer healthy copies than were declared and started a replacement', 'Someone on another team restarted it by hand', 'The server it was running on rebooted', 'I\'m not sure yet'] },
+{ n: 5, domain: 'Observability', q: 'A latency panel shows the average holding steady while p99 climbs. What is going on?', o: ['A small share of requests is getting much slower while most are fine', 'Every request is getting a little slower', 'The panel is probably misconfigured', 'I\'m not sure yet'] }
+];
+const i = this.state.i;
+const cur = QS[i];
+const picked = this.state.answers[i];
+const options = cur.o.map((text, k) => ({
+text: text,
+checked: picked === k,
+border: picked === k ? '#7de8d8' : '#6b7686',
+bg: picked === k ? '#143236' : '#12151a',
+pick: () => this.setState({ answers: Object.assign({}, this.state.answers, { [i]: k }) })
+}));
+const segs = [];
+for (let s = 1; s <= 12; s++) segs.push({ bg: s < cur.n ? '#7de8d8' : (s === cur.n ? '#ffd35c' : '#3a4350') });
+return {
+number: cur.n, domain: cur.domain, question: cur.q, options: options, segs: segs,
+back: () => this.setState({ i: Math.max(0, i - 1) }),
+next: () => this.setState({ i: Math.min(QS.length - 1, i + 1) })
+};
+}
+}
+</script>
+</body>
+</html>
