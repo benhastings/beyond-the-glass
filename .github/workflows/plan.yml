@@ -1,0 +1,27 @@
+name: plan
+# Validates the plan and the acceptance-criteria tracer. Stdlib Python only, so it
+# runs before any app code exists. The app's own CI (E0-02) adds JUnit cross-checks.
+on:
+  pull_request:
+    paths: ["docs/plan/**", "docs/evidence/**", "scripts/**", ".github/workflows/plan.yml"]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Validate epics (IDs, deps, cycles, milestones, tagged criteria)
+        run: python3 scripts/create-issues.py > /dev/null
+      - name: Tracer unit tests
+        run: python3 -m unittest discover scripts/tests -v
+      - name: Traceability report
+        run: |
+          python3 scripts/ac-trace.py --report ac-report.md
+          head -40 ac-report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with: { name: ac-traceability, path: ac-report.md }
