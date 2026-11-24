@@ -4,8 +4,8 @@ import { test } from './fixtures.ts'
 type Body = Parameters<typeof test>[2]
 
 /**
- * Playwright `test` for an acceptance criterion, with the shared fixtures. Keep the tags on the
- * `acTest(` line: the tracer reads them from there.
+ * Playwright `test` for an acceptance criterion, with the shared fixtures. The tracer reads the tags
+ * from the first argument.
  *
  *   acTest('E5-07.AC1', 'landing → quiz → lesson → resume', async ({ page }) => { ... })
  */

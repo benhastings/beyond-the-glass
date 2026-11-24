@@ -31,9 +31,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from plan_lib import MILESTONES, ROOT, Criterion, Epic, parse  # noqa: E402
 
 TAG = re.compile(r"\[(E\d+-\d+\.AC\d+|E\d+\.SC\d+)\]")
-# acTest('E6-04.AC2', ...) and acTest(['E6-04.AC2', 'E6.SC1'], ...): quoted tags on the acTest line
-AC_TEST = re.compile(r"\bacTest(?:\.\w+)?\(")
+# acTest('E6-04.AC2', ...) and acTest(['E6-04.AC2', 'E6.SC1'], ...): the tags are the call's first
+# argument, which a formatter may put on the following lines.
+AC_TEST_CALL = re.compile(
+    r"""\bacTest(?:\.(\w+))?\(\s*(\[[^\]]*\]|'[^'\n]*'|"[^"\n]*"|`[^`\n]*`)""", re.S)
 QUOTED_TAG = re.compile(r"""['"`](E\d+-\d+\.AC\d+|E\d+\.SC\d+)['"`]""")
+SKIPPING = {"skip", "todo", "fixme"}
 TEST_GLOBS = ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/*.test.js",
               "**/*.test.mjs", "**/*.spec.js", "**/test_*.py"]
 SKIP_DIRS = {"node_modules", "dist", ".git", "coverage", "playwright-report", "test-results"}
@@ -67,10 +70,15 @@ def scan(root: Path, junit: list[Path]) -> Scan:
     s = Scan()
     for f in _test_files(root):
         rel = str(f.relative_to(root))
-        for no, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-            tags = TAG.findall(line) + (QUOTED_TAG.findall(line) if AC_TEST.search(line) else [])
-            for tag in dict.fromkeys(tags):
+        text = f.read_text(encoding="utf-8", errors="replace")
+        for no, line in enumerate(text.splitlines(), 1):
+            for tag in dict.fromkeys(TAG.findall(line)):
                 bucket = s.skipped if SKIP_MARK.search(line) else s.tested
+                bucket.setdefault(tag, []).append(f"{rel}:{no}")
+        for m in AC_TEST_CALL.finditer(text):
+            no = text.count("\n", 0, m.start()) + 1
+            bucket = s.skipped if m.group(1) in SKIPPING else s.tested
+            for tag in dict.fromkeys(QUOTED_TAG.findall(m.group(2))):
                 bucket.setdefault(tag, []).append(f"{rel}:{no}")
     ev_dir = root / "docs" / "evidence"
     if ev_dir.is_dir():

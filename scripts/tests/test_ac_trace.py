@@ -169,6 +169,32 @@ class AcTraceTests(unittest.TestCase):
         rc, out = self.f.run("--strict-all")
         self.assertEqual(rc, 0, out)
 
+    def test_actest_tags_wrapped_onto_the_next_lines_are_found(self) -> None:
+        # Prettier wraps long calls, moving the tag off the acTest( line.
+        self.f.write("e2e/a.spec.ts", "acTest(\n  'E1-01.AC1',\n  'a long title',\n  async () => {},\n)\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 0, out)
+
+    def test_actest_wrapped_tag_list_is_found(self) -> None:
+        self.f.write("e2e/a.spec.ts", "acTest(\n  [\n    'E1-01.AC1',\n    'E1.SC1',\n  ],\n  't',\n  () => {},\n)\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--strict-all")
+        self.assertEqual(rc, 0, out)
+
+    def test_actest_only_reads_tags_from_the_first_argument(self) -> None:
+        self.f.write("src/a.test.ts", "acTest('E1-01.AC1', 'mentions E1-01.AC2', () => { x('E1-01.AC2') })\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 1)
+        self.assertIn("E1-01.AC2", out)
+
+    def test_wrapped_actest_skip_does_not_count(self) -> None:
+        self.f.write("src/a.test.ts", "acTest.skip(\n  'E1-01.AC1',\n  'works',\n  () => {},\n)\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 1)
+        self.assertIn("skipped", out)
+
     def test_actest_skip_does_not_count(self) -> None:
         self.f.write("src/a.test.ts", "acTest.skip('E1-01.AC1', 'works', () => {})\n")
         self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")

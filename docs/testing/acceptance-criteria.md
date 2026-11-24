@@ -22,8 +22,8 @@ it('[E6-04.AC1] never throws on 10,000 random inputs', () => { /* fast-check */ 
 test('[E5-07.AC1] [E3.SC1] landing → quiz → lesson → resume on the deployed site', async ({ page }) => { /* … */ });
 ```
 
-Or use the helpers, which build the prefix and reject malformed tags. Keep the tags on the `acTest(` line,
-where the tracer reads them:
+Or use the helpers, which build the prefix and reject malformed tags. The tracer reads the tags from the
+call's first argument, even when a formatter wraps it onto the next lines:
 
 ```ts
 import { acTest } from '@/test/ac'        // Vitest (src/test/ac.ts)
