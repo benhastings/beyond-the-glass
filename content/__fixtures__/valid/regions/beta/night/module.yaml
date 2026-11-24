@@ -1,0 +1,5 @@
+id: night
+title: Night
+order: 0
+summary: Fixture module in another region.
+domain: observability

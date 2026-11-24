@@ -1,0 +1,12 @@
+terms:
+  - id: pod
+    term: Pod
+    aliases: [po]
+    eli5: A small box that holds one or more running programs.
+    operator: The smallest deployable unit; one or more containers sharing a network namespace.
+    related: [container]
+    introducedIn: first-steps
+  - id: container
+    term: Container
+    eli5: A program packed with everything it needs to run.
+    operator: A process isolated with namespaces and cgroups, started from an image.

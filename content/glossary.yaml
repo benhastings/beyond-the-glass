@@ -1,0 +1,3 @@
+# The Field Guide glossary. Entries are added by E2-05 and the curriculum issues; lessons link to them
+# with <Term id="…"> or front-matter `terms`. Schema: src/content/schema.ts (glossaryFile).
+terms: []
