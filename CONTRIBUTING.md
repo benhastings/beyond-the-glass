@@ -9,7 +9,8 @@ Every pull request and every push to `main` runs these workflows:
 
 | Workflow | Job (the check's name) | What it runs |
 |---|---|---|
-| `.github/workflows/ci.yml` | `verify` | `npm ci`, typecheck, lint, Prettier, unit tests, build, then a bundle-size table in the job summary and the `dist` artifact |
+| `.github/workflows/ci.yml` | `verify` | `npm ci`, typecheck, lint, Prettier, unit tests with coverage thresholds, build, then a bundle-size table in the job summary and the `dist` artifact |
+| `.github/workflows/ci.yml` | `e2e` | Playwright with axe in Chromium, Firefox and WebKit against `vite preview`; traces and screenshots uploaded on failure |
 | `.github/workflows/ac-trace.yml` | `gate` | the acceptance-criteria gate for the issue the PR closes |
 | `.github/workflows/plan.yml` | `validate` | plan and tracer validation (only when `docs/plan`, `docs/evidence` or `scripts` change) |
 
@@ -20,6 +21,7 @@ Every pull request and every push to `main` runs these workflows:
 - Require a pull request before merging
 - Require status checks to pass, with the branch up to date. Required checks (named exactly as above):
   - `verify`
+  - `e2e`
   - `gate`
 - Do not allow force pushes or deletions
 
@@ -29,7 +31,7 @@ never starts would block every other PR.
 ```bash
 gh api -X PUT repos/{owner}/{repo}/branches/main/protection --input - <<'JSON'
 {
-  "required_status_checks": { "strict": true, "contexts": ["verify", "gate"] },
+  "required_status_checks": { "strict": true, "contexts": ["verify", "e2e", "gate"] },
   "enforce_admins": false,
   "required_pull_request_reviews": null,
   "restrictions": null,

@@ -28,8 +28,8 @@ jobs:
         run: npm run lint
       - name: Format
         run: npm run format:check
-      - name: Unit tests
-        run: npm test
+      - name: Unit tests with coverage thresholds
+        run: npm run test:coverage
       - name: Build
         run: npm run build
       - name: Bundle size
@@ -38,4 +38,42 @@ jobs:
         with:
           name: dist
           path: dist
+          retention-days: 14
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Playwright version
+        id: pw
+        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Install browsers
+        if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install browser system dependencies
+        if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium firefox webkit
+      - name: End-to-end and accessibility tests (Chromium, Firefox, WebKit)
+        run: npm run test:e2e
+      - name: Upload traces and screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failures
+          path: |
+            test-results
+            playwright-report
           retention-days: 14

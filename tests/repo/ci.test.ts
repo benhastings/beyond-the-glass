@@ -30,7 +30,7 @@ describe('E0-02 CI pipeline', () => {
       'npm ci',
       'npm run typecheck',
       'npm run lint',
-      'npm test',
+      'npm run test',
       'npm run build',
     ]) {
       expect(
