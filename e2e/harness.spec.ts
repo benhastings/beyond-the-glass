@@ -35,7 +35,9 @@ test.describe('test harness', () => {
     const page = await browser.newPage()
     const origin = new URL(baseURL ?? '').origin
     const blocked = await blockThirdPartyRequests(page, origin)
-    await page.goto('./')
+    // A blank page rather than the site: the container's CSP (connect-src 'self') would stop the
+    // request in the browser before it ever reached the route this helper installs.
+    await page.setContent('<p>harness</p>')
     await page.evaluate(async () => {
       await fetch('https://third-party.example/beacon').catch(() => undefined)
     })

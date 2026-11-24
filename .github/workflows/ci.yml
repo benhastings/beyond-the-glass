@@ -98,12 +98,112 @@ jobs:
           CONTENT_DENYLIST: ${{ secrets.CONTENT_DENYLIST }}
         run: node scripts/content-guard.mjs
 
+  container:
+    # The self-hosted image (E0-09): build it, run it hardened, run the whole e2e suite and the
+    # container tests against it, and build the multi-arch release image with attestations (no push).
+    name: container
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: btg:ci
+          build-args: |
+            REVISION=${{ github.sha }}
+      - name: Build the multi-arch release image with SBOM and provenance (not pushed)
+        run: >-
+          docker buildx build --platform linux/amd64,linux/arm64 --sbom=true --provenance=mode=max
+          --output type=oci,dest=${{ runner.temp }}/btg-oci.tar .
+      - name: Run it hardened
+        run: |
+          docker run -d --name btg -p 8080:8080 --read-only --tmpfs /tmp:rw,size=16m \
+            --cap-drop=ALL --security-opt=no-new-privileges btg:ci
+          for i in $(seq 1 30); do curl -fsS http://localhost:8080/healthz && exit 0; sleep 1; done
+          docker logs btg; exit 1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: e2e suite against the container
+        env:
+          CONTAINER: '1'
+          BASE_URL: http://localhost:8080/
+        run: npx playwright test --project chromium
+      - name: Container tests (size, user, hardening, headers, Trivy, release build)
+        if: always()
+        env:
+          CONTAINER_IMAGE: btg:ci
+          OCI_ARCHIVE: ${{ runner.temp }}/btg-oci.tar
+        run: |
+          mv reports/playwright.xml reports/playwright-container.xml || true
+          npx vitest run --project repo tests/container
+          mv reports/vitest.xml reports/vitest-container.xml
+      - name: Save the image for the k8s job
+        run: docker save btg:ci | gzip > ${{ runner.temp }}/btg.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image
+          path: ${{ runner.temp }}/btg.tar.gz
+          retention-days: 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-container
+          path: reports/*-container.xml
+          retention-days: 14
+
+  k8s:
+    # E0-09.AC7: the example manifests on a real (kind) cluster.
+    name: k8s
+    needs: container
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - uses: actions/download-artifact@v4
+        with:
+          name: image
+          path: ${{ runner.temp }}
+      - run: gunzip -c ${{ runner.temp }}/btg.tar.gz | docker load
+      - uses: helm/kind-action@v1
+        with:
+          cluster_name: btg
+      - run: kind load docker-image btg:ci --name btg
+      - name: Apply deploy/k8s and test it
+        env:
+          K8S_IMAGE: btg:ci
+        run: |
+          npx vitest run --project repo tests/container/k8s.test.ts
+          mv reports/vitest.xml reports/vitest-k8s.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-k8s
+          path: reports/vitest-k8s.xml
+          retention-days: 14
+
   gate:
     # Acceptance-criteria traceability (E0-10). On a PR, every criterion of each plan issue it closes
     # must be traced: an automated one by a tagged test that ran and passed in THIS run's JUnit
     # results, a manual one by evidence in docs/evidence/. Unknown tags always fail.
     name: gate
-    needs: [verify, e2e]
+    needs: [verify, e2e, container, k8s]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
