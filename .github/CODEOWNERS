@@ -1,0 +1,7 @@
+# Content and scenarios need SME review (AGENTS.md §7), and evidence for manual
+# acceptance criteria needs the lead's approval (docs/testing/acceptance-criteria.md).
+# Add further SME reviewers per region here as they're named (ROADMAP §8 Q5).
+/content/          @benhastings
+/src/scenarios/    @benhastings
+/docs/evidence/    @benhastings
+/.github/CODEOWNERS @benhastings

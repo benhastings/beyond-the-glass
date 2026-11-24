@@ -1,0 +1,37 @@
+name: Bug
+description: Something in the app or the simulator behaves wrongly
+labels: [type:bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository and its site are public. Don't paste real hostnames, IP addresses, system names or screenshots of real tools.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The route (for example `#/region/chartroom`) and, for the terminal, the exact commands.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and assistive technology
+      placeholder: Firefox 150, NVDA 2026.3
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The commit or image tag, from Settings → About.

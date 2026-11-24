@@ -1,0 +1,36 @@
+name: Feature
+description: New behavior in the app, the simulator or the tooling
+labels: [type:feature]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Planned work already has an issue generated from `docs/plan/epics/`. Use this form for work the plan doesn't cover, and label it `discovered` if you found it while working on another issue.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why this is needed, and which roadmap goal or issue it relates to.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is in, and what is explicitly out.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: One checkbox per criterion. Mark any that need human judgment as `manual` (docs/testing/acceptance-criteria.md).
+      value: |
+        - [ ] `AC1`
+    validations:
+      required: true
+  - type: textarea
+    id: depends
+    attributes:
+      label: Blocked by
+      description: Issues that must close first, as #numbers.

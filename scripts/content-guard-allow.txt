@@ -1,0 +1,14 @@
+# Exceptions to scripts/content-guard.mjs, one per line: <path glob> <category>
+# Categories: franchise-ip, ipv4, hostname. The private denylist can't be excepted here.
+# Every entry needs a reason in a comment and the lead's approval (CONTRIBUTING.md#content-guard).
+
+# Guardrail documents that must name the franchise to forbid it (E0-06.AC3)
+AGENTS.md                   franchise-ip
+docs/plan/**                franchise-ip
+scripts/ip-denylist.txt     franchise-ip
+docs/design/visual-brief.md franchise-ip
+
+# The guard's own tests need true positives in their fixtures
+tests/repo/content-guard.test.ts franchise-ip
+tests/repo/content-guard.test.ts ipv4
+tests/repo/content-guard.test.ts hostname
