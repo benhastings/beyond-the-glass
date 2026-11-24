@@ -1,0 +1,4 @@
+id: signalwood
+title: Signalwood
+order: 5
+summary: Prometheus, Grafana and OpenTelemetry. Read dashboards, write first queries, follow a trace to its logs, and act on alerts and SLOs.

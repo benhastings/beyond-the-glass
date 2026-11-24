@@ -1,0 +1,4 @@
+id: mirror-lake
+title: Mirror Lake
+order: 4
+summary: GitLab CI, Argo CD and GitOps. Follow a change from commit to running pods, read sync and health, spot drift, and roll back through Git.

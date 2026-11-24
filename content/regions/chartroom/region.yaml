@@ -1,0 +1,4 @@
+id: chartroom
+title: The Chartroom
+order: 3
+summary: kubectl fluency and triage. Check your context, read the cluster's instruments, and follow the triage flow to the cause of common failures.
