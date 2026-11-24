@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Plan and roadmap
+    url: https://github.com/benhastings/beyond-the-glass/blob/main/docs/plan/ROADMAP.md
+    about: Planned work comes from docs/plan/epics/. Check there before opening a feature request.

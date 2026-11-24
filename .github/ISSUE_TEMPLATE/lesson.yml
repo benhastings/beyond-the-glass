@@ -1,0 +1,35 @@
+name: Content / lesson
+description: A new lesson, a change to one, or a content accuracy problem
+labels: [type:content]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Lessons follow `docs/authoring.md` and the Content Definition of Done in `docs/plan/epics/E09-curriculum.md`. Use the fictional **Ravenpost** system and `*.example` domains only: nothing from a real environment.
+  - type: dropdown
+    id: region
+    attributes:
+      label: Region
+      options: [Console Room, The Harbor, Helm Keep, The Chartroom, Mirror Lake, Signalwood, Stormwatch]
+    validations:
+      required: true
+  - type: textarea
+    id: objectives
+    attributes:
+      label: Learning objectives
+      description: What the learner can do afterwards, written as observable actions.
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands and tools shown
+      description: Every command a lesson shows must run in the simulator (AGENTS.md §7). List them so they can be checked against docs/sim/support-matrix.md.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] `AC1`
+    validations:
+      required: true
