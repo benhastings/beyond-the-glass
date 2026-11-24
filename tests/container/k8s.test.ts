@@ -1,7 +1,7 @@
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { ROOT } from '../repo/helpers.ts'
 
@@ -19,7 +19,8 @@ describe.runIf(IMAGE)('E0-09 Kubernetes manifests', () => {
   })
 
   it('[E0-09.AC7] kubectl apply -k deploy/k8s yields Ready pods and a Service that serves the app', async () => {
-    // An overlay that only swaps the image for the one loaded into kind.
+    // An overlay that only swaps the image for the one loaded into kind. Kustomize rejects
+    // absolute resource paths, so point at deploy/k8s relative to the overlay.
     const [name, tag] = IMAGE.split(':')
     writeFileSync(
       join(overlay, 'kustomization.yaml'),
@@ -28,7 +29,7 @@ describe.runIf(IMAGE)('E0-09 Kubernetes manifests', () => {
         'kind: Kustomization',
         `namespace: ${NS}`,
         'resources:',
-        `  - ${join(ROOT, 'deploy/k8s')}`,
+        `  - ${relative(overlay, join(ROOT, 'deploy/k8s'))}`,
         'images:',
         '  - name: ghcr.io/benhastings/beyond-the-glass',
         `    newName: ${name ?? ''}`,
