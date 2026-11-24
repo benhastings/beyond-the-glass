@@ -41,6 +41,8 @@ jobs:
           retention-days: 14
       - name: Build
         run: npm run build
+      - name: Initial JS budget
+        run: node scripts/check-bundle.mjs
       - name: Bundle size
         run: node scripts/bundle-size.mjs dist >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
