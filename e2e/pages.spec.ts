@@ -5,14 +5,14 @@ import { expect, test } from './fixtures.ts'
 test.describe('GitHub Pages hosting', { tag: '@smoke' }, () => {
   test('[E0-03.AC2] hard-refreshing a deep link loads the correct view', async ({ page }) => {
     await page.goto('./#/region/chartroom')
-    const heading = page.getByRole('heading', { level: 1, name: 'Region: chartroom' })
+    const heading = page.getByRole('heading', { level: 1, name: 'The Chartroom' })
     await expect(heading).toBeVisible()
     await page.reload()
     await expect(heading).toBeVisible()
     // A fresh tab opening the link directly, as if pasted from chat.
     const fresh = await page.context().newPage()
     await fresh.goto(page.url())
-    await expect(fresh.getByRole('heading', { level: 1, name: 'Region: chartroom' })).toBeVisible()
+    await expect(fresh.getByRole('heading', { level: 1, name: 'The Chartroom' })).toBeVisible()
     await fresh.close()
   })
 
@@ -26,7 +26,7 @@ test.describe('GitHub Pages hosting', { tag: '@smoke' }, () => {
       baseURL,
     }) => {
       await page.goto('./region/chartroom?from=old-link')
-      await expect(page.getByRole('heading', { level: 1, name: 'Region: chartroom' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1, name: 'The Chartroom' })).toBeVisible()
       // HashRouter reads query parameters from inside the hash, so that's where they go.
       expect(page.url()).toBe(`${String(baseURL)}#/region/chartroom?from=old-link`)
     })
