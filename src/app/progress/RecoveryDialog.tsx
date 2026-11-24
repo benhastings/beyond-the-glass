@@ -60,7 +60,7 @@ export function RecoveryDialog({ recovery, onClose }: Props) {
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           type="button"
-          className="rounded border border-current px-4 py-2 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="rounded border border-current px-4 py-2"
           onClick={() => {
             download(recovery.raw, new Date())
           }}
@@ -69,7 +69,7 @@ export function RecoveryDialog({ recovery, onClose }: Props) {
         </button>
         <button
           type="button"
-          className="rounded border border-current px-4 py-2 font-bold focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="rounded border border-current px-4 py-2 font-bold"
           onClick={() => {
             if (typeof ref.current?.close === 'function') ref.current.close()
             onClose()

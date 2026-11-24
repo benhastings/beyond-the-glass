@@ -10,7 +10,7 @@ export default function Threshold() {
         always change where you start.
       </p>
       <p className="mt-6">
-        <Link to="/threshold/results" className="underline focus-visible:outline-2">
+        <Link to="/threshold/results" className="underline">
           See your trail
         </Link>
       </p>

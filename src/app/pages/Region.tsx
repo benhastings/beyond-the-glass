@@ -24,7 +24,7 @@ export default function Region() {
       </p>
       {region.id === 'stormwatch' && (
         <p className="mt-6">
-          <Link to="/stormwatch" className="underline focus-visible:outline-2">
+          <Link to="/stormwatch" className="underline">
             Enter the war room
           </Link>
         </p>

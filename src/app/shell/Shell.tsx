@@ -1,5 +1,6 @@
-import { Suspense, useCallback, useMemo, useRef, useState, type MouseEvent } from 'react'
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
+import { SkipLink } from '../ui/SkipLink'
 import { useDisplayPreferences } from '../display/useDisplayPreferences'
 import { useProgress } from '../progress'
 import { RecoveryDialog } from '../progress/RecoveryDialog'
@@ -14,8 +15,7 @@ const NAV = [
   { to: '/settings', label: 'Settings' },
 ] as const
 
-const linkClass =
-  'rounded underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 aria-[current=page]:underline'
+const linkClass = 'rounded underline-offset-4 hover:underline aria-[current=page]:underline'
 
 /**
  * The layout around every page: skip link, header with navigation and progress, `<main>` and footer,
@@ -41,22 +41,10 @@ export function Shell() {
   }, [])
   const context = useMemo(() => ({ announce, initialKey }), [announce, initialKey])
 
-  // A plain href="#main" would change the hash route, so the skip link moves focus itself.
-  const skip = (e: MouseEvent) => {
-    e.preventDefault()
-    main.current?.focus()
-  }
-
   return (
     <PageContext value={context}>
       <div className="flex min-h-screen flex-col bg-ground text-ink">
-        <a
-          href="#main"
-          onClick={skip}
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-ground focus:p-2 focus:outline-2"
-        >
-          Skip to main content
-        </a>
+        <SkipLink target={main} />
         <header className="flex min-h-16 flex-wrap items-center gap-x-6 gap-y-2 border-b border-ink/20 px-6 py-3">
           <Link to="/" className={`${linkClass} text-lg font-bold`}>
             {SITE_NAME}
