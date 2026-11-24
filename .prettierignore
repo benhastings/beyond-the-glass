@@ -1,0 +1,10 @@
+dist
+coverage
+playwright-report
+test-results
+node_modules
+package-lock.json
+docs/design/concepts
+docs/plan
+*.md
+.github
