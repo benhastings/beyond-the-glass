@@ -84,6 +84,20 @@ jobs:
             playwright-report
           retention-days: 14
 
+  content-guard:
+    name: content-guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Scan for private names, franchise IP, addresses and internal hostnames
+        env:
+          CONTENT_DENYLIST: ${{ secrets.CONTENT_DENYLIST }}
+        run: node scripts/content-guard.mjs
+
   gate:
     # Acceptance-criteria traceability (E0-10). On a PR, every criterion of each plan issue it closes
     # must be traced: an automated one by a tagged test that ran and passed in THIS run's JUnit

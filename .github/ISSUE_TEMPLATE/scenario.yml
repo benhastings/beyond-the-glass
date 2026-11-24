@@ -1,0 +1,43 @@
+name: Scenario
+description: A simulator scenario or fault for a challenge or the capstone
+labels: [type:feature, area:sim]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **One timeline, many views** (AGENTS.md §6): a fault must show its evidence in every signal it touches, such as cluster state, events, logs, metrics, traces and Argo CD.
+  - type: textarea
+    id: story
+    attributes:
+      label: What happens
+      description: The incident from the learner's point of view.
+    validations:
+      required: true
+  - type: textarea
+    id: timeline
+    attributes:
+      label: Timeline
+      description: Each event with its sim time (T+0m, T+4m, ...).
+      placeholder: |
+        T+0m  deploy ravenpost-api v1.8.2
+        T+4m  ravenpost-api pods OOMKilled
+    validations:
+      required: true
+  - type: checkboxes
+    id: signals
+    attributes:
+      label: Signals that must show it
+      options:
+        - label: Cluster state (get/describe)
+        - label: Events
+        - label: Logs
+        - label: Metrics
+        - label: Traces
+        - label: Argo CD / GitOps
+  - type: textarea
+    id: solution
+    attributes:
+      label: Expected solution path
+      description: The steps an expert takes. The scenario's test replays them.
+    validations:
+      required: true

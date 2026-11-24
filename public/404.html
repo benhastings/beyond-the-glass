@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting… · Beyond the Glass</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      // GitHub Pages serves this page for any path it doesn't have, such as an old path-style link
+      // (/beyond-the-glass/region/chartroom). The app routes after the '#' (ADR-002), so redirect to the
+      // hash equivalent (/beyond-the-glass/#/region/chartroom).
+      //
+      // The base path isn't hard-coded: try each prefix of the requested path, longest first, and use the
+      // first one whose index.html exists. Only same-origin HEAD requests are made.
+      ;(async () => {
+        const parts = location.pathname.split('/').filter(Boolean)
+        for (let n = parts.length - 1; n >= 0; n--) {
+          const base = '/' + parts.slice(0, n).join('/') + (n ? '/' : '')
+          try {
+            const res = await fetch(base + 'index.html', { method: 'HEAD', cache: 'no-store' })
+            if (res.ok) {
+              const route = '/' + parts.slice(n).join('/')
+              location.replace(base + '#' + route + location.search)
+              return
+            }
+          } catch {
+            // try the next shorter prefix
+          }
+        }
+        document.getElementById('msg').hidden = false
+      })()
+    </script>
+  </head>
+  <body>
+    <p id="msg" hidden>This page doesn't exist. <a href="/">Go to the start</a>.</p>
+  </body>
+</html>

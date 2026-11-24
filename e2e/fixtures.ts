@@ -42,9 +42,11 @@ export async function blockThirdPartyRequests(page: Page, ownOrigin: string): Pr
  * Every e2e test uses this `test`: third-party requests are blocked and fail the test, and any
  * uncaught page error or console error fails it too.
  */
-export const test = base.extend<{ thirdPartyGuard: undefined }>({
+export const test = base.extend<{ thirdPartyGuard: undefined; allowedConsoleErrors: RegExp[] }>({
+  /** Console errors a test expects, e.g. the 404 a path-style link produces before redirecting. */
+  allowedConsoleErrors: [[], { option: true }],
   thirdPartyGuard: [
-    async ({ page, baseURL }, use) => {
+    async ({ page, baseURL, allowedConsoleErrors }, use) => {
       const blocked = await blockThirdPartyRequests(
         page,
         new URL(baseURL ?? 'http://127.0.0.1').origin,
@@ -52,8 +54,9 @@ export const test = base.extend<{ thirdPartyGuard: undefined }>({
       const errors: string[] = []
       page.on('pageerror', (e) => errors.push(e.message))
       page.on('console', (m) => {
-        if (m.type() === 'error' && !m.text().includes('ERR_BLOCKED_BY_CLIENT'))
-          errors.push(m.text())
+        const text = m.text()
+        if (m.type() !== 'error' || text.includes('ERR_BLOCKED_BY_CLIENT')) return
+        if (!allowedConsoleErrors.some((re) => re.test(text))) errors.push(text)
       })
       await use(undefined)
       expect(blocked, 'requests to third-party origins').toEqual([])

@@ -34,3 +34,27 @@ export function run(cmd: string, args: string[], cwd: string): string {
     env: { ...process.env, CI: '1' },
   })
 }
+
+/**
+ * A throwaway epic for tracer fixtures, so they never borrow a real criterion that may gain real tests
+ * later. Write it into a scratch checkout's docs/plan/epics/. Criteria: E99-01.AC1 to AC4 (automated)
+ * and E99-01.AC5 (manual).
+ */
+export const FIXTURE_EPIC = `# E99 · Fixture epic for tracer tests
+<!-- epic: milestone=M0; labels=area:infra -->
+
+**Epic success criteria**
+- [ ] \`SC1\` Fixture holds
+
+---
+
+## E99-01 · Fixture issue
+<!-- meta: milestone=M0; size=S; labels=type:chore; depends= -->
+
+**Acceptance criteria**
+- [ ] \`AC1\` First automated criterion
+- [ ] \`AC2\` Second automated criterion
+- [ ] \`AC3\` Third automated criterion
+- [ ] \`AC4\` Fourth automated criterion
+- [ ] \`AC5\` \`manual\` A human signs off
+`

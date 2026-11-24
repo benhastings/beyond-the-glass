@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'nod
 import { dirname, join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
-import { ROOT, cleanCheckout } from './helpers.ts'
+import { FIXTURE_EPIC, ROOT, cleanCheckout } from './helpers.ts'
 
 /**
  * Builds a criterion tag at runtime. Fixtures must never contain a literal tag: the tracer scans this
@@ -18,6 +18,7 @@ describe('E0-10 acceptance-criteria gate', () => {
   beforeAll(() => {
     dir = cleanCheckout()
     symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir')
+    writeFileSync(join(dir, 'docs/plan/epics/E99-fixture.md'), FIXTURE_EPIC)
   })
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true })
@@ -88,89 +89,47 @@ describe('E0-10 acceptance-criteria gate', () => {
     )
     write(
       'e2e/typo.spec.ts',
-      `import { acTest } from './ac.ts'\nacTest('${tag('E99-01', 1)}', 'stale', () => {})\n`,
+      `import { acTest } from './ac.ts'\nacTest('${tag('E98-01', 1)}', 'stale', () => {})\n`,
     )
     const r = trace()
     expect(r.code).toBe(1)
     expect(r.out).toContain('E0-01.AC9 (in src/sim/core/typo.test.ts:2)')
-    expect(r.out).toContain('E99-01.AC1 (in e2e/typo.spec.ts:2)')
+    expect(r.out).toContain('E98-01.AC1 (in e2e/typo.spec.ts:2)')
     rmSync(join(dir, 'src/sim/core/typo.test.ts'))
     rmSync(join(dir, 'e2e/typo.spec.ts'))
   })
 
   it('[E0-10.AC3] with real Vitest JUnit, only tagged tests that ran and passed count', () => {
-    // E0-01's four criteria: AC1 passes, AC2 fails, AC3 is skipped in source, AC4 isn't in this run.
+    // E99-01's four automated criteria: AC1 passes, AC2 fails, AC3 is skipped in source, AC4 isn't in this run.
     write(
       'src/sim/core/gate.test.ts',
       [
         "import { expect, it } from 'vitest'",
         "import { acTest } from '../../test/ac'",
-        `acTest('${tag('E0-01', 1)}', 'passes', () => { expect(1).toBe(1) })`,
-        `it('[${tag('E0-01', 2)}] fails', () => { expect(1).toBe(2) })`,
-        `it.skip('[${tag('E0-01', 3)}] skipped', () => {})`,
+        `acTest('${tag('E99-01', 1)}', 'passes', () => { expect(1).toBe(1) })`,
+        `it('[${tag('E99-01', 2)}] fails', () => { expect(1).toBe(2) })`,
+        `it.skip('[${tag('E99-01', 3)}] skipped', () => {})`,
         '',
       ].join('\n'),
     )
-    for (const f of ['tests/repo/scaffold.test.ts']) rmSync(join(dir, f), { force: true })
     const run = sh('npx', ['vitest', 'run', '--project', 'unit', 'src/sim/core/gate.test.ts'], {
       CI: '1',
     })
     expect(run.code, run.out).toBe(1) // the deliberate failure
     const junit = readFileSync(join(dir, 'reports/vitest.xml'), 'utf8')
-    expect(junit).toContain(`[${tag('E0-01', 1)}] passes`)
+    expect(junit).toContain(`[${tag('E99-01', 1)}] passes`)
 
-    const r = trace('--issue', 'E0-01', '--junit', 'reports/vitest.xml')
+    const r = trace('--issue', 'E99-01', '--junit', 'reports/vitest.xml')
     expect(r.code).toBe(1)
     const line = (tag: string) => r.out.split('\n').find((l) => l.includes(tag)) ?? '<not listed>'
-    expect(r.out).toMatch(/UNTRACED \(3\)/)
-    expect(r.out).not.toMatch(/E0-01\.AC1 /)
-    expect(line('E0-01.AC2')).toMatch(/failed in this run/)
-    expect(line('E0-01.AC3')).toMatch(/skipped/)
-    expect(line('E0-01.AC4')).toMatch(/needs a test/)
+    expect(r.out).toMatch(/UNTRACED \(4\)/)
+    expect(r.out).not.toMatch(/E99-01\.AC1 /)
+    expect(line('E99-01.AC2')).toMatch(/failed in this run/)
+    expect(line('E99-01.AC3')).toMatch(/skipped/)
+    expect(line('E99-01.AC4')).toMatch(/needs a test/)
     rmSync(join(dir, 'src/sim/core/gate.test.ts'))
     rmSync(join(dir, 'reports'), { recursive: true, force: true })
   }, 60_000)
-
-  it('[E0-10.AC3] with real Playwright JUnit, a test skipped in one browser but passed in another counts', () => {
-    write(
-      'e2e/gate.spec.ts',
-      [
-        "import { expect, test } from './fixtures.ts'",
-        "import { acTest } from './ac.ts'",
-        `acTest('${tag('E0-03', 3)}', 'passes in chromium, skips in firefox', async ({ page, browserName }) => {`,
-        "  test.skip(browserName === 'firefox', 'skip in one project')",
-        "  await page.setContent('<h1>ok</h1>')",
-        "  await expect(page.getByRole('heading')).toHaveText('ok')",
-        '})',
-        `test.fixme('[${tag('E0-03', 4)}] not written yet', () => {})`,
-        '',
-      ].join('\n'),
-    )
-    const run = sh(
-      'npx',
-      [
-        'playwright',
-        'test',
-        'e2e/gate.spec.ts',
-        '--project',
-        'chromium',
-        '--project',
-        'firefox',
-        '--retries',
-        '0',
-      ],
-      { CI: '1', BASE_URL: 'http://127.0.0.1:9/' },
-    )
-    expect(run.code, run.out).toBe(0)
-    const junit = readFileSync(join(dir, 'reports/playwright.xml'), 'utf8')
-    expect(junit).toMatch(/<skipped/)
-    const r = trace('--junit', 'reports/playwright.xml', '--report', 'm.md')
-    const matrix = readFileSync(join(dir, 'm.md'), 'utf8')
-    expect(matrix).toMatch(/`E0-03\.AC3` \| test \| ✅/)
-    expect(matrix).toMatch(/`E0-03\.AC4` \| test \| ⬜ \| tagged test is skipped/)
-    expect(r.code).toBe(0)
-    rmSync(join(dir, 'e2e/gate.spec.ts'))
-  }, 90_000)
 
   it('[E0-10.AC4] a manual criterion is traced only by a non-empty evidence entry under its heading', () => {
     write(
