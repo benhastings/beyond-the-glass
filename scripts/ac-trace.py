@@ -31,6 +31,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from plan_lib import MILESTONES, ROOT, Criterion, Epic, parse  # noqa: E402
 
 TAG = re.compile(r"\[(E\d+-\d+\.AC\d+|E\d+\.SC\d+)\]")
+# acTest('E6-04.AC2', ...) and acTest(['E6-04.AC2', 'E6.SC1'], ...): quoted tags on the acTest line
+AC_TEST = re.compile(r"\bacTest(?:\.\w+)?\(")
+QUOTED_TAG = re.compile(r"""['"`](E\d+-\d+\.AC\d+|E\d+\.SC\d+)['"`]""")
 TEST_GLOBS = ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/*.test.js",
               "**/*.test.mjs", "**/*.spec.js", "**/test_*.py"]
 SKIP_DIRS = {"node_modules", "dist", ".git", "coverage", "playwright-report", "test-results"}
@@ -46,7 +49,8 @@ class Scan:
     evidence: dict[str, str] = field(default_factory=dict)       # tag -> "file"
     empty_evidence: set[str] = field(default_factory=set)
     passed: set[str] | None = None                               # tags that passed per JUnit (None = no JUnit given)
-    failed: set[str] = field(default_factory=set)
+    failed: set[str] = field(default_factory=set)                # a tagged test failed or errored
+    skipped_run: set[str] = field(default_factory=set)           # a tagged test was skipped in the run
 
 
 def _test_files(root: Path) -> list[Path]:
@@ -64,7 +68,8 @@ def scan(root: Path, junit: list[Path]) -> Scan:
     for f in _test_files(root):
         rel = str(f.relative_to(root))
         for no, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-            for tag in TAG.findall(line):
+            tags = TAG.findall(line) + (QUOTED_TAG.findall(line) if AC_TEST.search(line) else [])
+            for tag in dict.fromkeys(tags):
                 bucket = s.skipped if SKIP_MARK.search(line) else s.tested
                 bucket.setdefault(tag, []).append(f"{rel}:{no}")
     ev_dir = root / "docs" / "evidence"
@@ -84,9 +89,16 @@ def scan(root: Path, junit: list[Path]) -> Scan:
         for path in junit:
             for tc in ET.parse(path).getroot().iter("testcase"):
                 name = (tc.get("classname") or "") + " " + (tc.get("name") or "")
-                bad = any(child.tag in {"failure", "error", "skipped"} for child in tc)
+                kids = {child.tag for child in tc}
                 for tag in TAG.findall(name):
-                    (s.failed if bad else s.passed).add(tag)
+                    if kids & {"failure", "error"}:
+                        s.failed.add(tag)
+                    elif "skipped" in kids:
+                        # Neutral: e.g. a test that runs in one browser and skips in the others. It
+                        # still needs a passing run somewhere to count.
+                        s.skipped_run.add(tag)
+                    else:
+                        s.passed.add(tag)
         s.passed -= s.failed
     return s
 
@@ -102,8 +114,10 @@ def status(c: Criterion, s: Scan) -> tuple[str, str]:
     if c.tag in s.tested:
         if s.passed is not None:
             if c.tag in s.failed:
-                return "untraced", "tagged test failed or was skipped in this run"
+                return "untraced", "tagged test failed in this run"
             if c.tag not in s.passed:
+                if c.tag in s.skipped_run:
+                    return "untraced", "tagged test was skipped in this run and never passed"
                 return "untraced", "tagged test did not run in this run's JUnit results"
         return "traced", "test: " + ", ".join(s.tested[c.tag][:3])
     if c.tag in s.skipped:

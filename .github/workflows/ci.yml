@@ -2,6 +2,8 @@ name: ci
 # The app's gate: every check here is required on main (see CONTRIBUTING.md).
 on:
   pull_request:
+    # `edited`: the acceptance-criteria gate reads "Closes #n" from the PR body.
+    types: [opened, edited, synchronize, reopened]
   push:
     branches: [main]
 permissions:
@@ -30,6 +32,13 @@ jobs:
         run: npm run format:check
       - name: Unit tests with coverage thresholds
         run: npm run test:coverage
+      - name: Upload JUnit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-vitest
+          path: reports/vitest.xml
+          retention-days: 14
       - name: Build
         run: npm run build
       - name: Bundle size
@@ -68,6 +77,13 @@ jobs:
         run: npx playwright install-deps chromium firefox webkit
       - name: End-to-end and accessibility tests (Chromium, Firefox, WebKit)
         run: npm run test:e2e
+      - name: Upload JUnit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-playwright
+          path: reports/playwright.xml
+          retention-days: 14
       - name: Upload traces and screenshots
         if: failure()
         uses: actions/upload-artifact@v4
@@ -77,3 +93,55 @@ jobs:
             test-results
             playwright-report
           retention-days: 14
+
+  gate:
+    # Acceptance-criteria traceability (E0-10). On a PR, every criterion of each plan issue it closes
+    # must be traced: an automated one by a tagged test that ran and passed in THIS run's JUnit
+    # results, a manual one by evidence in docs/evidence/. Unknown tags always fail.
+    name: gate
+    needs: [verify, e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Tracer unit tests
+        run: python3 -m unittest discover scripts/tests -v
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: junit-*
+          path: reports
+          merge-multiple: true
+      - name: Committed matrix is current
+        run: |
+          python3 scripts/ac-trace.py --report /tmp/matrix.md > /dev/null
+          if ! diff -u docs/plan/AC-TRACEABILITY.md /tmp/matrix.md; then
+            echo "::error::docs/plan/AC-TRACEABILITY.md is stale. Run: python3 scripts/ac-trace.py --report docs/plan/AC-TRACEABILITY.md"
+            exit 1
+          fi
+      - name: Plan issues this PR closes
+        id: ids
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: echo "ids=$(python3 scripts/pr-issues.py)" >> "$GITHUB_OUTPUT"
+      - name: Trace this PR's acceptance criteria against this run's results
+        if: github.event_name == 'pull_request' && steps.ids.outputs.ids != ''
+        run: python3 scripts/ac-trace.py --issue ${{ steps.ids.outputs.ids }} --junit reports/*.xml
+      - name: Unknown tags (PR closes no plan issue)
+        if: github.event_name != 'pull_request' || steps.ids.outputs.ids == ''
+        run: python3 scripts/ac-trace.py --junit reports/*.xml
+      - name: Publish the traceability matrix
+        if: always()
+        run: |
+          python3 scripts/ac-trace.py --junit reports/*.xml --report matrix.md > /dev/null || true
+          cat matrix.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ac-traceability
+          path: matrix.md
+          retention-days: 30

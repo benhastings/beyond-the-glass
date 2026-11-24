@@ -22,12 +22,22 @@ it('[E6-04.AC1] never throws on 10,000 random inputs', () => { /* fast-check */ 
 test('[E5-07.AC1] [E3.SC1] landing → quiz → lesson → resume on the deployed site', async ({ page }) => { /* … */ });
 ```
 
-E0-10 adds `acTest('E6-04.AC1', 'title', fn)` helpers that build this prefix for you.
+Or use the helpers, which build the prefix and reject malformed tags. Keep the tags on the `acTest(` line,
+where the tracer reads them:
+
+```ts
+import { acTest } from '@/test/ac'        // Vitest (src/test/ac.ts)
+import { acTest } from './ac.ts'          // Playwright (e2e/ac.ts), with the shared fixtures
+acTest('E6-04.AC1', 'never throws on 10,000 random inputs', () => { /* … */ })
+acTest(['E5-07.AC1', 'E3.SC1'], 'landing → quiz → lesson → resume', async ({ page }) => { /* … */ })
+```
 
 A criterion counts as traced only when **all** of these are true:
 - A test title carries the tag
-- The test isn't skipped (`.skip`, `.todo`, `.fixme`, `xit`)
-- In CI, the JUnit report from that run shows it **ran and passed** (`--junit`)
+- The test isn't skipped in source (`.skip`, `.todo`, `.fixme`, `xit`)
+- In CI, the JUnit report from that run shows it **ran and passed** at least once, and **failed nowhere**
+  (`--junit`). A run skipped at runtime, such as a test that only runs in Chromium, is neutral: it
+  neither counts nor cancels a pass elsewhere.
 
 ## Manual criteria: write evidence
 
@@ -54,7 +64,13 @@ python3 -m unittest discover scripts/tests        # the tracer's own tests
 
 ## In CI
 - **`plan`** validates the plan, runs the tracer's unit tests, and publishes the matrix on every change.
-- **`ac-trace`** reads `Closes #n` from the PR body, maps `#n` to its plan ID via `docs/plan/issue-map.json`, and fails the PR if any criterion of that issue is untraced.
+- **`gate`** (in `ci.yml`, after `verify` and `e2e`) runs the tracer's unit tests, checks that the committed
+  `docs/plan/AC-TRACEABILITY.md` is current, reads `Closes #n` from the PR body (`scripts/pr-issues.py`), maps
+  `#n` to its plan ID via `docs/plan/issue-map.json`, and fails the PR if any criterion of that issue is
+  untraced **against the JUnit results of that same run**. It publishes the matrix to the job summary.
+- Editing the PR body re-runs CI, so adding `Closes #n` takes effect.
+- After adding tagged tests or evidence, refresh the committed matrix:
+  `python3 scripts/ac-trace.py --report docs/plan/AC-TRACEABILITY.md`.
 - Tags that don't match any criterion (typos or stale IDs) always fail.
 
 ```mermaid

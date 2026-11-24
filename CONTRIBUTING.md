@@ -11,7 +11,7 @@ Every pull request and every push to `main` runs these workflows:
 |---|---|---|
 | `.github/workflows/ci.yml` | `verify` | `npm ci`, typecheck, lint, Prettier, unit tests with coverage thresholds, build, then a bundle-size table in the job summary and the `dist` artifact |
 | `.github/workflows/ci.yml` | `e2e` | Playwright with axe in Chromium, Firefox and WebKit against `vite preview`; traces and screenshots uploaded on failure |
-| `.github/workflows/ac-trace.yml` | `gate` | the acceptance-criteria gate for the issue the PR closes |
+| `.github/workflows/ci.yml` | `gate` | the acceptance-criteria gate: every criterion of each plan issue the PR `Closes` must be traced by a test that passed in this run, or by evidence ([docs/testing/acceptance-criteria.md](docs/testing/acceptance-criteria.md)) |
 | `.github/workflows/plan.yml` | `validate` | plan and tracer validation (only when `docs/plan`, `docs/evidence` or `scripts` change) |
 
 ## Branch protection

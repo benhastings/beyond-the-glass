@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
@@ -41,9 +41,9 @@ describe('E0-02 CI pipeline', () => {
   })
 
   it('[E0-02.AC3] CONTRIBUTING.md names the required checks exactly as the workflows do', () => {
-    const jobNames = ['ci.yml', 'ac-trace.yml', 'plan.yml'].flatMap((f) =>
-      Object.entries(workflow(f).jobs).map(([id, j]) => j.name ?? id),
-    )
+    const jobNames = readdirSync(join(ROOT, '.github/workflows'))
+      .filter((f) => f.endsWith('.yml'))
+      .flatMap((f) => Object.entries(workflow(f).jobs).map(([id, j]) => j.name ?? id))
     expect(requiredChecks.length).toBeGreaterThan(0)
     for (const check of requiredChecks)
       expect(jobNames, `required check "${check}"`).toContain(check)

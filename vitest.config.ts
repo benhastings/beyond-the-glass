@@ -10,6 +10,9 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
+      // In CI, JUnit results feed the acceptance-criteria gate (E0-10): a tag counts only if it passed.
+      reporters: process.env.CI ? ['default', 'junit'] : ['default'],
+      outputFile: { junit: 'reports/vitest.xml' },
       projects: [
         {
           extends: true,
