@@ -5,7 +5,8 @@ import { ROOT, cleanCheckout } from '../tests/repo/helpers.ts'
 import { blockThirdPartyRequests, expect, expectNoA11yViolations, test } from './fixtures.ts'
 
 // These prove the harness itself catches problems, so a green e2e run means something.
-test.describe('test harness', () => {
+// @tooling: tests of the test tooling itself; CI's container job skips them (they say nothing about the image).
+test.describe('test harness', { tag: '@tooling' }, () => {
   test('[E0-05.AC3] expectNoA11yViolations fails on a serious or critical violation', async ({
     page,
   }) => {
@@ -35,7 +36,9 @@ test.describe('test harness', () => {
     const page = await browser.newPage()
     const origin = new URL(baseURL ?? '').origin
     const blocked = await blockThirdPartyRequests(page, origin)
-    await page.goto('./')
+    // A blank page rather than the site: the container's CSP (connect-src 'self') would stop the
+    // request in the browser before it ever reached the route this helper installs.
+    await page.setContent('<p>harness</p>')
     await page.evaluate(async () => {
       await fetch('https://third-party.example/beacon').catch(() => undefined)
     })

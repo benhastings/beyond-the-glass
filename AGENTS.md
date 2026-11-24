@@ -40,6 +40,10 @@ A PR is mergeable only when all of the following are true:
 - [ ] No new runtime third-party requests; bundle budgets still pass
 
 ## 5. Budgets
+Every limit lives in [`budgets.json`](budgets.json); change it there and here together (a test checks they match).
+CI enforces the first two: `node scripts/check-bundle.mjs` after every build, and Lighthouse (desktop) on the
+routes listed in `budgets.json` in the e2e job (`scripts/lighthouse.mjs`).
+
 | Budget | Limit |
 |---|---|
 | Initial JS (gzipped) | ≤ 250 KB |

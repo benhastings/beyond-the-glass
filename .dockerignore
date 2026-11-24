@@ -1,0 +1,13 @@
+# Only what `npm ci && npm run build` and the nginx config need.
+*
+!package.json
+!package-lock.json
+!index.html
+!vite.config.ts
+!tsconfig*.json
+!src
+!public
+!content
+!deploy/nginx
+src/**/*.test.ts
+src/**/*.test.tsx
