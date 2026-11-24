@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -19,6 +19,17 @@ const tenLines = `export function f(covered: boolean): number {
   return n
 }
 `
+/** Lines of non-test TypeScript tracked under `dir`. */
+const sourceLines = (dir: string) =>
+  execFileSync('git', ['ls-files', '-z', dir], { cwd: ROOT, encoding: 'utf8' })
+    .split('\0')
+    .filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f))
+    .reduce((n, f) => n + readFileSync(join(ROOT, f), 'utf8').split('\n').length, 0)
+
+/** Like `tenLines`, but the branch the test never takes is `uncovered` lines long. */
+const mostlyUncovered = (uncovered: number) =>
+  `export function f(covered: boolean): number {\n  let n = 4\n  if (covered) return n\n${'  n += 1\n'.repeat(uncovered)}  return n\n}\n`
+
 const callsHalf = (mod: string) =>
   `import { expect, it } from 'vitest'\nimport { f } from './${mod}'\nit('x', () => { expect(f(true)).toBe(4) })\n`
 
@@ -63,7 +74,8 @@ describe('E0-05 test harness', () => {
 
   it('[E0-05.AC2] the coverage gate fails when src/sim drops below 90% lines', () => {
     reset()
-    write('src/sim/core/partial.ts', tenLines)
+    // Uncovered lines three times the size of src/sim keep the package under 25%, however big it grows.
+    write('src/sim/core/partial.ts', mostlyUncovered(3 * sourceLines('src/sim')))
     write('src/sim/core/partial.test.ts', callsHalf('partial'))
     const { code, out } = coverage()
     expect(code, out).not.toBe(0)
@@ -80,12 +92,11 @@ describe('E0-05 test harness', () => {
 
   it('[E0-05.AC2] the coverage gate fails when overall coverage drops below 70% lines', () => {
     reset()
+    // An untested module three times the size of all of src/ keeps overall coverage under 25%,
+    // however much well-tested code the repository holds.
     write(
       'src/app/untested.ts',
-      tenLines
-        .replaceAll('n += 1', 'n += 2')
-        .repeat(1)
-        .replace('export function f', 'export function g'),
+      `export function g(): number {\n  let n = 0\n${'  n += 2\n'.repeat(3 * sourceLines('src'))}  return n\n}\n`,
     )
     write('src/app/partial.ts', tenLines)
     write('src/app/partial.test.ts', callsHalf('partial'))

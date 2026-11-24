@@ -1,0 +1,205 @@
+# Ravenpost baseline (E6-01.AC4): the fictional Ravenpost message service on a three-node kind cluster.
+# Everything is healthy except one pod: the notifier has been crash-looping for about 25 minutes.
+# Used by E5-07 ("Your first look at the cluster"). Format: docs/sim/scenarios.md
+id: ravenpost
+title: Ravenpost, a quiet night
+description: >-
+  Ravenpost delivers messages between the outposts of the Reach. Web, API and worker are healthy;
+  the notifier has been restarting since shortly before your shift began.
+seed: 1998
+startTime: 2026-03-14T02:10:00Z
+currentContext: kind-ravenpost
+contexts:
+  - name: kind-ravenpost
+    cluster: ravenpost
+    user: kind-ravenpost
+clusters:
+  - name: ravenpost
+    server: https://127.0.0.1:40125
+    kubernetesVersion: v1.34.0
+    system: kind
+    age: -12d
+    nodes:
+      - { name: ravenpost-control-plane, role: control-plane }
+      - { name: ravenpost-worker }
+      - { name: ravenpost-worker2 }
+    resources:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: ravenpost
+          creationTimestamp: -9d
+          labels: { app.kubernetes.io/part-of: ravenpost }
+
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata: { name: ravenpost-config, namespace: ravenpost, creationTimestamp: -9d }
+        data:
+          LOG_LEVEL: info
+          QUEUE_URL: amqp://ravenpost-queue.ravenpost.svc:5672
+          SMTP_HOST: smtp.ravenpost.example
+          SMTP_PORT: '587'
+
+      - apiVersion: v1
+        kind: Secret
+        metadata: { name: ravenpost-db, namespace: ravenpost, creationTimestamp: -9d }
+        type: Opaque
+        stringData:
+          DB_USER: ravenpost
+          DB_PASSWORD: not-a-real-password
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-web
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-web, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: ravenpost-web } }
+          template:
+            metadata: { labels: { app: ravenpost-web, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: web
+                  image: registry.example/ravenpost/web:2.3.1
+                  ports: [{ name: http, containerPort: 8080 }]
+                  resources:
+                    requests: { cpu: 100m, memory: 128Mi }
+                    limits: { memory: 256Mi }
+                  readinessProbe:
+                    httpGet: { path: /healthz, port: http }
+                    periodSeconds: 10
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-api
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-api, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 3
+          selector: { matchLabels: { app: ravenpost-api } }
+          template:
+            metadata: { labels: { app: ravenpost-api, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: api
+                  image: registry.example/ravenpost/api:1.14.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  envFrom:
+                    [
+                      { configMapRef: { name: ravenpost-config } },
+                      { secretRef: { name: ravenpost-db } },
+                    ]
+                  resources:
+                    requests: { cpu: 250m, memory: 256Mi }
+                    limits: { memory: 512Mi }
+                  readinessProbe:
+                    httpGet: { path: /ready, port: http }
+                    periodSeconds: 10
+                  livenessProbe:
+                    httpGet: { path: /healthz, port: http }
+                    periodSeconds: 20
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-worker
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-worker, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: ravenpost-worker } }
+          template:
+            metadata: { labels: { app: ravenpost-worker, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: worker
+                  image: registry.example/ravenpost/worker:1.14.0
+                  envFrom:
+                    [
+                      { configMapRef: { name: ravenpost-config } },
+                      { secretRef: { name: ravenpost-db } },
+                    ]
+                  resources:
+                    requests: { cpu: 200m, memory: 256Mi }
+                    limits: { memory: 512Mi }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-notifier
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-notifier, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: ravenpost-notifier } }
+          template:
+            metadata: { labels: { app: ravenpost-notifier, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: notifier
+                  image: registry.example/ravenpost/notifier:0.9.2
+                  ports: [{ name: http, containerPort: 8080 }]
+                  env:
+                    - name: SMTP_HOST
+                      valueFrom: { configMapKeyRef: { name: ravenpost-config, key: SMTP_HOST } }
+                  resources:
+                    requests: { cpu: 50m, memory: 64Mi }
+                    limits: { memory: 128Mi }
+
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: ravenpost-web,
+            namespace: ravenpost,
+            creationTimestamp: -9d,
+            labels: { app: ravenpost-web },
+          }
+        spec:
+          selector: { app: ravenpost-web }
+          ports: [{ name: http, port: 80, targetPort: http }]
+
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: ravenpost-api,
+            namespace: ravenpost,
+            creationTimestamp: -9d,
+            labels: { app: ravenpost-api },
+          }
+        spec:
+          selector: { app: ravenpost-api }
+          ports: [{ name: http, port: 8080, targetPort: http }]
+
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: ravenpost-notifier,
+            namespace: ravenpost,
+            creationTimestamp: -9d,
+            labels: { app: ravenpost-notifier },
+          }
+        spec:
+          selector: { app: ravenpost-notifier }
+          ports: [{ name: http, port: 8080, targetPort: http }]
+
+    podOverrides:
+      # The one unhealthy pod: it exits with status 1 a couple of seconds after every start.
+      - namespace: ravenpost
+        deployment: ravenpost-notifier
+        createdAt: -25m
+        containers:
+          notifier:
+            restartCount: 9
+            state: { waiting: { reason: CrashLoopBackOff } }
+            lastState:
+              terminated: { exitCode: 1, reason: Error, startedAt: -1m52s, finishedAt: -1m50s }

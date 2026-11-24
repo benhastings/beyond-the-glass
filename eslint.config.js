@@ -98,4 +98,23 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Determinism (AGENTS.md §2.5, ADR-004): the simulator uses its seeded Rng and SimClock only.
+    files: ['src/sim/**'],
+    rules: {
+      'no-restricted-properties': [
+        'error',
+        { object: 'Math', property: 'random', message: 'Use the simulator Rng (AGENTS.md §2.5).' },
+        { object: 'Date', property: 'now', message: 'Use SimClock (AGENTS.md §2.5).' },
+        { object: 'performance', property: 'now', message: 'Use SimClock (AGENTS.md §2.5).' },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+          message: 'new Date() reads the real clock; use SimClock (AGENTS.md §2.5).',
+        },
+      ],
+    },
+  },
 )
