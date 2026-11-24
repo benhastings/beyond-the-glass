@@ -6,6 +6,7 @@ import {
   emptyProgress,
   progressV1,
   PROGRESS_KEY,
+  recoverStoredProgress,
   CURRENT_VERSION,
   type Answer,
   type ChallengeProgress,
@@ -14,6 +15,7 @@ import {
   type KeyValueStore,
   type Level,
   type Progress,
+  type Recovery,
   type ScenarioProgress,
   type Settings,
   type StorageFailure,
@@ -23,9 +25,10 @@ export interface ProgressState {
   progress: Progress
   /** Set when a save failed; the StorageNotice shows it until dismissed. */
   storageFailure: StorageFailure['kind'] | undefined
-  /** True when stored progress existed but didn't validate (E3-02 recovers it). */
-  loadFailed: boolean
+  /** Set when stored progress couldn't be read as-is; the RecoveryDialog shows it once (E3-02). */
+  recovery: Recovery | undefined
   dismissStorageFailure: () => void
+  dismissRecovery: () => void
   setDisplayName: (name: string | undefined) => void
   recordThresholdAnswer: (questionId: string, value: Answer) => void
   completeThreshold: (placement: Record<string, Level>) => void
@@ -66,6 +69,8 @@ export function createProgressStore({
   now = () => new Date().toISOString(),
   intervalMs,
 }: StoreOptions): ProgressStore {
+  // Before anything reads it: migrate old progress, and back up anything unreadable (E3-02).
+  const recovery = recoverStoredProgress(backing, now())
   let report: (f: StorageFailure) => void = () => undefined
   // A failure the learner dismissed stays quiet until a save succeeds again; otherwise the next
   // retry (or the dismissal itself, which is a state change) would bring it straight back.
@@ -91,7 +96,10 @@ export function createProgressStore({
         return {
           progress: emptyProgress(now()),
           storageFailure: undefined,
-          loadFailed: false,
+          recovery,
+          dismissRecovery: () => {
+            set({ recovery: undefined })
+          },
           dismissStorageFailure: () => {
             set((s) => {
               dismissed = s.storageFailure
@@ -147,15 +155,14 @@ export function createProgressStore({
         version: CURRENT_VERSION,
         storage: createJSONStorage(() => storage),
         partialize: (s) => ({ progress: s.progress }),
-        // Every load is validated against the schema. Anything that doesn't validate is left in storage
-        // untouched for E3-02's recovery, and the learner starts from a fresh record.
+        // Every load is validated against the schema. recoverStoredProgress has already repaired or
+        // set aside anything unreadable, so a failure here can only be a write from another tab
+        // racing this one; keep the fresh record rather than crash.
         merge: (persisted, current) => {
           const stored = (persisted as { progress?: unknown } | undefined)?.progress
           if (stored === undefined) return current
           const parsed = progressV1.safeParse(stored)
-          return parsed.success
-            ? { ...current, progress: parsed.data }
-            : { ...current, loadFailed: true }
+          return parsed.success ? { ...current, progress: parsed.data } : current
         },
       },
     ),

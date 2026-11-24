@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { useProgress } from '../progress'
+import { RecoveryDialog } from '../progress/RecoveryDialog'
 import { StorageNotice } from '../progress/StorageNotice'
 import { PageContext, SITE_NAME } from './page-context'
 import { ProgressIndicator } from './ProgressIndicator'
@@ -26,6 +27,8 @@ export function Shell() {
   const [message, setMessage] = useState('')
   const storageFailure = useProgress((s) => s.storageFailure)
   const dismiss = useProgress((s) => s.dismissStorageFailure)
+  const recovery = useProgress((s) => s.recovery)
+  const dismissRecovery = useProgress((s) => s.dismissRecovery)
 
   // Clearing first makes a repeat of the same text (back to the same page) announce again.
   const announce = useCallback((text: string) => {
@@ -88,6 +91,14 @@ export function Shell() {
           {message}
         </div>
         <StorageNotice failure={storageFailure} onDismiss={dismiss} />
+        <RecoveryDialog
+          recovery={recovery}
+          onClose={() => {
+            dismissRecovery()
+            // The dialog had focus and is going away; give keyboard users a sensible place to resume.
+            main.current?.focus()
+          }}
+        />
       </div>
       <ScrollRestoration />
     </PageContext>
