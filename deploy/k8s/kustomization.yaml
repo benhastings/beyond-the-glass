@@ -1,0 +1,11 @@
+# kubectl apply -k deploy/k8s
+# Pin a release instead of latest: in an overlay, or with
+#   kustomize edit set image ghcr.io/benhastings/beyond-the-glass=ghcr.io/benhastings/beyond-the-glass:<version>
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: beyond-the-glass
+resources:
+  - deployment.yaml
+  - service.yaml

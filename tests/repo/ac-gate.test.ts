@@ -60,14 +60,19 @@ describe('E0-10 acceptance-criteria gate', () => {
           name?: string
           needs?: string[]
           if?: string
-          steps: { run?: string; env?: Record<string, string> }[]
+          steps: { run?: string; env?: Record<string, string>; with?: { name?: string } }[]
         }
       >
     }
     expect(ci.on.pull_request.types).toContain('edited')
     const gate = ci.jobs.gate
     expect(gate?.name).toBe('gate')
-    expect(gate?.needs).toEqual(['verify', 'e2e'])
+    // The gate must wait for every job whose JUnit results it reads, or their tags look untested.
+    const junitJobs = Object.entries(ci.jobs)
+      .filter(([, j]) => j.steps.some((s) => s.with?.name?.startsWith('junit-')))
+      .map(([id]) => id)
+    expect(junitJobs.length).toBeGreaterThanOrEqual(2)
+    expect([...(gate?.needs ?? [])].sort()).toEqual(junitJobs.sort())
     expect(gate?.if).toBe('always()')
     const runs = gate?.steps.map((s) => s.run ?? '') ?? []
     expect(gate?.steps.find((s) => s.run?.includes('pr-issues.py'))?.env?.PR_BODY).toBe(
