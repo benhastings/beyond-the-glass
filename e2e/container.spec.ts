@@ -36,7 +36,7 @@ test.describe('container image', () => {
     async ({ page }) => {
       await page.goto('./#/region/chartroom')
       await page.reload()
-      await expect(page.getByRole('heading', { level: 1, name: 'Region: chartroom' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1, name: 'The Chartroom' })).toBeVisible()
     },
   )
 
@@ -48,7 +48,7 @@ test.describe('container image', () => {
       await page.goto('./region/chartroom')
       await expect(page).toHaveURL(/\/#\/region\/chartroom$/)
       await page.reload()
-      await expect(page.getByRole('heading', { level: 1, name: 'Region: chartroom' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1, name: 'The Chartroom' })).toBeVisible()
     },
   )
 })
