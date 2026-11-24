@@ -183,6 +183,27 @@ Crossing becomes a 400 ms crossfade, with Skip still offered.
 - **Status** always pairs a colour with an icon and a word (for example a check mark and "Complete"),
   never colour alone.
 
+## Applying moods, regions and display preferences
+
+How the tokens reach the page (E1-02):
+
+- **Mood and region:** every page renders `<Page mood="…" region="…">` (default mood: the Reach). Page sets
+  `data-mood` and `data-region` on `<html>` before the page paints, and the region tokens
+  (`--color-region-accent`, `--color-region-soft`) follow. Use the region accent for text only in the Reach
+  mood; regions in the other moods (the Console Room, Stormwatch) use that mood's palette instead.
+- **Display preferences** come from the learner's settings (stored with their progress), and "system" follows
+  the operating system. The shell writes them onto `<html>`:
+  - `data-motion="reduce"` when reduce motion is on (or "system" and the OS asks): no animations, and only
+    colour and opacity may transition.
+  - `data-contrast="more"` when high contrast is on (or "system" and the OS asks for more contrast): the
+    high-contrast palette in `tokens.ts` replaces ink, muted ink, links and boundaries, reaching 7:1 for text
+    and 4.5:1 for boundaries.
+  - The root font size (100, 115 or 130 %): every rem-based size scales with it, so nothing may be sized
+    in pixels where text could grow.
+- **Forced colours** (Windows High Contrast): `display.css` gives every control a system-coloured border,
+  keeps links underlined, and draws focus in the system highlight colour. Never rely on a background or box
+  shadow alone to show where a control is.
+
 ## Review points settled
 
 The five open questions from the concept review, all decided as recommended (Ben, 2026-11-24):

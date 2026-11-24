@@ -4,7 +4,7 @@ import { Page } from '../shell/Page'
 /** `/threshold`: the placement quiz (E4-02). */
 export default function Threshold() {
   return (
-    <Page title="The Threshold">
+    <Page title="The Threshold" mood="console">
       <p className="mt-4 max-w-prose">
         A few questions to choose your starting trail. There are no wrong answers, and you can
         always change where you start.

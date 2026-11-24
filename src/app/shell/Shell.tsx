@@ -1,5 +1,6 @@
 import { Suspense, useCallback, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
+import { useDisplayPreferences } from '../display/useDisplayPreferences'
 import { useProgress } from '../progress'
 import { RecoveryDialog } from '../progress/RecoveryDialog'
 import { StorageNotice } from '../progress/StorageNotice'
@@ -28,6 +29,7 @@ export function Shell() {
   const storageFailure = useProgress((s) => s.storageFailure)
   const dismiss = useProgress((s) => s.dismissStorageFailure)
   const recovery = useProgress((s) => s.recovery)
+  useDisplayPreferences()
   const dismissRecovery = useProgress((s) => s.dismissRecovery)
 
   // Clearing first makes a repeat of the same text (back to the same page) announce again.

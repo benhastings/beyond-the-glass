@@ -10,8 +10,18 @@ export default function Region() {
   const region = findRegion(useManifest(), regionId)
   if (!region) return <NotFound />
   return (
-    <Page title={region.title}>
-      <p className="mt-4 max-w-prose">{region.summary}</p>
+    <Page
+      title={region.title}
+      mood={region.mood}
+      region={region.id}
+      accentHeading={region.mood === 'reach'}
+    >
+      <p
+        className={`mt-4 max-w-prose rounded-lg p-4 ${region.mood === 'reach' ? 'bg-region-soft' : 'bg-raised'}`}
+        data-testid="region-summary"
+      >
+        {region.summary}
+      </p>
       {region.id === 'stormwatch' && (
         <p className="mt-6">
           <Link to="/stormwatch" className="underline focus-visible:outline-2">
