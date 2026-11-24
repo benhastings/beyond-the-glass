@@ -1,3 +1,7 @@
+import { spawnSync } from 'node:child_process'
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { ROOT, cleanCheckout } from '../tests/repo/helpers.ts'
 import { blockThirdPartyRequests, expect, expectNoA11yViolations, test } from './fixtures.ts'
 
 // These prove the harness itself catches problems, so a green e2e run means something.
@@ -37,5 +41,51 @@ test.describe('test harness', () => {
     })
     expect(blocked).toEqual(['https://third-party.example/beacon'])
     await page.close()
+  })
+
+  test('[E0-05.AC4] a failing e2e test leaves a trace and a screenshot in test-results/', ({
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'runs a nested Playwright once, in Chromium')
+    test.setTimeout(90_000)
+    const dir = cleanCheckout()
+    try {
+      symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir')
+      mkdirSync(join(dir, 'e2e'), { recursive: true })
+      writeFileSync(
+        join(dir, 'e2e/deliberate-failure.spec.ts'),
+        "import { expect, test } from './fixtures.ts'\ntest('fails', async ({ page }) => {\n  await page.setContent('<h1>here</h1>')\n  await expect(page.getByRole('heading')).toHaveText('not here', { timeout: 500 })\n})\n",
+      )
+      // BASE_URL skips the preview server; the nested test never navigates.
+      const r = spawnSync(
+        'npx',
+        [
+          'playwright',
+          'test',
+          'e2e/deliberate-failure.spec.ts',
+          '--project',
+          'chromium',
+          '--retries',
+          '0',
+          '--reporter',
+          'line',
+        ],
+        {
+          cwd: dir,
+          encoding: 'utf8',
+          env: { ...process.env, CI: '', BASE_URL: 'http://127.0.0.1:9/' },
+        },
+      )
+      expect(r.status, r.stdout + r.stderr).not.toBe(0)
+      expect(r.stdout + r.stderr).toContain('not here')
+      const files = spawnSync('find', ['test-results', '-type', 'f'], {
+        cwd: dir,
+        encoding: 'utf8',
+      }).stdout
+      expect(files).toMatch(/trace\.zip/)
+      expect(files).toMatch(/test-failed-\d+\.png/)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

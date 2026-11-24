@@ -94,39 +94,6 @@ describe('E0-05 test harness', () => {
     expect(out).toMatch(/does not meet global threshold \(70%\)/)
   }, 60_000)
 
-  it('[E0-05.AC4] a failing e2e test leaves a trace and a screenshot in test-results/', () => {
-    write(
-      'e2e/deliberate-failure.spec.ts',
-      "import { expect, test } from './fixtures.ts'\ntest('fails', async ({ page }) => {\n  await page.setContent('<h1>here</h1>')\n  await expect(page.getByRole('heading')).toHaveText('not here', { timeout: 500 })\n})\n",
-    )
-    const r = spawnSync(
-      'npx',
-      [
-        'playwright',
-        'test',
-        'e2e/deliberate-failure.spec.ts',
-        '--project',
-        'chromium',
-        '--retries',
-        '0',
-      ],
-      // BASE_URL skips the preview server; the test never navigates.
-      {
-        cwd: dir,
-        encoding: 'utf8',
-        env: { ...process.env, CI: '', BASE_URL: 'http://127.0.0.1:9/' },
-      },
-    )
-    expect(r.status, r.stdout + r.stderr).not.toBe(0)
-    const files = spawnSync('find', ['test-results', '-type', 'f'], {
-      cwd: dir,
-      encoding: 'utf8',
-    }).stdout
-    expect(files).toMatch(/trace\.zip/)
-    expect(files).toMatch(/test-failed-\d+\.png/)
-    rmSync(join(dir, 'e2e/deliberate-failure.spec.ts'))
-  }, 60_000)
-
   describe('CI wiring', () => {
     interface Step {
       run?: string
