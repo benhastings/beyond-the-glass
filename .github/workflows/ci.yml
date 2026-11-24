@@ -138,7 +138,9 @@ jobs:
         env:
           CONTAINER: '1'
           BASE_URL: http://localhost:8080/
-        run: npx playwright test --project chromium
+        # Everything but @tooling (tests of the test tooling, which need other browsers and say
+        # nothing about the image).
+        run: npx playwright test --project chromium --grep-invert @tooling
       - name: Container tests (size, user, hardening, headers, Trivy, release build)
         if: always()
         env:

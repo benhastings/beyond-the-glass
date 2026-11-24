@@ -5,7 +5,8 @@ import { ROOT, cleanCheckout } from '../tests/repo/helpers.ts'
 import { blockThirdPartyRequests, expect, expectNoA11yViolations, test } from './fixtures.ts'
 
 // These prove the harness itself catches problems, so a green e2e run means something.
-test.describe('test harness', () => {
+// @tooling: tests of the test tooling itself; CI's container job skips them (they say nothing about the image).
+test.describe('test harness', { tag: '@tooling' }, () => {
   test('[E0-05.AC3] expectNoA11yViolations fails on a serious or critical violation', async ({
     page,
   }) => {
