@@ -107,6 +107,27 @@
   --color-info: #c7a6ff;
 }
 
+[data-contrast='more'][data-mood='console'] {
+  --color-ink: #f1f3f5;
+  --color-ink-muted: #e1e5ea;
+  --color-line: #b9c0c9;
+  --color-link: #9ff2e7;
+}
+
+[data-contrast='more'][data-mood='reach'] {
+  --color-ink: #06171a;
+  --color-ink-muted: #10272c;
+  --color-line: #2f4a4e;
+  --color-link: #063b40;
+}
+
+[data-contrast='more'][data-mood='stormwatch'] {
+  --color-ink: #f4f6fb;
+  --color-ink-muted: #e8ebf5;
+  --color-line: #b4bbd3;
+  --color-link: #9ff2e7;
+}
+
 [data-region='console-room'] {
   --color-region-accent: #0a5a61;
   --color-region-soft: #e3f9f4;

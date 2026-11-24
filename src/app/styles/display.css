@@ -1,0 +1,43 @@
+/*
+ * Display preferences (E1-02). The shell sets these attributes on <html> from the learner's settings
+ * and the OS preferences: data-mood, data-region, data-motion, data-contrast, and the root font size.
+ */
+
+/* Reduced motion: nothing moves more than a fade. Colour and opacity may still transition; transforms,
+   sizes and positions don't, and no animation runs (docs/design/art-direction.md#motion). */
+[data-motion='reduce'] *,
+[data-motion='reduce'] *::before,
+[data-motion='reduce'] *::after {
+  animation: none !important;
+  transition-property: opacity, color, background-color, border-color, outline-color !important;
+  scroll-behavior: auto !important;
+}
+
+/* Windows High Contrast and other forced-colour modes: every control keeps a visible boundary, links
+   stay underlined, and focus uses the system highlight. */
+@media (forced-colors: active) {
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [role='button'],
+  [role='tab'],
+  [role='checkbox'],
+  [role='radio'],
+  [role='switch'],
+  [role='option'] {
+    border: 1px solid ButtonBorder;
+  }
+  a {
+    text-decoration-line: underline;
+  }
+  :focus-visible {
+    outline: 3px solid Highlight !important;
+    outline-offset: 3px;
+  }
+  /* Loading placeholders are only shapes; give them an outline so they don't vanish. */
+  [aria-busy='true'] > div {
+    outline: 1px solid CanvasText;
+  }
+}

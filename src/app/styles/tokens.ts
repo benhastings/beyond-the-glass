@@ -250,13 +250,27 @@ export const SHAPE = {
   target: '44px',
 } as const
 
+/**
+ * "More contrast" (E1-02): used when the learner turns high contrast on, or leaves it on "system" and
+ * the OS asks for more contrast. Secondary text becomes full-strength, and boundaries get much stronger.
+ * Text reaches 7:1 (AAA) and boundaries 4.5:1 on every surface.
+ */
+export const HIGH_CONTRAST: Record<
+  Mood,
+  Pick<MoodPalette, 'ink' | 'inkMuted' | 'line' | 'link'>
+> = {
+  console: { ink: '#f1f3f5', inkMuted: '#e1e5ea', line: '#b9c0c9', link: '#9ff2e7' },
+  reach: { ink: '#06171a', inkMuted: '#10272c', line: '#2f4a4e', link: '#063b40' },
+  stormwatch: { ink: '#f4f6fb', inkMuted: '#e8ebf5', line: '#b4bbd3', link: '#9ff2e7' },
+}
+
 // ── Contrast pairs ──────────────────────────────────────────────────────────────────────────────────
 
 export interface ContrastPair {
   fg: Hex
   bg: Hex
-  /** 4.5 for text, 3 for UI boundaries, focus rings and large text. */
-  min: 4.5 | 3
+  /** 4.5 for text, 3 for UI boundaries, focus rings and large text; 7 and 4.5 in high contrast. */
+  min: 7 | 4.5 | 3
   where: string
 }
 
@@ -306,6 +320,17 @@ export function contrastPairs(): ContrastPair[] {
     })
     pairs.push({ fg: MOODS.reach.line, bg: region.soft, min: 3, where: `${id}: line on soft` })
   }
+  for (const [mood, hc] of Object.entries(HIGH_CONTRAST) as [
+    Mood,
+    (typeof HIGH_CONTRAST)[Mood],
+  ][]) {
+    const p = { ...MOODS[mood], ...hc }
+    for (const bg of SURFACES) {
+      for (const fg of ['ink', 'inkMuted', 'link'] as const)
+        pairs.push({ fg: p[fg], bg: p[bg], min: 7, where: `${mood} high contrast: ${fg} on ${bg}` })
+      pairs.push({ fg: p.line, bg: p[bg], min: 4.5, where: `${mood} high contrast: line on ${bg}` })
+    }
+  }
   return pairs
 }
 
@@ -346,6 +371,15 @@ export function tokensCss(): string {
   ]
   for (const mood of ['reach', 'stormwatch'] as const) {
     lines.push(`[data-mood='${mood}'] {`, ...moodVars(MOODS[mood]), '}', '')
+  }
+  // High contrast outranks the mood (two attribute selectors beat one).
+  for (const [mood, hc] of Object.entries(HIGH_CONTRAST)) {
+    lines.push(
+      `[data-contrast='more'][data-mood='${mood}'] {`,
+      ...Object.entries(hc).map(([k, v]) => `  --color-${kebab(k)}: ${v};`),
+      '}',
+      '',
+    )
   }
   for (const [id, r] of Object.entries(REGIONS)) {
     lines.push(
