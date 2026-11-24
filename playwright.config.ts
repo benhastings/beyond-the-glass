@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const port = 4173
+// e2e runs against dist/ served the way GitHub Pages serves it: under the repo's base path, with 404.html.
+const local = `http://127.0.0.1:${String(port)}/beyond-the-glass/`
 
 export default defineConfig({
   testDir: './e2e',
@@ -12,7 +14,7 @@ export default defineConfig({
     ? [['list'], ['junit', { outputFile: 'reports/playwright.xml' }], ['html', { open: 'never' }]]
     : [['list']],
   use: {
-    baseURL: process.env.BASE_URL ?? `http://127.0.0.1:${String(port)}/`,
+    baseURL: process.env.BASE_URL ?? local,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
@@ -24,8 +26,8 @@ export default defineConfig({
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: `npm run build && npm run preview -- --port ${String(port)} --strictPort --host 127.0.0.1`,
-        url: `http://127.0.0.1:${String(port)}/`,
+        command: `npm run build && node scripts/serve-pages.mjs --port ${String(port)}`,
+        url: local,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
       },
