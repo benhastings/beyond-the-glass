@@ -39,3 +39,17 @@ jobs:
           name: dist
           path: dist
           retention-days: 14
+
+  content-guard:
+    name: content-guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Scan for private names, franchise IP, addresses and internal hostnames
+        env:
+          CONTENT_DENYLIST: ${{ secrets.CONTENT_DENYLIST }}
+        run: node scripts/content-guard.mjs
