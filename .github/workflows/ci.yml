@@ -52,20 +52,10 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --no-audit --no-fund
-      - name: Playwright version
-        id: pw
-        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
-        id: browsers
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
-      - name: Install browsers
-        if: steps.browsers.outputs.cache-hit != 'true'
+      # Not cached: Playwright advises against it, and with a cache hit `playwright install-deps`
+      # alone hung until the job timed out.
+      - name: Install browsers and their system dependencies
         run: npx playwright install --with-deps chromium firefox webkit
-      - name: Install browser system dependencies
-        if: steps.browsers.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium firefox webkit
       - name: End-to-end and accessibility tests (Chromium, Firefox, WebKit)
         run: npm run test:e2e
       - name: Upload traces and screenshots
