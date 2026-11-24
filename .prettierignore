@@ -9,3 +9,5 @@ docs/plan
 *.md
 .github
 docs/adr/spikes
+# Generated from tokens.ts (node scripts/build-tokens.mjs)
+src/app/styles/tokens.css

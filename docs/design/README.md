@@ -6,7 +6,7 @@
 - Source of the seven concept screens: [`concepts/approved/`](concepts/approved/). These are reference mockups, not app code; they load fonts from Google, which the app must not do.
 - Brief they were built from: [`visual-brief.md`](visual-brief.md)
 
-E1-01 turns these concepts into `art-direction.md` and design tokens. Where the concepts and the brief disagree, the brief's rules (accessibility, original IP, tone) win.
+[`art-direction.md`](art-direction.md) turns these concepts into a written spec and design tokens (E1-01). Where the concepts and the brief disagree, the brief's rules (accessibility, original IP, tone) win.
 
 ## What was approved
 
@@ -30,9 +30,13 @@ All three typefaces are open-licensed; the app self-hosts them.
 
 Measured spot-checks: muted greys are used only as borders, and they meet the 3:1 non-text minimum (`#6B7686` on `#12151A` = 3.97:1; `#6A7396` on `#0E1220` = 4.0:1; `#6F8A8C` on white = 3.69:1). E1-01 must measure every token pair.
 
-## Open review points, to settle in E1-01
-1. **Results levels.** The concepts show "stone n of 4" next to each level name, which may read like a score. Recommendation: keep the waystones but drop "n of 4" from the visible text, and announce only the level name and its meaning.
-2. **Invented supporting content.** The concepts made up some details beyond the brief: alert name, deploy annotation, log lines, quiz questions and lesson titles. They are placeholders until the SME reviews them in E4-01, E9 and E10-02.
-3. **Lesson durations** are left off lesson cards to avoid time pressure. Module and region estimates still appear on the overview and region pages (ROADMAP §6).
-4. **Crossing timing:** 900 / 1000 / 900 ms (2.8 s total) is within the ≤ 3 s budget in E1-06.
-5. **Map pins** crowd on narrow screens. List view is the fallback, and below ~720 px it should be the default.
+## Review points (settled in E1-01)
+All five were decided as recommended on 2026-11-24; see [art-direction.md](art-direction.md#review-points-settled).
+
+1. **Results levels.** Keep the waystones but drop "n of 4" from the visible text; announce only the level name and its meaning.
+2. **Invented supporting content.** Alert name, deploy annotation, log lines, quiz questions and lesson titles in the concepts are placeholders until the SME reviews them in E4-01, E9 and E10-02.
+3. **Lesson durations** are left off lesson cards. Module and region estimates still appear on the overview and region pages.
+4. **Crossing timing:** 900 / 1000 / 900 ms (2.8 s total), within the ≤ 3 s budget in E1-06.
+5. **Map pins:** list view is the fallback, and below ~720 px it is the default.
+
+The written spec and tokens are in [art-direction.md](art-direction.md).
