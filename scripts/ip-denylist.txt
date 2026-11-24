@@ -1,0 +1,65 @@
+# Franchise intellectual property the world must never use (ROADMAP §3, AGENTS.md §3).
+# One case-insensitive regular expression per line; matched on word boundaries. `#` starts a comment.
+# Paths allowed to name these terms (guardrail documents) are in scripts/content-guard-allow.txt.
+
+# The Chronicles of Narnia: titles, places, characters and iconic props
+narnia
+narnian
+aslan
+pevensie
+jadis
+white\s+witch
+tumnus
+cair\s+paravel
+turkish\s+delight
+lamp-?\s?post
+lantern\s+waste
+wardrobe
+\blion\b
+\bwitch\b
+\bfaun\b
+reepicheep
+caspian
+dawn\s+treader
+calormen(?:e)?
+archenland
+telmar(?:ine)?
+beruna
+stone\s+table
+puddleglum
+eustace\s+scrubb
+jill\s+pole
+digory
+polly\s+plummer
+charn
+shasta
+tashlan
+mr\.?\s+beaver
+maugrim
+
+# Other well-known fantasy franchises
+middle[-\s]earth
+mordor
+hobbit
+gandalf
+frodo
+rivendell
+hogwarts
+muggle
+quidditch
+dumbledore
+westeros
+dragonstone
+lannister
+targaryen
+wonderland
+cheshire\s+cat
+mad\s+hatter
+oz\b.*emerald|emerald\s+city
+yellow\s+brick\s+road
+neverland
+tinker\s*bell
+earthsea
+discworld
+azeroth
+hyrule
