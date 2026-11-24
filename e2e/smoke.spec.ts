@@ -1,12 +1,12 @@
-import { expect, test } from '@playwright/test'
+import { expect, expectNoA11yViolations, test } from './fixtures.ts'
 
-test('landing view renders', async ({ page }) => {
-  const errors: string[] = []
-  page.on('pageerror', (e) => errors.push(e.message))
-  page.on('console', (m) => {
-    if (m.type() === 'error') errors.push(m.text())
-  })
-  await page.goto('./')
-  await expect(page.getByRole('heading', { level: 1, name: 'Beyond the Glass' })).toBeVisible()
-  expect(errors).toEqual([])
-})
+// @smoke tests also run against the deployed site after every deploy (pages.yml).
+test(
+  'landing view renders with no accessibility violations',
+  { tag: '@smoke' },
+  async ({ page }) => {
+    await page.goto('./')
+    await expect(page.getByRole('heading', { level: 1, name: 'Beyond the Glass' })).toBeVisible()
+    await expectNoA11yViolations(page)
+  },
+)

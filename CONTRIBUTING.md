@@ -9,9 +9,10 @@ Every pull request and every push to `main` runs these workflows:
 
 | Workflow | Job (the check's name) | What it runs |
 |---|---|---|
-| `.github/workflows/ci.yml` | `verify` | `npm ci`, typecheck, lint, Prettier, unit tests, build, then a bundle-size table in the job summary and the `dist` artifact |
+| `.github/workflows/ci.yml` | `verify` | `npm ci`, typecheck, lint, Prettier, unit tests with coverage thresholds, build, then a bundle-size table in the job summary and the `dist` artifact |
+| `.github/workflows/ci.yml` | `e2e` | Playwright with axe in Chromium, Firefox and WebKit against `dist/` served like GitHub Pages; traces and screenshots uploaded on failure |
 | `.github/workflows/ci.yml` | `content-guard` | `scripts/content-guard.mjs`: the private denylist, franchise IP, IPv4 addresses and internal hostnames ([below](#content-guard)) |
-| `.github/workflows/ac-trace.yml` | `gate` | the acceptance-criteria gate for the issue the PR closes |
+| `.github/workflows/ci.yml` | `gate` | the acceptance-criteria gate: every criterion of each plan issue the PR `Closes` must be traced by a test that passed in this run, or by evidence ([docs/testing/acceptance-criteria.md](docs/testing/acceptance-criteria.md)) |
 | `.github/workflows/plan.yml` | `validate` | plan and tracer validation (only when `docs/plan`, `docs/evidence` or `scripts` change) |
 
 ## Branch protection
@@ -21,6 +22,7 @@ Every pull request and every push to `main` runs these workflows:
 - Require a pull request before merging
 - Require status checks to pass, with the branch up to date. Required checks (named exactly as above):
   - `verify`
+  - `e2e`
   - `content-guard`
   - `gate`
 - Do not allow force pushes or deletions
@@ -31,7 +33,7 @@ never starts would block every other PR.
 ```bash
 gh api -X PUT repos/{owner}/{repo}/branches/main/protection --input - <<'JSON'
 {
-  "required_status_checks": { "strict": true, "contexts": ["verify", "content-guard", "gate"] },
+  "required_status_checks": { "strict": true, "contexts": ["verify", "e2e", "content-guard", "gate"] },
   "enforce_admins": false,
   "required_pull_request_reviews": null,
   "restrictions": null,

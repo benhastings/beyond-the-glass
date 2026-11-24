@@ -123,6 +123,91 @@ class AcTraceTests(unittest.TestCase):
         rc, out = self.f.run("--issue", "E1-01", "--junit", str(junit))
         self.assertEqual(rc, 0, out)
 
+    def test_junit_skipped_only_untraces(self) -> None:
+        self.f.write("src/a.test.ts", "it('[E1-01.AC1] works', () => {})\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        junit = self.f.write("reports/j.xml", """\
+            <testsuites><testsuite name="s">
+              <testcase classname="a" name="[E1-01.AC1] works"><skipped/></testcase>
+            </testsuite></testsuites>""")
+        rc, out = self.f.run("--issue", "E1-01", "--junit", str(junit))
+        self.assertEqual(rc, 1)
+        self.assertIn("skipped in this run", out)
+
+    def test_junit_skipped_in_one_project_passed_in_another_traces(self) -> None:
+        self.f.write("e2e/a.spec.ts", "test('[E1-01.AC1] works', async () => {})\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        junit = self.f.write("reports/j.xml", """\
+            <testsuites><testsuite name="s">
+              <testcase classname="a" name="chromium [E1-01.AC1] works"/>
+              <testcase classname="a" name="firefox [E1-01.AC1] works"><skipped/></testcase>
+            </testsuite></testsuites>""")
+        rc, out = self.f.run("--issue", "E1-01", "--junit", str(junit))
+        self.assertEqual(rc, 0, out)
+
+    def test_junit_failure_in_any_project_untraces(self) -> None:
+        self.f.write("e2e/a.spec.ts", "test('[E1-01.AC1] works', async () => {})\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        junit = self.f.write("reports/j.xml", """\
+            <testsuites><testsuite name="s">
+              <testcase classname="a" name="chromium [E1-01.AC1] works"/>
+              <testcase classname="a" name="webkit [E1-01.AC1] works"><failure message="x"/></testcase>
+            </testsuite></testsuites>""")
+        rc, out = self.f.run("--issue", "E1-01", "--junit", str(junit))
+        self.assertEqual(rc, 1)
+        self.assertIn("failed", out)
+
+    def test_actest_helper_tags_are_found(self) -> None:
+        self.f.write("src/a.test.ts", "acTest('E1-01.AC1', 'works', () => {})\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 0, out)
+
+    def test_actest_helper_with_several_tags(self) -> None:
+        self.f.write("src/a.test.ts", "acTest(['E1-01.AC1', 'E1.SC1'], 'works', () => {})\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--strict-all")
+        self.assertEqual(rc, 0, out)
+
+    def test_actest_tags_wrapped_onto_the_next_lines_are_found(self) -> None:
+        # Prettier wraps long calls, moving the tag off the acTest( line.
+        self.f.write("e2e/a.spec.ts", "acTest(\n  'E1-01.AC1',\n  'a long title',\n  async () => {},\n)\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 0, out)
+
+    def test_actest_wrapped_tag_list_is_found(self) -> None:
+        self.f.write("e2e/a.spec.ts", "acTest(\n  [\n    'E1-01.AC1',\n    'E1.SC1',\n  ],\n  't',\n  () => {},\n)\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--strict-all")
+        self.assertEqual(rc, 0, out)
+
+    def test_actest_only_reads_tags_from_the_first_argument(self) -> None:
+        self.f.write("src/a.test.ts", "acTest('E1-01.AC1', 'mentions E1-01.AC2', () => { x('E1-01.AC2') })\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 1)
+        self.assertIn("E1-01.AC2", out)
+
+    def test_wrapped_actest_skip_does_not_count(self) -> None:
+        self.f.write("src/a.test.ts", "acTest.skip(\n  'E1-01.AC1',\n  'works',\n  () => {},\n)\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 1)
+        self.assertIn("skipped", out)
+
+    def test_actest_skip_does_not_count(self) -> None:
+        self.f.write("src/a.test.ts", "acTest.skip('E1-01.AC1', 'works', () => {})\n")
+        self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
+        rc, out = self.f.run("--issue", "E1-01")
+        self.assertEqual(rc, 1)
+        self.assertIn("skipped", out)
+
+    def test_actest_unknown_tag_fails(self) -> None:
+        self.f.write("src/a.test.ts", "acTest('E1-01.AC7', 'typo', () => {})\n")
+        rc, out = self.f.run()
+        self.assertEqual(rc, 1)
+        self.assertIn("E1-01.AC7", out)
+
     def test_junit_missing_run_untraces(self) -> None:
         self.f.write("src/a.test.ts", "it('[E1-01.AC1] works', () => {})\n")
         self.f.write("docs/evidence/E1-01.md", "## E1-01.AC2\nok\n")
