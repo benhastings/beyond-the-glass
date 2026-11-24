@@ -8,3 +8,4 @@ docs/design/concepts
 docs/plan
 *.md
 .github
+docs/adr/spikes

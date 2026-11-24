@@ -93,7 +93,7 @@ The voice is warm, plain and respectful of experience. Never "simply" or "just".
 - **Motion** (Framer Motion) for transitions, respecting `prefers-reduced-motion`
 - **Custom accessible terminal component.** It is not xterm.js, whose canvas rendering is weak for screen readers.
 - Observability views mirror **Grafana Explore with Prometheus, Tempo and Loki**, matching the team's stack: exemplars → Tempo traces, trace → Loki logs, Loki derived fields → Tempo
-- Charts: an SVG-based library (choose in ADR between visx and Recharts), always with a data-table alternative
+- Charts: **visx** (SVG; chosen over Recharts in [ADR-005](../adr/ADR-005-charting.md) on size and render time), always with a data-table alternative
 - **Vitest + Testing Library**, **Playwright + axe-core**, **Lighthouse CI**
 - **GitHub Actions → GitHub Pages** (primary). The same bundle (relative `base: './'` + HashRouter) also ships as a **container image** (`nginx-unprivileged`, non-root, ≤ 30 MB) for local, internal-cluster or air-gapped hosting
 - **Zero runtime third-party network requests.** Fonts and assets are self-hosted, so the app works on restricted networks.
@@ -235,7 +235,7 @@ flowchart LR
 
 ## 8. Open questions (decide before or during M0)
 
-1. **Repo visibility.** Public repo + public Pages site (assumed), or a private repo with Pages access control (requires GitHub Enterprise Cloud)?
+1. ~~Repo visibility~~ **Resolved:** public repo and public Pages site (https://benhastings.github.io/beyond-the-glass/).
 2. ~~Network reachability~~ **Resolved:** `*.github.io` is reachable; a container image is the fallback (E0-09).
 3. ~~Tracing backend~~ **Resolved:** Tempo + Loki in Grafana.
 4. **Real cluster lab.** Do we want an optional local kind/k3d companion lab after v1? (Captured as a stretch idea, not planned.)
