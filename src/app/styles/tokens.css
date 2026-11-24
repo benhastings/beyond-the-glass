@@ -1,5 +1,143 @@
-/* Placeholder tokens. E1-01 replaces these with the measured token set from the approved concepts. */
+/* Generated from tokens.ts by `node scripts/build-tokens.mjs`. Do not edit by hand. */
+/* The default mood is the Console Room; [data-mood] and [data-region] switch palettes (E1-02). */
 @theme {
   --color-ground: #12151a;
+  --color-surface: #1a1f27;
+  --color-raised: #232a34;
   --color-ink: #d3d8de;
+  --color-ink-muted: #b9c0c9;
+  --color-link: #7de8d8;
+  --color-line: #7a8596;
+  --color-focus: #ffd35c;
+  --color-accent: #7de8d8;
+  --color-accent-ink: #06282b;
+  --color-ok: #6fe0a0;
+  --color-warn: #ffb84d;
+  --color-alert: #ff8a78;
+  --color-info: #7de8d8;
+  --color-console-plastic: #efe9dc;
+  --color-console-plastic-ink: #12151a;
+  --color-console-phosphor-amber: #ffb84d;
+  --color-console-phosphor-green: #6fe0a0;
+  --color-console-glass: #7de8d8;
+  --color-reach-sun: #ffb84d;
+  --color-reach-sun-pale: #fff3c9;
+  --color-reach-mist: #e3f9f4;
+  --color-reach-lagoon: #0a5a61;
+  --color-stormwatch-panel: #39405c;
+  --color-stormwatch-lightning: #ffd35c;
+  --color-stormwatch-coral: #ffa07a;
+  --color-term-ground: #0f1a1d;
+  --color-term-surface: #1a2a2e;
+  --color-term-ink: #e6efe9;
+  --color-term-ink-muted: #b9c8c4;
+  --color-term-prompt: #7de8d8;
+  --color-term-focus: #ffd35c;
+  --color-term-ok: #6fe0a0;
+  --color-term-warn: #ffb84d;
+  --color-term-error: #ff9b85;
+  --color-term-prod-context: #ffb84d;
+  --color-region-accent: #0a5a61;
+  --color-region-soft: #e3f9f4;
+  --font-display: 'Bricolage Grotesque', 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-sans: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+  --text-3xl: 3rem;
+  --text-4xl: 4rem;
+  --leading-body: 1.55;
+  --leading-heading: 1.15;
+  --leading-mono: 1.5;
+  --duration-instant: 0ms;
+  --duration-quick: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 400ms;
+  --duration-crossing-push: 900ms;
+  --duration-crossing-ripple: 1000ms;
+  --duration-crossing-arrive: 900ms;
+  --duration-ripple-stagger: 120ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --focus-width: 3px;
+  --focus-offset: 3px;
+  --size-target: 44px;
+}
+
+[data-mood='reach'] {
+  --color-ground: #eef5f1;
+  --color-surface: #ffffff;
+  --color-raised: #e3f9f4;
+  --color-ink: #10272c;
+  --color-ink-muted: #2f4a4e;
+  --color-link: #0a5a61;
+  --color-line: #6f8a8c;
+  --color-focus: #10272c;
+  --color-accent: #0a5a61;
+  --color-accent-ink: #ffffff;
+  --color-ok: #1f6b3a;
+  --color-warn: #8a4b17;
+  --color-alert: #a6362a;
+  --color-info: #0a5a61;
+}
+
+[data-mood='stormwatch'] {
+  --color-ground: #0e1220;
+  --color-surface: #171c2e;
+  --color-raised: #232a42;
+  --color-ink: #e8ebf5;
+  --color-ink-muted: #b4bbd3;
+  --color-link: #7de8d8;
+  --color-line: #7680a6;
+  --color-focus: #ffd35c;
+  --color-accent: #ffd35c;
+  --color-accent-ink: #0e1220;
+  --color-ok: #8be0b4;
+  --color-warn: #ffb84d;
+  --color-alert: #ffa07a;
+  --color-info: #c7a6ff;
+}
+
+[data-region='console-room'] {
+  --color-region-accent: #0a5a61;
+  --color-region-soft: #e3f9f4;
+}
+
+[data-region='harbor'] {
+  --color-region-accent: #156a70;
+  --color-region-soft: #e6f4f4;
+}
+
+[data-region='helm-keep'] {
+  --color-region-accent: #6f5b93;
+  --color-region-soft: #ece8f4;
+}
+
+[data-region='chartroom'] {
+  --color-region-accent: #8a4b17;
+  --color-region-soft: #fbeedd;
+}
+
+[data-region='mirror-lake'] {
+  --color-region-accent: #1f6787;
+  --color-region-soft: #e4f1f6;
+}
+
+[data-region='signalwood'] {
+  --color-region-accent: #2f6b3a;
+  --color-region-soft: #e4f2e7;
+}
+
+[data-region='stormwatch'] {
+  --color-region-accent: #3b4368;
+  --color-region-soft: #e7e9f2;
 }
