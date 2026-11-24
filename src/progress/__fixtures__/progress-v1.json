@@ -1,0 +1,37 @@
+{
+  "state": {
+    "progress": {
+      "schemaVersion": 1,
+      "createdAt": "2026-11-01T09:00:00.000Z",
+      "updatedAt": "2026-11-20T17:30:00.000Z",
+      "displayName": "Sam",
+      "threshold": {
+        "answers": { "containers-experience": "weekly", "k8s-crashloop": "unsure" },
+        "completedAt": "2026-11-01T09:12:00.000Z",
+        "placement": { "containers": "navigator", "kubernetes": "deckhand" },
+        "overrides": { "kubernetes": "wayfarer" },
+        "startRegion": "helm-keep"
+      },
+      "lessons": {
+        "first-look": { "currentStep": 3, "completedSteps": ["look", "find"], "depth": "operator" },
+        "what-changed": {
+          "currentStep": 4,
+          "completedSteps": ["a", "b", "c", "d"],
+          "completedAt": "2026-11-02T10:00:00.000Z"
+        }
+      },
+      "checks": { "first-look-q1": { "attempts": 2, "passed": true, "lastAnswer": "b" } },
+      "challenges": {
+        "find-the-broken-pod": {
+          "status": "completed",
+          "hintsUsed": 1,
+          "commandsRun": 4,
+          "completedAt": "2026-11-20T17:29:00.000Z"
+        }
+      },
+      "scenarios": { "ravenpost": { "act": 0, "notes": "notifier crash-looping" } },
+      "settings": { "reduceMotion": "on", "highContrast": "system", "textSize": 115 }
+    }
+  },
+  "version": 1
+}

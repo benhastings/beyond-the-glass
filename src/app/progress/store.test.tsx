@@ -54,19 +54,43 @@ describe('progress store', () => {
     })
     const store = createProgressStore({ backing, now })
     expect(store.getState().progress.displayName).toBe('Ari')
-    expect(store.getState().loadFailed).toBe(false)
+    expect(store.getState().recovery).toBeUndefined()
   })
 
-  it('starts fresh from invalid stored progress and leaves it in place for recovery', () => {
+  it('starts fresh from unreadable stored progress, after backing it up', () => {
     const raw = JSON.stringify({
       state: { progress: { schemaVersion: 1, lessons: 'nope' } },
       version: 1,
     })
     const backing = memoryStorage({ [PROGRESS_KEY]: raw })
     const store = createProgressStore({ backing, now })
-    expect(store.getState().loadFailed).toBe(true)
+    expect(store.getState().recovery).toMatchObject({
+      kind: 'corrupt',
+      raw,
+      backupKey: `${PROGRESS_KEY}:backup:${T}`,
+    })
     expect(store.getState().progress).toEqual(emptyProgress(T))
-    expect(backing.data.get(PROGRESS_KEY)).toBe(raw)
+    expect(backing.data.get(`${PROGRESS_KEY}:backup:${T}`)).toBe(raw)
+    expect(backing.data.has(PROGRESS_KEY)).toBe(false)
+    store.getState().dismissRecovery()
+    expect(store.getState().recovery).toBeUndefined()
+  })
+
+  it('keeps the readable parts of a damaged record', () => {
+    const good = {
+      ...emptyProgress(T),
+      displayName: 'Ari',
+      lessons: { a: { currentStep: 2, completedSteps: [] } },
+    }
+    const raw = JSON.stringify({
+      state: { progress: { ...good, lessons: { ...good.lessons, b: { currentStep: 'two' } } } },
+      version: 1,
+    })
+    const backing = memoryStorage({ [PROGRESS_KEY]: raw })
+    const store = createProgressStore({ backing, now })
+    expect(store.getState().recovery).toMatchObject({ kind: 'repaired', dropped: ['lessons.b'] })
+    expect(store.getState().progress.displayName).toBe('Ari')
+    expect(store.getState().progress.lessons).toEqual({ a: { currentStep: 2, completedSteps: [] } })
   })
 
   it('runs every action through to the stored record', () => {
