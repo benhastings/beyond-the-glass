@@ -89,3 +89,28 @@ topology, request lines are as before.
 | `injectErrors` | A share of its requests fail with 500 (metrics, spans, logs) |
 | `setMemoryLimit`, or `memoryMi` above the limit | OOMKilled runs: memory reaches the limit, restarts go up, `kubectl` shows it, `--previous` logs end before the kill |
 | No ready endpoints (a crash, a bad selector) | 503s for every call to it, and errors up the call path |
+
+## Dashboards (E8-02)
+
+`src/sim/dashboards/dashboards.ts` defines the shipped dashboards as data: each panel's PromQL, type,
+unit, description and thresholds. `$service` and `$namespace` take the variables' values, with "All"
+meaning `.*`. The dashboards are:
+
+- **Service Overview (RED):** stat panels for the error ratio, p99 and rate now; time series for rate,
+  errors and p99, with deploy markers; and a table of requests by status.
+- **Kubernetes Workloads:** a gauge for the container closest to its memory limit; stats for Deployments
+  with nothing available and restarts; available replicas and memory per pod; a restarts table; and
+  recent error logs.
+- **Ravenpost SLO:** availability and requests-within-500-ms stats against the objectives (99.9%, 95%),
+  and the gate's error ratio and p95 over time.
+
+How they get their data (`data.ts`):
+
+- `windowSource` fetches every series for the window once, and all of a dashboard's panels share it. Each
+  panel's 6 hours of data is then ready in well under 100 ms.
+- `deployAnnotations` gives the deploy markers: Argo CD's sync history, one marker per sync.
+
+The UI is `src/app/o11y/dashboards/`. It has a dashboard picker, variables, a time range (including a
+custom one), Refresh, and a 12-column grid. Every panel has a "View as table" toggle and a sentence that
+says what it shows. Explore opens the panel's query in the PromQL explorer. The layout evokes Grafana's,
+with no Grafana logo or branding.

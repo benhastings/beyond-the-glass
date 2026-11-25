@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { clockTime, formatValue, type Unit } from './format'
 import './chart.css'
 
@@ -7,7 +7,20 @@ export interface ChartSeries {
   points: [number, number][]
 }
 
-const W = 640
+/** A horizontal line worth noticing: a threshold or an objective. */
+export interface ChartThreshold {
+  value: number
+  status: 'warn' | 'alert'
+  label: string
+}
+
+/** A moment worth marking on the time axis: a deploy. */
+export interface ChartAnnotation {
+  t: number
+  text: string
+}
+
+const DEFAULT_W = 640
 const H = 240
 const PAD = { top: 12, right: 112, bottom: 28, left: 64 }
 const MAX_SERIES = 8
@@ -65,21 +78,44 @@ export function TimeSeriesChart({
   unit = 'none',
   epochMs,
   label,
+  thresholds = [],
+  annotations = [],
+  range,
 }: {
   series: ChartSeries[]
   unit?: Unit
   epochMs: number
   label: string
+  thresholds?: ChartThreshold[]
+  annotations?: ChartAnnotation[]
+  /** The time axis, when it should span more than the data (a dashboard's range). */
+  range?: [number, number]
 }) {
   const id = useId()
   const [hover, setHover] = useState<number>()
+  // Drawn at its real width, so text stays its real size in narrow panels.
+  const box = useRef<HTMLDivElement>(null)
+  const [W, setW] = useState(DEFAULT_W)
+  useEffect(() => {
+    const el = box.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(([entry]) => {
+      const w = Math.round(entry?.contentRect.width ?? 0)
+      if (w > 0) setW(Math.max(280, w))
+    })
+    ro.observe(el)
+    return () => {
+      ro.disconnect()
+    }
+  }, [])
   const shown = series.slice(0, MAX_SERIES)
   const geo = useMemo(() => {
     const all = shown.flatMap((s) => s.points).filter(([, v]) => Number.isFinite(v))
-    const t0 = Math.min(...all.map(([t]) => t))
-    const t1 = Math.max(...all.map(([t]) => t))
+    const t0 = range?.[0] ?? Math.min(...all.map(([t]) => t))
+    const t1 = range?.[1] ?? Math.max(...all.map(([t]) => t))
     const vmin = Math.min(0, ...all.map(([, v]) => v))
-    const vmax0 = Math.max(...all.map(([, v]) => v))
+    // Thresholds stay in view, so "how far from the line" can be seen.
+    const vmax0 = Math.max(...all.map(([, v]) => v), ...thresholds.map((th) => th.value * 1.1))
     const yt = ticks(vmin, vmax0 > vmin ? vmax0 : vmin + 1)
     const vmax = yt.at(-1) ?? vmax0
     const x = (t: number) =>
@@ -88,7 +124,7 @@ export function TimeSeriesChart({
       H - PAD.bottom - ((v - vmin) / Math.max(1e-12, vmax - vmin)) * (H - PAD.top - PAD.bottom)
     const xt = timeTicks(t0, t1, epochMs)
     return { all, t0, t1, x, y, yt, xt: xt.length > 1 ? xt : [t0, t1] }
-  }, [shown, epochMs])
+  }, [shown, epochMs, range, thresholds, W])
   const summary = summarize(series, unit, epochMs)
   if (geo.all.length === 0)
     return (
@@ -101,7 +137,7 @@ export function TimeSeriesChart({
   const direct = shown.length <= 4
   return (
     <figure className="viz grid gap-2" aria-labelledby={`${id}-cap`}>
-      <div className="relative">
+      <div ref={box} className="relative">
         <svg
           viewBox={`0 0 ${String(W)} ${String(H)}`}
           className="h-auto w-full"
@@ -152,6 +188,45 @@ export function TimeSeriesChart({
               {clockTime(epochMs, t)}
             </text>
           ))}
+          {thresholds.map((th) => (
+            <g key={`th-${String(th.value)}`} data-threshold={th.value}>
+              <line
+                x1={PAD.left}
+                x2={W - PAD.right}
+                y1={geo.y(th.value)}
+                y2={geo.y(th.value)}
+                className={th.status === 'alert' ? 'stroke-alert' : 'stroke-warn'}
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+              />
+              <text
+                x={W - PAD.right + 6}
+                y={geo.y(th.value) + 4}
+                className="fill-ink-muted text-[11px]"
+              >
+                {th.label}
+              </text>
+            </g>
+          ))}
+          {annotations
+            .filter((a) => a.t >= geo.t0 && a.t <= geo.t1)
+            .map((a) => (
+              <g key={`an-${String(a.t)}`} data-annotation={a.t}>
+                <line
+                  x1={geo.x(a.t)}
+                  x2={geo.x(a.t)}
+                  y1={PAD.top}
+                  y2={H - PAD.bottom}
+                  className="stroke-info"
+                  strokeWidth={1.5}
+                  strokeDasharray="1 3"
+                />
+                <path
+                  d={`M ${String(geo.x(a.t) - 5)} ${String(PAD.top)} h 10 l -5 7 z`}
+                  className="fill-info"
+                />
+              </g>
+            ))}
           {shown.map((s, i) => {
             const pts = s.points.filter(([, v]) => Number.isFinite(v))
             const last = pts.at(-1)
@@ -213,7 +288,7 @@ export function TimeSeriesChart({
       </div>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label="Legend">
         {shown.map((s, i) => (
-          <li key={s.name} className="flex items-center gap-2">
+          <li key={s.name} className="flex min-w-0 items-center gap-2 [overflow-wrap:anywhere]">
             <svg width="20" height="6" aria-hidden="true">
               <line
                 x1="0"
@@ -232,9 +307,20 @@ export function TimeSeriesChart({
           <li>{series.length - MAX_SERIES} more series in the table</li>
         )}
       </ul>
-      <figcaption id={`${id}-cap`} className="text-sm">
+      <figcaption id={`${id}-cap`} className="text-sm [overflow-wrap:anywhere]">
         <span className="sr-only">{label}: </span>
         {summary}
+        {annotations.some((a) => a.t >= geo.t0 && a.t <= geo.t1) && (
+          <>
+            {' '}
+            Deploys (dotted lines):{' '}
+            {annotations
+              .filter((a) => a.t >= geo.t0 && a.t <= geo.t1)
+              .map((a) => `${a.text} at ${clockTime(epochMs, a.t)}`)
+              .join('; ')}
+            .
+          </>
+        )}
       </figcaption>
     </figure>
   )
