@@ -1,0 +1,38 @@
+# Regenerates the real-cluster fixtures (E6-11): a kind cluster at the pinned Kubernetes version runs each
+# fault variant in tools/fixtures/variants.mjs, and the masked kubectl output goes to a pull request.
+name: capture-fixtures
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install kind and kubectl
+        run: |
+          curl -fsSLo kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64
+          curl -fsSLo kubectl https://dl.k8s.io/release/v1.34.0/bin/linux/amd64/kubectl
+          chmod +x kind kubectl && sudo mv kind kubectl /usr/local/bin/
+      - name: Capture
+        run: node tools/fixtures/capture.mjs
+      - name: Open a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- src/sim/__fixtures__/real; then echo "Fixtures unchanged."; exit 0; fi
+          branch="fixtures/capture-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add src/sim/__fixtures__/real
+          git commit -m "E6-11: recapture real-cluster fixtures"
+          git push origin "$branch"
+          gh pr create --title "E6-11: recapture real-cluster fixtures" \
+            --body "Captured by the capture-fixtures workflow (run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}). Check \`src/sim/__fixtures__/real-structure.test.ts\` still passes; differences are the simulator's to fix."

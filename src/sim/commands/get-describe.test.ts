@@ -120,14 +120,14 @@ describe('E6-05 table layout', () => {
           0,
           ...[...header.matchAll(/ {3,}(?=\S)/g)].map((m) => m.index + m[0].length),
         ]
-        // Each column is at least 10 wide and 3 wider than its widest cell.
+        // Each column is at least 6 wide (kubectl's minwidth, confirmed by the E6-11 kind fixtures) and 3 wider than its widest cell.
         for (let i = 1; i < starts.length; i++) {
           const width = (starts[i] ?? 0) - (starts[i - 1] ?? 0)
-          expect(width, `${p.type} ${flag} column ${String(i)}`).toBeGreaterThanOrEqual(10)
+          expect(width, `${p.type} ${flag} column ${String(i)}`).toBeGreaterThanOrEqual(6)
           const widest = Math.max(
             ...[header, ...rows].map((r) => r.slice(starts[i - 1], starts[i]).trimEnd().length),
           )
-          expect(width, `${p.type} ${flag} column ${String(i)}`).toBe(Math.max(widest + 3, 10))
+          expect(width, `${p.type} ${flag} column ${String(i)}`).toBe(Math.max(widest + 3, 6))
         }
         for (const row of rows)
           for (const s of starts.slice(1))

@@ -1,0 +1,9 @@
+$ kubectl get events --sort-by=.lastTimestamp -n <ns>
+LAST SEEN   TYPE      REASON              OBJECT                      MESSAGE
+<age>        Normal    ScalingReplicaSet   deployment/web              Scaled up replica set web-<hash> from 0 to 1
+<age>        Normal    Scheduled           pod/web-<hash>-<id>    Successfully assigned <ns>/web-<hash>-<id> to <node>
+<age>        Normal    SuccessfulCreate    replicaset/web-<hash>   Created pod: web-<hash>-<id>
+<age>        Normal    Pulled              pod/web-<hash>-<id>    Container image "nginx:1.27-alpine" already present on machine
+<age>        Normal    Created             pod/web-<hash>-<id>    Created container: web
+<age>        Normal    Started             pod/web-<hash>-<id>    Started container web
+<age>          Warning   Unhealthy           pod/web-<hash>-<id>    Readiness probe failed: HTTP probe failed with statuscode: 404

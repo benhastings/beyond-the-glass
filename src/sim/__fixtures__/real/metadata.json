@@ -1,0 +1,29 @@
+{
+  "kind": "v0.33.0",
+  "nodeImage": "kindest/node:v1.34.0",
+  "kubernetes": "v1.34.0",
+  "kubectl": "v1.37.1",
+  "waitSeconds": 120,
+  "variants": [
+    "healthy",
+    "bad-image",
+    "crash",
+    "oom",
+    "missing-config-key",
+    "bad-readiness",
+    "oversized-requests"
+  ],
+  "captures": [
+    "get-pods",
+    "get-pods-wide",
+    "get-pods-yaml",
+    "describe-pod",
+    "get-deploy",
+    "describe-deploy",
+    "get-events",
+    "get-svc",
+    "get-endpoints",
+    "logs",
+    "logs-previous"
+  ]
+}

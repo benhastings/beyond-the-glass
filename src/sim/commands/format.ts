@@ -1,7 +1,7 @@
 /**
- * kubectl's table writer: Go's text/tabwriter with minwidth 10, tabwidth 4, padding 3 and space padding
+ * kubectl's table writer: Go's text/tabwriter with minwidth 6, tabwidth 4, padding 3 and space padding
  * (k8s.io/cli-runtime printers.GetNewTabWriter). Every column but the last is padded to the widest cell
- * plus 3, and to at least 10.
+ * plus 3, and to at least 6.
  */
 export function tabwrite(rows: readonly (readonly string[])[]): string {
   const widths: number[] = []
@@ -13,7 +13,7 @@ export function tabwrite(rows: readonly (readonly string[])[]): string {
     .map((r) =>
       r
         .map((cell, i) =>
-          i < r.length - 1 ? cell.padEnd(Math.max((widths[i] ?? 0) + 3, 10)) : cell,
+          i < r.length - 1 ? cell.padEnd(Math.max((widths[i] ?? 0) + 3, 6)) : cell,
         )
         .join(''),
     )

@@ -1,0 +1,3 @@
+$ kubectl get pods -n <ns>
+NAME                  READY   STATUS             RESTARTS      AGE
+web-<hash>-<id>   0/1     CrashLoopBackOff   4 (<age> ago)   <age>

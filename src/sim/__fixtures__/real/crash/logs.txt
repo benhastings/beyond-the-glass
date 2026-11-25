@@ -1,0 +1,3 @@
+$ kubectl logs <pod> -n <ns>
+starting web
+fatal: cannot reach mail relay

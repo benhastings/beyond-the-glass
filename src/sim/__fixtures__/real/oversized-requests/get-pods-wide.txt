@@ -1,0 +1,3 @@
+$ kubectl get pods -o wide -n <ns>
+NAME                   READY   STATUS    RESTARTS   AGE    IP       NODE     NOMINATED NODE   READINESS GATES
+web-<hash>-<id>   0/1     Pending   0          <age>   <none>   <none>   <none>           <none>

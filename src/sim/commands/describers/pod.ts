@@ -35,7 +35,8 @@ export function describePod(p: Pod, ctx: DescribeContext): string {
     .kv('Priority', '0')
     .kv('Service Account', p.spec.serviceAccountName ?? 'default')
   l.kv('Node', p.spec.nodeName ? `${p.spec.nodeName}/${p.status.hostIP ?? ''}` : '<none>')
-  l.kv('Start Time', p.status.startTime ? rfc1123z(p.status.startTime) : '<unknown>')
+  // A pod that was never scheduled has no start time, and kubectl leaves the line out.
+  if (p.status.startTime) l.kv('Start Time', rfc1123z(p.status.startTime))
   l.map('Labels', p.metadata.labels)
   l.map('Annotations', p.metadata.annotations, 0, ': ')
   l.kv('Status', p.metadata.deletionTimestamp ? 'Terminating' : p.status.phase)
@@ -52,17 +53,20 @@ export function describePod(p: Pod, ctx: DescribeContext): string {
     l.head(c.name, 1)
     if (cs?.containerID) l.kv('Container ID', cs.containerID, 2)
     l.kv('Image', c.image, 2)
-    l.kv('Image ID', cs?.imageID ?? '', 2)
+    // Before the kubelet reports on a container (an unscheduled pod), kubectl shows only its spec.
+    if (cs) l.kv('Image ID', cs.imageID, 2)
     // State and Last State come right after the ports in kubectl's layout; reuse the shared spec lines.
     const specLines = new Lines()
     containerSpec(specLines, c, 2, volume)
     const [port, hostPort, ...rest] = specLines.out
     if (port) l.raw(port)
     if (hostPort) l.raw(hostPort)
-    state(l, 'State', cs?.state ?? { waiting: { reason: 'ContainerCreating' } })
-    if (cs?.lastState.terminated) state(l, 'Last State', cs.lastState)
-    l.kv('Ready', cs?.ready ? 'True' : 'False', 2)
-    l.kv('Restart Count', String(cs?.restartCount ?? 0), 2)
+    if (cs) {
+      state(l, 'State', cs.state)
+      if (cs.lastState.terminated) state(l, 'Last State', cs.lastState)
+      l.kv('Ready', cs.ready ? 'True' : 'False', 2)
+      l.kv('Restart Count', String(cs.restartCount), 2)
+    }
     for (const line of rest) l.raw(line)
   }
   l.head('Conditions')

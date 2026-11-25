@@ -1,6 +1,6 @@
 $ kubectl get deployments -n ravenpost
-NAME                 READY     UP-TO-DATE   AVAILABLE   AGE
-ravenpost-api        3/3       3            3           9d
-ravenpost-notifier   0/1       1            0           9d
-ravenpost-web        2/2       2            2           9d
-ravenpost-worker     2/2       2            2           9d
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+ravenpost-api        3/3     3            3           9d
+ravenpost-notifier   0/1     1            0           9d
+ravenpost-web        2/2     2            2           9d
+ravenpost-worker     2/2     2            2           9d

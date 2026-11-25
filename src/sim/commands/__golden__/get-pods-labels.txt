@@ -1,10 +1,10 @@
 $ kubectl get pods -n ravenpost --show-labels
-NAME                                  READY     STATUS             RESTARTS       AGE       LABELS
-ravenpost-api-576b7f4d5d-b4874        1/1       Running            0              8d        app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
-ravenpost-api-576b7f4d5d-kqgx5        1/1       Running            0              8d        app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
-ravenpost-api-576b7f4d5d-qq7df        1/1       Running            0              8d        app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
-ravenpost-notifier-79c79b9687-rd2j2   0/1       CrashLoopBackOff   9 (110s ago)   25m       app=ravenpost-notifier,app.kubernetes.io/part-of=ravenpost,pod-template-hash=79c79b9687
-ravenpost-web-74d9fdfcd5-252jk        1/1       Running            0              8d        app=ravenpost-web,app.kubernetes.io/part-of=ravenpost,pod-template-hash=74d9fdfcd5
-ravenpost-web-74d9fdfcd5-dn4wr        1/1       Running            0              8d        app=ravenpost-web,app.kubernetes.io/part-of=ravenpost,pod-template-hash=74d9fdfcd5
-ravenpost-worker-794f477b59-jp8ml     1/1       Running            0              8d        app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost,pod-template-hash=794f477b59
-ravenpost-worker-794f477b59-rwbj7     1/1       Running            0              8d        app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost,pod-template-hash=794f477b59
+NAME                                  READY   STATUS             RESTARTS       AGE   LABELS
+ravenpost-api-576b7f4d5d-b4874        1/1     Running            0              8d    app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
+ravenpost-api-576b7f4d5d-kqgx5        1/1     Running            0              8d    app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
+ravenpost-api-576b7f4d5d-qq7df        1/1     Running            0              8d    app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
+ravenpost-notifier-79c79b9687-rd2j2   0/1     CrashLoopBackOff   9 (110s ago)   25m   app=ravenpost-notifier,app.kubernetes.io/part-of=ravenpost,pod-template-hash=79c79b9687
+ravenpost-web-74d9fdfcd5-252jk        1/1     Running            0              8d    app=ravenpost-web,app.kubernetes.io/part-of=ravenpost,pod-template-hash=74d9fdfcd5
+ravenpost-web-74d9fdfcd5-dn4wr        1/1     Running            0              8d    app=ravenpost-web,app.kubernetes.io/part-of=ravenpost,pod-template-hash=74d9fdfcd5
+ravenpost-worker-794f477b59-jp8ml     1/1     Running            0              8d    app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost,pod-template-hash=794f477b59
+ravenpost-worker-794f477b59-rwbj7     1/1     Running            0              8d    app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost,pod-template-hash=794f477b59

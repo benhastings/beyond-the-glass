@@ -37,7 +37,7 @@ describe('humanDuration (kubectl AGE)', () => {
 })
 
 describe('tabwrite (kubectl tables)', () => {
-  it('pads each column to its widest cell plus 3, at least 10, and leaves the last column alone', () => {
+  it('pads each column to its widest cell plus 3, at least 6, and leaves the last column alone', () => {
     expect(
       tabwrite([
         ['NAME', 'READY', 'STATUS'],
@@ -46,9 +46,9 @@ describe('tabwrite (kubectl tables)', () => {
       ]),
     ).toBe(
       [
-        'NAME                 READY     STATUS',
-        'a                    1/1       Running',
-        'a-much-longer-name   0/1       CrashLoopBackOff',
+        'NAME                 READY   STATUS',
+        'a                    1/1     Running',
+        'a-much-longer-name   0/1     CrashLoopBackOff',
       ].join('\n'),
     )
     expect(tabwrite([])).toBe('')

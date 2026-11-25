@@ -1,0 +1,2 @@
+$ kubectl logs <pod> -n <ns>
+allocating

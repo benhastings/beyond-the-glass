@@ -1,0 +1,5 @@
+$ kubectl get events --sort-by=.lastTimestamp -n <ns>
+LAST SEEN   TYPE      REASON              OBJECT                      MESSAGE
+<age>        Normal    ScalingReplicaSet   deployment/web              Scaled up replica set web-<hash> from 0 to 1
+<age>        Warning   FailedScheduling    pod/web-<hash>-<id>    0/1 nodes are available: 1 Insufficient cpu, 1 Insufficient memory. no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+<age>        Normal    SuccessfulCreate    replicaset/web-<hash>   Created pod: web-<hash>-<id>

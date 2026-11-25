@@ -1,0 +1,54 @@
+$ kubectl describe pod <pod> -n <ns>
+Name:             web-<hash>-<id>
+Namespace:        <ns>
+Priority:         0
+Service Account:  default
+Node:             <node>/<ip>
+Start Time:       <time>
+Labels:           app=web
+                  pod-template-hash=<hash>
+Annotations:      <none>
+Status:           Pending
+IP:               <ip>
+IPs:
+  IP:           <ip>
+Controlled By:  ReplicaSet/web-<hash>
+Containers:
+  web:
+    Container ID:   
+    Image:          nginx:1.27-alpine
+    Image ID:       
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       CreateContainerConfigError
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      MISSING:  <set to the key 'NOPE' of config map 'web-config'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-<id> (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-<id>:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for <age>
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for <age>
+Events:
+  Type     Reason     Age                 From               Message
+  ----     ------     ----                ----               -------
+  Normal   Scheduled  <age>                default-scheduler  Successfully assigned <ns>/web-<hash>-<id> to <node>
+  Normal   Pulled     <age> (x10 over <age>)  kubelet            spec.containers{web}: Container image "nginx:1.27-alpine" already present on machine
+  Warning  Failed     <age> (x10 over <age>)  kubelet            spec.containers{web}: Error: couldn't find key NOPE in ConfigMap <ns>/web-config
