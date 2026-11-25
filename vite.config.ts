@@ -8,6 +8,7 @@ import { challengePlugin } from './src/challenges/vite-plugin.ts'
 import { remarkDiagram } from './src/content/build/remark-diagram.ts'
 import { contentPlugin } from './src/content/build/vite-plugin.ts'
 import { scenarioPlugin } from './src/scenarios/vite-plugin.ts'
+import { thresholdPlugin } from './src/content/build/threshold-plugin.ts'
 
 // Lessons (E5-02): components come from the MDX provider, so lessons need no imports; diagrams are
 // pre-rendered SVG (remarkDiagram), never Mermaid in the browser.
@@ -30,6 +31,7 @@ export default defineConfig({
     scenarioPlugin(),
     challengePlugin(),
     contentPlugin(),
+    thresholdPlugin(),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
