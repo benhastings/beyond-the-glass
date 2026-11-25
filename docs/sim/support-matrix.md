@@ -61,7 +61,12 @@ Flags may come before or after the verb (`kubectl -n ravenpost get pods`), in an
 | `kubectl logs POD\|deploy/NAME\|-l SELECTOR` | Supported (E6-06) | `-c`, `--all-containers`, `-p/--previous`, `--tail`, `--since`, `--timestamps`, `--prefix`; `-f` follows for 30 s of simulated time. Lines come from the shared log source (`src/sim/telemetry/logs.ts`) the log explorer also reads. A pod with several containers and no `-c` prints kubectl's `Defaulted container …` notice |
 | `kubectl events` | Supported (E6-06) | Oldest first, `(xN over …)`; `--for TYPE/NAME`, `--types Normal,Warning`, `-A`, `--no-headers` |
 | `kubectl top pod\|node` | Supported (E6-06) | From each image's `cpuMillis`/`memoryMi` in the scenario; `--containers`, `-l`, `--sort-by cpu\|memory`, `-A`. Pods with no running container are left out, as metrics-server does |
-| `kubectl rollout`, `scale`, `delete`, `set image`, `label`, `annotate` | Planned (E6-07) | |
+| `kubectl rollout status deploy/NAME` | Supported (E6-07) | Waits in simulated time, printing kubectl's progress lines; `--timeout`, `--watch=false`; ends with `exceeded its progress deadline` when `progressDeadlineSeconds` passes without progress |
+| `kubectl rollout history\|undo\|restart\|pause\|resume deploy/NAME` | Supported (E6-07) | `history --revision=N`, `undo --to-revision=N`; CHANGE-CAUSE from `kubernetes.io/change-cause` |
+| `kubectl scale deploy\|rs NAME --replicas=N` | Supported (E6-07) | `--current-replicas`; several names |
+| `kubectl delete TYPE[,TYPE] (NAME… \| -l SELECTOR \| --all)` | Supported (E6-07) | pods, deployments (cascading to ReplicaSets and pods), replicasets, services, configmaps, secrets. Waits for pods to stop; `--force --grace-period=0` skips that, with kubectl's warning. Nodes and namespaces aren't deletable here |
+| `kubectl set image deploy/NAME CONTAINER=IMAGE…` | Supported (E6-07) | `*=IMAGE` for every container. Other `set` subcommands explain themselves |
+| `kubectl label`, `kubectl annotate TYPE NAME KEY=VALUE… KEY-` | Supported (E6-07) | `--overwrite`; label keys and values validated as Kubernetes does |
 | `kubectl apply`, `diff`, `edit` | Planned (E6-08) | |
 | `kubectl config get-contexts [NAME]` | Supported (E6-12) | `*` marks the current context; `--no-headers`, `-o name` |
 | `kubectl config current-context`, `use-context NAME` | Supported (E6-12) | `Switched to context "prod".` |

@@ -2,6 +2,7 @@
 import type { Scenario } from '../core/scenario.ts'
 import { Simulator, type Controller, type SimOptions } from '../core/simulator.ts'
 import { deploymentController } from './deployment.ts'
+import { gitopsController } from './gitops.ts'
 import { kubelet } from './kubelet.ts'
 import { replicaSetController } from './replicaset.ts'
 import { scheduler } from './scheduler.ts'
@@ -12,7 +13,7 @@ import { scheduler } from './scheduler.ts'
  * the kubelet runs them. To add one: a new file, plus one line here.
  */
 export function defaultControllers(): Controller[] {
-  return [deploymentController, replicaSetController, scheduler, kubelet]
+  return [gitopsController, deploymentController, replicaSetController, scheduler, kubelet]
 }
 
 /** A simulation with the full set of controllers running. */
@@ -36,5 +37,7 @@ export {
 export { backoffMs, BACKOFF_RESET_MS, STOP_MS, formatGoDuration } from './kubelet.ts'
 export { placePod, podRequests, nodeFree } from './scheduler.ts'
 export { rollbackDeployment } from './deployment.ts'
+export { manageNamespace, managedBy, DEFAULT_SYNC_MS, type ManagedNamespace } from './gitops.ts'
+export { auditLog, recordMutation, type AuditEntry } from '../core/audit.ts'
 export { deletionOrder } from './replicaset.ts'
 export { cpuMillis, memoryBytes } from './quantity.ts'

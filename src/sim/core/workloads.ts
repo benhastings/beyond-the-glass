@@ -96,14 +96,75 @@ export function refreshDeploymentStatus(
           ? 'Deployment has minimum availability.'
           : 'Deployment does not have minimum availability.',
       }),
-      condition('Progressing', true, keep('Progressing', true), {
-        lastUpdateTime: now,
-        reason: progressing ? 'ReplicaSetUpdated' : 'NewReplicaSetAvailable',
-        message: progressing
-          ? `ReplicaSet "${progressing}" is progressing.`
-          : `ReplicaSet "${current?.metadata.name ?? d.metadata.name}" has successfully progressed.`,
-      }),
+      progressingCondition(
+        d,
+        { replicas, updated, ready, available },
+        prev,
+        now,
+        progressing,
+        current?.metadata.name,
+      ),
     ],
   }
   cluster.put(d)
+}
+
+type Condition = NonNullable<Deployment['status']['conditions']>[number]
+
+/**
+ * The Progressing condition as the Deployment controller keeps it: its lastUpdateTime moves only when
+ * the rollout makes progress, and a rollout that makes none for `progressDeadlineSeconds` is marked
+ * ProgressDeadlineExceeded (what `kubectl rollout status` reports as "exceeded its progress deadline").
+ */
+function progressingCondition(
+  d: Deployment,
+  next: { replicas: number; updated: number; ready: number; available: number },
+  prev: Condition[],
+  now: string,
+  progressing: string | undefined,
+  currentName: string | undefined,
+): Condition {
+  const old = prev.find((c) => c.type === 'Progressing')
+  if (!progressing)
+    return condition(
+      'Progressing',
+      true,
+      old?.status === 'True' ? (old.lastTransitionTime ?? now) : now,
+      {
+        lastUpdateTime: now,
+        reason: 'NewReplicaSetAvailable',
+        message: `ReplicaSet "${currentName ?? d.metadata.name}" has successfully progressed.`,
+      },
+    )
+  const st = d.status
+  const moved =
+    !old ||
+    old.reason === 'NewReplicaSetAvailable' ||
+    next.updated !== (st.updatedReplicas ?? 0) ||
+    next.available !== (st.availableReplicas ?? 0) ||
+    next.ready !== (st.readyReplicas ?? 0) ||
+    next.replicas !== st.replicas
+  const lastUpdate = moved ? now : (old.lastUpdateTime ?? now)
+  const deadlineMs = (d.spec.progressDeadlineSeconds || 600) * 1000
+  if (Date.parse(now) - Date.parse(lastUpdate) > deadlineMs)
+    return condition(
+      'Progressing',
+      false,
+      old?.status === 'False' ? (old.lastTransitionTime ?? now) : now,
+      {
+        lastUpdateTime: lastUpdate,
+        reason: 'ProgressDeadlineExceeded',
+        message: `ReplicaSet "${progressing}" has timed out progressing.`,
+      },
+    )
+  return condition(
+    'Progressing',
+    true,
+    old?.status === 'True' ? (old.lastTransitionTime ?? now) : now,
+    {
+      lastUpdateTime: lastUpdate,
+      reason: 'ReplicaSetUpdated',
+      message: `ReplicaSet "${progressing}" is progressing.`,
+    },
+  )
 }
