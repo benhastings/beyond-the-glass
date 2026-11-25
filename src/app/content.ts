@@ -9,7 +9,16 @@ import type { Manifest } from '@/content'
 let manifestPromise: Promise<Manifest> | undefined
 
 export function loadManifest(): Promise<Manifest> {
-  manifestPromise ??= import('virtual:btg-content').then((m) => m.default)
+  if (!manifestPromise) {
+    const p = import('virtual:btg-content').then((m) => m.default)
+    // Mark the promise settled the way React's `use` reads it, so once the manifest has loaded every
+    // later render gets it synchronously instead of suspending again.
+    void p.then(
+      (value) => Object.assign(p, { status: 'fulfilled', value }),
+      (reason: unknown) => Object.assign(p, { status: 'rejected', reason }),
+    )
+    manifestPromise = p
+  }
   return manifestPromise
 }
 
