@@ -40,6 +40,8 @@ export interface SimSnapshot {
   clusters: ClusterData[]
   traffic: Record<string, Traffic>
   queue: Wakeup[]
+  /** Controllers' own state (backoff timers, behaviours); see `Simulator.state`. */
+  ext?: Record<string, Record<string, unknown>>
 }
 
 const snapshotShape = z.looseObject({
@@ -82,6 +84,7 @@ export class Simulator {
   private queue: Wakeup[]
   private seq: number
   private trafficState: Record<string, Traffic>
+  private extState: Record<string, Record<string, unknown>>
   private ctx: string
 
   private constructor(scenario: Scenario, clock: SimClock, rng: Rng, controllers: Controller[]) {
@@ -93,6 +96,7 @@ export class Simulator {
     this.queue = []
     this.seq = 0
     this.trafficState = {}
+    this.extState = {}
     this.ctx = scenario.currentContext
   }
 
@@ -140,6 +144,7 @@ export class Simulator {
     sim.queue = s.queue
     sim.seq = s.seq
     sim.trafficState = s.traffic
+    sim.extState = s.ext ?? {}
     sim.ctx = s.currentContext
     return sim
   }
@@ -154,6 +159,7 @@ export class Simulator {
       currentContext: this.ctx,
       clusters: [...this.clusterMap.values()].map((c) => c.toJSON()),
       traffic: this.trafficState,
+      ext: this.extState,
       queue: this.queue,
     })
   }
@@ -195,6 +201,18 @@ export class Simulator {
   /** Default namespace for a context (default: the current context). */
   namespace(context: string = this.ctx): string {
     return this.scenario.contexts.find((c) => c.name === context)?.namespace ?? 'default'
+  }
+
+  /**
+   * A controller's own JSON state, kept in snapshots so a restored simulation carries on identically.
+   * Returns the live object: mutate it in place.
+   */
+  state<T extends Record<string, unknown>>(key: string, init: () => T): T {
+    const existing = this.extState[key]
+    if (existing) return existing as T
+    const fresh = init()
+    this.extState[key] = fresh
+    return fresh
   }
 
   setTraffic(cluster: string, namespace: string, service: string, patch: Traffic): void {

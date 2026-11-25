@@ -48,7 +48,16 @@ export function refreshReplicaSetStatus(cluster: Cluster, rs: ReplicaSet): void 
 }
 
 /** Recomputes a Deployment's status and Available/Progressing conditions from its ReplicaSets. */
-export function refreshDeploymentStatus(cluster: Cluster, d: Deployment, now: string): void {
+/**
+ * Recomputes a Deployment's status. Pass the new ReplicaSet's name while a rollout is under way: the
+ * Progressing condition then reads ReplicaSetUpdated.
+ */
+export function refreshDeploymentStatus(
+  cluster: Cluster,
+  d: Deployment,
+  now: string,
+  progressing?: string,
+): void {
   const sets = ownedReplicaSets(cluster, d)
   const current = sets.find(
     (rs) =>
@@ -89,8 +98,10 @@ export function refreshDeploymentStatus(cluster: Cluster, d: Deployment, now: st
       }),
       condition('Progressing', true, keep('Progressing', true), {
         lastUpdateTime: now,
-        reason: 'NewReplicaSetAvailable',
-        message: `ReplicaSet "${current?.metadata.name ?? d.metadata.name}" has successfully progressed.`,
+        reason: progressing ? 'ReplicaSetUpdated' : 'NewReplicaSetAvailable',
+        message: progressing
+          ? `ReplicaSet "${progressing}" is progressing.`
+          : `ReplicaSet "${current?.metadata.name ?? d.metadata.name}" has successfully progressed.`,
       }),
     ],
   }
