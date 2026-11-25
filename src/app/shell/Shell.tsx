@@ -4,6 +4,7 @@ import { SkipLink } from '../ui/SkipLink'
 import { useDisplayPreferences } from '../display/useDisplayPreferences'
 import { useProgress } from '../progress'
 import { RecoveryDialog } from '../progress/RecoveryDialog'
+import { SaveStatus } from '../progress/SaveStatus'
 import { StorageNotice } from '../progress/StorageNotice'
 import { PageContext, SITE_NAME } from './page-context'
 import { ProgressIndicator } from './ProgressIndicator'
@@ -84,7 +85,8 @@ export function Shell() {
             Your progress stays in this browser. Nothing is sent anywhere.{' '}
             <Link to="/lead" className={linkClass}>
               Lead view
-            </Link>
+            </Link>{' '}
+            <SaveStatus />
           </p>
         </footer>
         <div role="status" aria-live="polite" className="sr-only" data-testid="route-announcer">

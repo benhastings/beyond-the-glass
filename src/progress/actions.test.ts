@@ -104,3 +104,13 @@ describe('progress actions', () => {
     })
   })
 })
+
+describe('E3-04 resume point', () => {
+  it('records where the learner is, and leaves progress untouched when it hasn’t moved', () => {
+    const p0 = emptyProgress('2026-01-01T00:00:00.000Z')
+    const p1 = a.setResumeAt(p0, '/lesson/first-look/2', '2026-01-01T00:01:00.000Z')
+    expect(p1.resumeAt).toEqual({ path: '/lesson/first-look/2', at: '2026-01-01T00:01:00.000Z' })
+    expect(p1.updatedAt).toBe('2026-01-01T00:01:00.000Z')
+    expect(a.setResumeAt(p1, '/lesson/first-look/2', '2026-01-01T00:02:00.000Z')).toBe(p1)
+  })
+})

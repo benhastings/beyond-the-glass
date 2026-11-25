@@ -23,6 +23,12 @@ function omit<T extends object, K extends keyof T>(obj: T, key: K): Omit<T, K> {
   return copy
 }
 
+/** Remembers where the learner is (a lesson route with its step), for the "Continue" link (E3-04). */
+export function setResumeAt(p: Progress, path: string, now: string): Progress {
+  if (p.resumeAt?.path === path) return p
+  return touch({ ...p, resumeAt: { path, at: now } }, now)
+}
+
 export function setDisplayName(p: Progress, name: string | undefined, now: string): Progress {
   const trimmed = name?.trim()
   const rest = omit(p, 'displayName')
