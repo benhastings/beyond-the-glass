@@ -46,9 +46,9 @@ Node-Selectors:              <none>
 Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for <age>
                              node.kubernetes.io/unreachable:NoExecute op=Exists for <age>
 Events:
-  Type    Reason     Age    From               Message
-  ----    ------     ----   ----               -------
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
   Normal  Scheduled  <age>  default-scheduler  Successfully assigned <ns>/web-<hash>-<id> to <node>
-  Normal  Pulled     <age>  kubelet            spec.containers{web}: Container image "nginx:1.27-alpine" already present on machine
-  Normal  Created    <age>   kubelet            spec.containers{web}: Created container: web
-  Normal  Started    <age>   kubelet            spec.containers{web}: Started container web
+  Normal  Pulled     <age>  kubelet            Container image "nginx:1.27-alpine" already present on machine
+  Normal  Created    <age>  kubelet            Created container: web
+  Normal  Started    <age>    kubelet            Started container web
