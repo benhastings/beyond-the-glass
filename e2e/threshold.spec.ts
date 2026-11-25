@@ -11,7 +11,10 @@ acTest(
     await page.getByRole('button', { name: 'Begin', exact: true }).click()
     await expect(page.getByText('Question 1 of 10')).toBeFocused()
     await page.keyboard.press('Tab')
+    // Radix hands focus to the first option asynchronously; wait for it before using the arrows.
+    await expect(page.getByRole('radio').first()).toBeFocused()
     await page.keyboard.press('ArrowDown')
+    await expect(page.getByRole('radio').nth(1)).toBeChecked()
     await page.keyboard.press('ArrowDown')
     await expect(page.getByRole('radio', { name: 'Most weeks, for routine checks' })).toBeChecked()
     await page.getByRole('button', { name: 'Next →' }).click()
