@@ -1,3 +1,4 @@
+import { readPath } from '../../core/path.ts'
 import { stringify as toYaml } from 'yaml'
 import type { LabelSelector } from '../../core/resources.ts'
 import { suggest } from '../distance.ts'
@@ -58,23 +59,6 @@ const WATCH_STEP_MS = 1000
 
 /** API group suffix kubectl uses in NotFound errors (`deployments.apps "x" not found`). */
 const GROUP: Record<string, string> = { deployments: '.apps', replicasets: '.apps' }
-
-/** Reads `.a.b[0].c` from an object, for --sort-by. */
-function readPath(obj: unknown, path: string): unknown {
-  const parts = path
-    .replace(/^\{?\.?/, '')
-    .replace(/\}$/, '')
-    .split('.')
-    .filter(Boolean)
-  let v: unknown = obj
-  for (const part of parts) {
-    const m = /^([^[]+)(?:\[(\d+)\])?$/.exec(part)
-    if (!m || typeof v !== 'object' || v === null) return undefined
-    v = (v as Record<string, unknown>)[m[1] ?? '']
-    if (m[2] !== undefined) v = Array.isArray(v) ? (v as unknown[])[Number(m[2])] : undefined
-  }
-  return v
-}
 
 function sortBy<T>(items: T[], path: string): T[] {
   return [...items].sort((a, b) => {

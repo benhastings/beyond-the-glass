@@ -1,0 +1,43 @@
+id: why-is-it-crashing
+title: Why does the notifier keep restarting?
+scenario: ravenpost
+brief: >-
+  The notifier pod is in CrashLoopBackOff. Find out why it exits by reading the logs of the container
+  that crashed, then say what it can't reach.
+questions:
+  - id: cause
+    prompt: What can't the notifier reach?
+objectives:
+  - id: describe
+    text: Look at the pod's state and events
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(describe\s+(po|pod|pods)|get\s+events|events)\b'
+  - id: previous-logs
+    text: Read the crashed container's logs
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+logs\b.*(\s-p\b|--previous)'
+  - id: cause
+    text: Say what it can't reach
+    check:
+      type: answered
+      question: cause
+      matcher: { matches: '(smtp|mail|relay)' }
+  - id: hands-off
+    text: Leave the namespace in place
+    check: { type: noForbidden, pattern: 'kubectl\s+delete\s+(ns|namespace)\b' }
+forbidden:
+  - pattern: 'kubectl\s+delete\s+(ns|namespace|namespaces)\b'
+    message: Deleting a namespace removes everything in it. Here it would take Ravenpost down.
+hints:
+  - level: nudge
+    text: A restarting container has already written its reason somewhere before it exits.
+  - level: pointer
+    text: '`kubectl describe pod` shows State and Last State; `kubectl logs` with `--previous` shows the crashed run.'
+  - level: command
+    text: "Run `kubectl logs deploy/ravenpost-notifier -n ravenpost --previous`, then `answer cause <what it can't reach>`."
+expertPath:
+  - kubectl describe pod ravenpost-notifier -n ravenpost
+  - kubectl logs deploy/ravenpost-notifier -n ravenpost --previous
+  - answer cause the SMTP relay

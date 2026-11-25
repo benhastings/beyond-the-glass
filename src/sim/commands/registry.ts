@@ -1,3 +1,4 @@
+import { answerCommand } from './builtins/answer.ts'
 import { catCommand } from './builtins/cat.ts'
 import { cdCommand } from './builtins/cd.ts'
 import { clearCommand } from './builtins/clear.ts'
@@ -32,6 +33,7 @@ import type { CommandDef } from './types.ts'
 export const COMMANDS: readonly CommandDef[] = [
   helpCommandFor(() => COMMANDS),
   hintCommand,
+  answerCommand,
   clearCommand,
   historyCommand,
   whoamiCommand,

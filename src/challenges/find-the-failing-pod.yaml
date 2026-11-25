@@ -1,0 +1,38 @@
+id: find-the-failing-pod
+title: Find the pod that isn't running
+scenario: ravenpost
+brief: >-
+  Ravenpost's mail isn't going out. List the pods in the ravenpost namespace and find the one that
+  isn't Running, then answer with its name (the start of the name is enough).
+questions:
+  - id: failing-pod
+    prompt: Which pod isn't running?
+objectives:
+  - id: list-pods
+    text: List the pods in the ravenpost namespace
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+get\s+(po|pod|pods)\b.*(-n\s*ravenpost|--namespace[=\s]ravenpost|-A\b|--all-namespaces)'
+  - id: name-it
+    text: Name the pod that isn't running
+    check:
+      type: answered
+      question: failing-pod
+      matcher:
+        resource:
+          kind: Pod
+          namespace: ravenpost
+          where: { path: 'status.containerStatuses[0].ready', equals: 'false' }
+forbidden:
+  - pattern: 'kubectl\s+delete\s+(ns|namespace|namespaces)\b'
+    message: Deleting a namespace removes everything in it. Here it would take Ravenpost down.
+hints:
+  - level: nudge
+    text: Pods live in namespaces. Which namespace does Ravenpost run in?
+  - level: pointer
+    text: '`kubectl get pods` lists pods; `-n` picks the namespace. Look at the STATUS column.'
+  - level: command
+    text: "Run `kubectl get pods -n ravenpost`, then `answer failing-pod <name>` with the pod whose STATUS isn't Running."
+expertPath:
+  - kubectl get pods -n ravenpost
+  - answer failing-pod ravenpost-notifier

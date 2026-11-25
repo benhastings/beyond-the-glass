@@ -192,7 +192,7 @@ acTest(
   'the terminal’s history and scrollback come back after a reload',
   async ({ page }) => {
     await page.goto('./#/kitchen-sink')
-    const input = page.getByRole('textbox', { name: 'Command' })
+    const input = page.locator('#terminal').getByRole('textbox', { name: 'Command' })
     await input.fill('kubectl get pods -n ravenpost')
     await input.press('Enter')
     await input.fill('pwd')
@@ -218,10 +218,10 @@ acTest(
     await page.setViewportSize({ width: 375, height: 800 })
     await page.goto('./#/kitchen-sink')
     expect(await page.evaluate<string>('document.documentElement.style.fontSize')).toBe('130%')
-    const input = page.getByRole('textbox', { name: 'Command' })
+    const input = page.locator('#terminal').getByRole('textbox', { name: 'Command' })
     await input.fill('kubectl get pods -A -o wide')
     await input.press('Enter')
-    const out = page.getByLabel(/^Output of kubectl get pods -A -o wide/)
+    const out = page.locator('#terminal').getByLabel(/^Output of kubectl get pods -A -o wide/)
     await expect(out).toBeVisible()
     // The wide table is wider than the screen, so the output scrolls, not the page.
     expect(
@@ -233,7 +233,9 @@ acTest(
       await page.evaluate<boolean>('document.documentElement.scrollWidth <= window.innerWidth'),
     ).toBe(true)
     // The touch helper row is there on a phone-sized screen.
-    await expect(page.getByRole('group', { name: 'Terminal keys' })).toBeVisible()
+    await expect(
+      page.locator('#terminal').getByRole('group', { name: 'Terminal keys' }),
+    ).toBeVisible()
     await expectNoA11yViolations(page)
   },
 )

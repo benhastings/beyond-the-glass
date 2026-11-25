@@ -43,6 +43,8 @@ export interface Session {
   history: string[]
   /** Supplies the active challenge's next hint (E6-10), if any. */
   hint?: () => string | undefined
+  /** Records an answer to the active challenge's question (E6-10), returning what to print. */
+  answer?: (question: string, text: string) => string
 }
 
 export interface CommandContext {
