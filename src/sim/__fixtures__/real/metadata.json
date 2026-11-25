@@ -2,7 +2,7 @@
   "kind": "v0.33.0",
   "nodeImage": "kindest/node:v1.34.0",
   "kubernetes": "v1.34.0",
-  "kubectl": "v1.37.1",
+  "kubectl": "v1.34.0",
   "waitSeconds": 120,
   "variants": [
     "healthy",
