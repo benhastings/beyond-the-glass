@@ -30,18 +30,11 @@ export function contentPlugin(opts: ContentPluginOptions = {}): Plugin {
     // Built at the start of every build (and dev-server start), whether or not anything imports it yet,
     // so invalid content always fails `npm run build`.
     buildStart() {
-<<<<<<< HEAD
       const { manifest, files, warnings } = buildManifest(root, {
         scenarioIds: scenarioIdsIn(scenarios),
         challengeIds: scenarioIdsIn(challenges),
       })
       for (const w of warnings) this.warn(w)
-=======
-      const { manifest, files } = buildManifest(root, {
-        scenarioIds: scenarioIdsIn(scenarios),
-        challengeIds: scenarioIdsIn(challenges),
-      })
->>>>>>> origin/main
       for (const f of files) this.addWatchFile(f)
       json = JSON.stringify(manifest)
     },

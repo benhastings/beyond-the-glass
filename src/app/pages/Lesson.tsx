@@ -125,6 +125,7 @@ function Player({ lesson, index }: { lesson: LessonEntry; index: number }) {
           <LessonBody
             file={lesson.file}
             checks={lesson.checks}
+            domain={lesson.domain}
             {...(current ? { step: current.id } : {})}
           />
           <div className="mt-8 flex flex-wrap items-center gap-3">
