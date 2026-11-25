@@ -72,6 +72,23 @@ describe('buildManifest on the fixture content', () => {
       moduleId: 'basics',
       steps: [{ id: 'look', title: 'Take a look' }, { id: 'wrap-up' }],
       file: FIRST,
+      checks: [
+        {
+          id: 'what-runs-containers',
+          type: 'single',
+          prompt: 'What runs your containers?',
+          explanation: 'A pod wraps one or more containers that share a network and storage.',
+          options: [
+            { id: 'pod', text: 'A pod', correct: true },
+            {
+              id: 'node',
+              text: 'A node',
+              correct: false,
+              feedback: "A node runs pods. What's inside them?",
+            },
+          ],
+        },
+      ],
     })
     expect(second).toMatchObject({
       id: 'second-steps',
@@ -91,8 +108,8 @@ describe('buildManifest on the fixture content', () => {
     })
     // Underscore drafts are skipped; every real file was read (for watching).
     expect(files.some((f) => /(^|[\\/])_/.test(relative(FIXTURES, f)))).toBe(false)
-    // glossary + 2 regions + 2 modules + 3 lessons
-    expect(files).toHaveLength(8)
+    // glossary + 2 regions + 2 modules + 3 lessons + 1 checks file
+    expect(files).toHaveLength(9)
   })
 
   acTest('E5-01.AC4', 'the fixtures set and omit every optional field at least once', () => {
@@ -210,6 +227,27 @@ describe('buildManifest errors', () => {
     expect(issuesOf(root).map((i) => [i.field, i.message])).toEqual([
       ['scenario', 'unknown scenario "ravenpots"'],
       ['<Terminal scenario>', 'unknown scenario "nope"'],
+    ])
+  })
+
+  it('checks: unknown <Check id>, invalid checks files and duplicate check IDs are reported', () => {
+    const CHECKS = 'regions/alpha/basics/first-steps.checks.yaml'
+    expect(
+      issuesOf(
+        variant({
+          [FIRST]: (t) => t.replace('<Check id="what-runs-containers"', '<Check id="nope"'),
+        }),
+      ).map((i) => [i.field, i.message]),
+    ).toEqual([['<Check id>', `unknown check "nope" (define it in ${CHECKS})`]])
+    expect(
+      issuesOf(variant({ [CHECKS]: (t) => t.replace('type: single', 'type: essay') })).length,
+    ).toBeGreaterThan(0)
+    const dupe = variant({
+      'regions/alpha/basics/second-steps.checks.yaml':
+        'checks:\n  - id: what-runs-containers\n    type: ordering\n    prompt: P\n    explanation: E\n    items: [{ id: a, text: A }, { id: b, text: B }]\n',
+    })
+    expect(issuesOf(dupe).map((i) => i.message)).toEqual([
+      `check ID "what-runs-containers" is already used in ${CHECKS}`,
     ])
   })
 

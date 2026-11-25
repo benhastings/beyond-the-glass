@@ -17,6 +17,7 @@ import {
   type StepEntry,
 } from '../schema.ts'
 import { ContentError, YamlSource, type ContentIssue } from './yaml-source.ts'
+import { checksFile, type Check } from '../checks.ts'
 
 export interface BuildOptions {
   /** IDs of the scenarios lessons may reference (default: the `id` of every `src/scenarios/*.yaml`). */
@@ -43,6 +44,9 @@ interface LessonSource {
   steps: (StepEntry & { line: number; column: number })[]
   bodyTerms: Ref[]
   bodyScenarios: Ref[]
+  bodyChecks: Ref[]
+  checks: Check[]
+  checksFile: string
 }
 
 function withoutOrder<T extends { order: number }>(t: T): Omit<T, 'order'> {
@@ -76,7 +80,7 @@ function splitFrontMatter(
   return { yaml, yamlLine: 1, body: text.slice(m[0].length), bodyLine: m[0].split('\n').length }
 }
 
-const TAG = /<(Step|Term|Terminal)\b([^>]*)>/g
+const TAG = /<(Step|Term|Terminal|Check)\b([^>]*)>/g
 const ATTR = /(\w+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g
 
 /** `<Step id title>`, `<Term id>` and `<Terminal scenario>` uses in an MDX body, with positions. */
@@ -84,6 +88,7 @@ function scanBody(body: string, firstLine: number) {
   const steps: LessonSource['steps'] = []
   const terms: Ref[] = []
   const scenarios: Ref[] = []
+  const checks: Ref[] = []
   const lineStarts = [0]
   for (let i = 0; i < body.length; i++) if (body[i] === '\n') lineStarts.push(i + 1)
   const pos = (offset: number) => {
@@ -101,8 +106,10 @@ function scanBody(body: string, firstLine: number) {
       terms.push({ id: attrs.id, ...at, field: '<Term id>' })
     if (m[1] === 'Terminal' && attrs.scenario !== undefined)
       scenarios.push({ id: attrs.scenario, ...at, field: '<Terminal scenario>' })
+    if (m[1] === 'Check' && attrs.id !== undefined)
+      checks.push({ id: attrs.id, ...at, field: '<Check id>' })
   }
-  return { steps, terms, scenarios }
+  return { steps, terms, scenarios, checks }
 }
 
 /**
@@ -205,6 +212,13 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         if (fm.id !== name.replace(/\.mdx$/, ''))
           issues.push(ly.issue(['id'], `must match its file name "${name}"`))
         const body = scanBody(parts.body, parts.bodyLine)
+        // Knowledge checks (E5-03) live beside the lesson: <id>.checks.yaml.
+        const checksPath = path.replace(/\.mdx$/, '.checks.yaml')
+        let checks: Check[] = []
+        if (existsSync(checksPath)) {
+          const cy = new YamlSource(read(checksPath), rel(checksPath), 1)
+          checks = cy.parse(checksFile, issues)?.checks ?? []
+        }
         lessons.push({
           file: rel(path),
           fm,
@@ -212,6 +226,9 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
           steps: body.steps,
           bodyTerms: body.terms,
           bodyScenarios: body.scenarios,
+          bodyChecks: body.checks,
+          checks,
+          checksFile: rel(checksPath),
         })
       }
       modules.push({ file: mod, yaml: my, lessons })
@@ -270,8 +287,33 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
     }
   }
 
+  // Check IDs are unique across the course: progress is stored by check ID.
+  const checkOwner = new Map<string, string>()
+  for (const l of lessons)
+    for (const c of l.checks) {
+      const first = checkOwner.get(c.id)
+      if (first)
+        issues.push({
+          file: l.checksFile,
+          line: 1,
+          column: 1,
+          field: 'checks',
+          message: `check ID "${c.id}" is already used in ${first}`,
+        })
+      else checkOwner.set(c.id, l.checksFile)
+    }
+
   // References
   for (const l of lessons) {
+    for (const r of l.bodyChecks)
+      if (!l.checks.some((c) => c.id === r.id))
+        issues.push({
+          file: l.file,
+          line: r.line,
+          column: r.column,
+          field: r.field,
+          message: `unknown check "${r.id}" (define it in ${l.checksFile})`,
+        })
     l.fm.prerequisites.forEach((p, i) => {
       if (!byId.has(p) && !invalidLessonIds.has(p))
         issues.push(l.yaml.issue(['prerequisites', i], `unknown lesson "${p}"`))
@@ -367,6 +409,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
             steps: l.steps.map(({ id, title }) => ({ id, ...(title ? { title } : {}) })),
             terms: [...new Set([...l.fm.terms, ...l.bodyTerms.map((t) => t.id)])],
             file: l.file,
+            checks: l.checks,
           }
         })
         const mod = withoutOrder(m.file)

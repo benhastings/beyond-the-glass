@@ -39,3 +39,20 @@ Lessons can use these without importing them (registry: `src/app/lesson/componen
 | `<Check id>` | A knowledge check (E5-03) |
 
 `content/_samples/components.mdx` shows each one, and appears on `#/kitchen-sink`.
+
+## Knowledge checks (E5-03)
+
+Checks live beside the lesson in `<lesson>.checks.yaml` (`checks:` list; schema: `src/content/checks.ts`), and
+`<Check id>` places one in the lesson. IDs are unique across the course. Every check has a `prompt`, an
+`explanation` (shown once passed), and one of these types:
+
+| `type` | Fields | The learner |
+|---|---|---|
+| `single` | `options` (exactly one `correct`; optional `feedback` each) | picks one (radio buttons) |
+| `multiple` | `options` (one or more `correct`) | ticks every one that applies |
+| `ordering` | `items`, in the right order (shown shuffled) | moves items with Up/Down buttons |
+| `matching` | `pairs` of `left`/`right` | picks the match for each item from a list |
+| `spot-the-bug` | `code`, `bugLines`, optional `lineFeedback` | chooses the faulty line from a numbered listbox |
+
+Feedback is announced politely, there's no limit on tries, and results are saved in progress.
+`content/_samples/components.checks.yaml` has one of each.

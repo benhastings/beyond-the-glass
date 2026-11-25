@@ -1,4 +1,8 @@
-/** `<Check id="…">`: a knowledge check. The question types arrive with E5-03; until then it marks its place. */
+import { KnowledgeCheck } from '../checks/KnowledgeCheck'
+import { useCheck } from '../checks/context'
+
+/** `<Check id="…">`: a knowledge check defined in the lesson's `.checks.yaml` (E5-03). */
 export function Check({ id }: { id: string }) {
-  return <div data-check={id} />
+  const check = useCheck(id)
+  return check ? <KnowledgeCheck check={check} /> : null
 }

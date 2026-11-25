@@ -8,6 +8,9 @@ import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
 import { CHALLENGES } from '@/challenges'
 import LessonSample from '../../../content/_samples/components.mdx'
+import sampleChecks from '../../../content/_samples/components.checks.yaml?raw'
+import { parse as parseYaml } from 'yaml'
+import { checksFile } from '@/content/checks'
 import { MdxContent } from '../lesson/LessonBody'
 import { Page } from '../shell/Page'
 import type { Mood } from '../display/display'
@@ -30,6 +33,8 @@ import {
   ToastProvider,
   useToast,
 } from '../ui'
+
+const SAMPLE_CHECKS = checksFile.parse(parseYaml(sampleChecks)).checks
 
 const MOODS: { id: Mood; label: string }[] = [
   { id: 'console', label: 'Console Room' },
@@ -191,7 +196,7 @@ function Demo() {
         </Card>
 
         <Card id="lesson" title="Lesson components">
-          <MdxContent Body={LessonSample} />
+          <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
 
         <Card id="challenge" title="Challenge">
