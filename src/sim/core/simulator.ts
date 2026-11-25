@@ -200,7 +200,23 @@ export class Simulator {
 
   /** Default namespace for a context (default: the current context). */
   namespace(context: string = this.ctx): string {
-    return this.scenario.contexts.find((c) => c.name === context)?.namespace ?? 'default'
+    const set = (this.extState.kubeconfig as { namespaces?: Record<string, string> } | undefined)
+      ?.namespaces
+    return (
+      set?.[context] ??
+      this.scenario.contexts.find((c) => c.name === context)?.namespace ??
+      'default'
+    )
+  }
+
+  /** `kubectl config set-context <ctx> --namespace=…`: changes a context's default namespace. */
+  setNamespace(context: string, namespace: string): void {
+    if (!this.scenario.contexts.some((c) => c.name === context))
+      throw new RangeError(`no context named "${context}"`)
+    const kc = this.state<{ namespaces: Record<string, string> }>('kubeconfig', () => ({
+      namespaces: {},
+    }))
+    kc.namespaces[context] = namespace
   }
 
   /**
