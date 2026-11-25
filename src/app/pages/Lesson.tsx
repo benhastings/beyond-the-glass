@@ -2,6 +2,7 @@ import { useParams } from 'react-router'
 import { findLesson } from '@/content'
 import { useManifest } from '../content'
 import { NotFound } from '../shell/NotFound'
+import { LessonBody } from '../lesson/LessonBody'
 import { Page } from '../shell/Page'
 
 /** `/lesson/:lessonId/:step?` (the lesson player, E5-04). Unknown lessons get the 404 view. */
@@ -17,6 +18,7 @@ export default function Lesson() {
           Step {index + 1} of {lesson.steps.length}
         </p>
       )}
+      <LessonBody file={lesson.file} />
     </Page>
   )
 }
