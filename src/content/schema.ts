@@ -87,6 +87,22 @@ export const glossaryFile = z.strictObject({
 export type RegionFile = z.output<typeof regionFile>
 export type ModuleFile = z.output<typeof moduleFile>
 export type LessonFrontMatter = z.output<typeof lessonFrontMatter>
+/** `content/rosetta.yaml`: the Rosetta Stone (E2-05). Then (on-prem, NOC) → now (cloud-native) → why. */
+export const rosettaFile = z.strictObject({
+  entries: z
+    .array(
+      z.strictObject({
+        then: z.string().min(1),
+        now: z.string().min(1),
+        why: z.string().min(1),
+        /** Field Guide entries for the "now" side. */
+        terms: z.array(slug).default([]),
+      }),
+    )
+    .default([]),
+})
+export type RosettaEntry = z.output<typeof rosettaFile>['entries'][number]
+
 export type GlossaryEntry = z.output<typeof glossaryFile>['terms'][number]
 export type Domain = (typeof DOMAINS)[number]
 
@@ -127,4 +143,6 @@ export interface RegionEntry extends Omit<RegionFile, 'order'> {
 export interface Manifest {
   regions: RegionEntry[]
   glossary: GlossaryEntry[]
+  /** The Rosetta Stone (E2-05); absent when there's no rosetta.yaml. */
+  rosetta?: RosettaEntry[]
 }

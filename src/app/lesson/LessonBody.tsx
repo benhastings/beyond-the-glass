@@ -1,13 +1,13 @@
-import { MDXProvider } from '@mdx-js/react'
-import { lazy, Suspense, useMemo, type ComponentType } from 'react'
-import { PageSkeleton } from '../shell/Skeleton'
+import { lazy, Suspense, useMemo } from 'react'
 import type { Domain } from '@/content'
 import type { Check } from '@/content/checks'
-import { ChecksContext } from './checks/context'
+import { PageSkeleton } from '../shell/Skeleton'
 import { LessonContext } from './lesson-context'
-import { StepContext } from './step-context'
-import { LESSON_COMPONENTS } from './components'
 import { lessonLoader } from './load'
+import { StepContext } from './step-context'
+
+// The lesson components (and the primitives they use) load with the first lesson, not with the app.
+const MdxContent = lazy(() => import('./MdxContent').then((m) => ({ default: m.MdxContent })))
 
 /** A lesson's MDX body with every lesson component available (E5-02). */
 export function LessonBody({
@@ -31,26 +31,10 @@ export function LessonBody({
   return (
     <LessonContext value={domain ? { domain } : {}}>
       <StepContext value={step}>
-        <MdxContent Body={Body} checks={checks} />
+        <Suspense fallback={<PageSkeleton />}>
+          <MdxContent Body={Body} checks={checks} />
+        </Suspense>
       </StepContext>
     </LessonContext>
-  )
-}
-
-export function MdxContent({
-  Body,
-  checks = [],
-}: {
-  Body: ComponentType
-  checks?: readonly Check[]
-}) {
-  return (
-    <MDXProvider components={LESSON_COMPONENTS}>
-      <ChecksContext value={checks}>
-        <Suspense fallback={<PageSkeleton />}>
-          <Body />
-        </Suspense>
-      </ChecksContext>
-    </MDXProvider>
   )
 }

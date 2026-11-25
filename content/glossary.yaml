@@ -15,3 +15,135 @@ terms:
     operator: >-
       A named group of objects in a cluster. Most commands work in one namespace at a time (-n), or across
       all of them (-A). Like separate host groups in your monitoring, but enforced by the cluster.
+  - id: node
+    term: Node
+    aliases: [nodes]
+    eli5: A machine in the cluster that runs your programs.
+    operator: >-
+      A worker machine (VM or physical) where the kubelet runs pods. Like a server, but interchangeable: the scheduler decides what runs where.
+  - id: container
+    term: Container
+    aliases: [containers]
+    eli5: A program packed with everything it needs, so it runs the same anywhere.
+    operator: >-
+      A process isolated with namespaces and cgroups, started from an image. Where you would have checked a process, you check its container.
+  - id: image
+    term: Container image
+    aliases: [images, 'docker image']
+    eli5: A sealed box with a program and everything it needs. You build a new one rather than change it.
+    operator: >-
+      A read-only, versioned filesystem and start command, pulled from a registry by name and tag.
+  - id: deployment
+    term: Deployment
+    aliases: [deployments, deploy]
+    eli5: An instruction that says how many copies of a program should run.
+    operator: >-
+      A controller object that keeps a set number of identical pods running, and rolls out new versions gradually.
+  - id: service
+    term: Service
+    aliases: [services, svc]
+    eli5: A fixed name that always points at the working copies of a program.
+    operator: >-
+      A stable virtual IP and DNS name in front of the ready pods that match its label selector. The cluster’s load balancer.
+  - id: label
+    term: Label
+    aliases: [labels]
+    eli5: A sticky note on an object, like app=web, that tools use to find it.
+    operator: >-
+      A key/value pair on an object. Selectors match labels to group pods behind a Service or a Deployment.
+  - id: merge-request
+    term: Merge request
+    aliases: [MR, 'pull request', PR]
+    eli5: A proposed change that others look at before it is accepted.
+    operator: >-
+      A request to merge a branch, with review, discussion and pipeline results. The change ticket, but the change itself is attached.
+  - id: gitops
+    term: GitOps
+    aliases: ['git ops']
+    eli5: Writing down what the system should look like in Git, and letting a tool make it so.
+    operator: >-
+      Desired state lives in Git; a controller such as Argo CD syncs the cluster to it and reports drift.
+  - id: rollback
+    term: Rollback
+    aliases: ['roll back', undo]
+    eli5: Going back to the last version that worked.
+    operator: >-
+      Restoring a previous revision: revert the commit in GitOps, or kubectl rollout undo for a Deployment.
+  - id: alert-rule
+    term: Alert rule
+    aliases: ['alerting rule', alert]
+    eli5: A rule that warns you when a number goes wrong.
+    operator: >-
+      A Prometheus query with a threshold and a duration; when it holds, Alertmanager routes a notification.
+  - id: logs
+    term: Logs
+    aliases: [log, loki]
+    eli5: The lines a program writes about what it is doing.
+    operator: >-
+      Container standard output and error, collected by the platform. kubectl logs reads one pod; Loki searches many.
+  - id: slo
+    term: Service level objective
+    aliases: [SLO, SLOs, 'error budget']
+    eli5: A promise about how well a service should work, like "99.9% of requests succeed".
+    operator: >-
+      A target for a service level indicator over a window. The gap to 100% is the error budget you can spend on change.
+  - id: runbook
+    term: Runbook
+    aliases: [runbooks, playbook]
+    eli5: Step-by-step notes for fixing a known problem.
+    operator: >-
+      Documented response steps for an alert, linked from the alert itself and kept next to the system’s code.
+  - id: trace
+    term: Trace
+    aliases: [traces, 'distributed tracing', span]
+    eli5: The path one request took through all the services, and how long each step took.
+    operator: >-
+      A tree of spans, one per unit of work, sharing a trace ID across services (OpenTelemetry).
+  - id: kubectl
+    term: kubectl
+    aliases: ['kube control', 'kube cuttle']
+    eli5: The command you type to talk to a Kubernetes cluster.
+    operator: >-
+      The Kubernetes command-line client. It reads your kubeconfig context and calls the cluster’s API.
+  - id: hpa
+    term: Horizontal Pod Autoscaler
+    aliases: [HPA, autoscaler, autoscaling]
+    eli5: A helper that adds copies of a program when it is busy and removes them when it is quiet.
+    operator: >-
+      A controller that changes a workload’s replica count to keep a metric, such as CPU use, near a target.
+  - id: crashloopbackoff
+    term: CrashLoopBackOff
+    aliases: ['crash loop', crashloop]
+    eli5: A program that keeps stopping, and the cluster keeps restarting it, a bit slower each time.
+    operator: >-
+      A waiting reason: the container exited and the kubelet is backing off (up to five minutes) before restarting it.
+  - id: oom
+    term: Out of memory (OOMKilled)
+    aliases: [OOM, OOMKilled, 'out of memory']
+    eli5: The program used more memory than it was allowed, so it was stopped.
+    operator: >-
+      The kernel killed the container for exceeding its memory limit; the pod shows OOMKilled and exit code 137.
+  - id: configmap
+    term: ConfigMap
+    aliases: [configmaps, cm, 'config map']
+    eli5: Settings for a program, stored in the cluster.
+    operator: >-
+      An object of key/value settings that pods read as environment variables or files. Secrets are the same for sensitive values.
+  - id: probe
+    term: Probe
+    aliases: [probes, 'readiness probe', 'liveness probe', 'health check']
+    eli5: A regular check the cluster makes to see if a program is working.
+    operator: >-
+      Readiness decides whether a pod gets traffic; liveness decides whether its container is restarted.
+  - id: metrics
+    term: Metrics
+    aliases: [metric, prometheus, 'time series']
+    eli5: Numbers about a system, measured over time.
+    operator: >-
+      Time series scraped by Prometheus or sent via OpenTelemetry, queried with PromQL and drawn in Grafana.
+  - id: context
+    term: Context
+    aliases: ['kubeconfig context', 'kubectl context']
+    eli5: Which cluster your commands go to.
+    operator: >-
+      A kubeconfig entry naming a cluster, a user and a default namespace. kubectl uses the current one unless told otherwise.

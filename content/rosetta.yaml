@@ -1,0 +1,91 @@
+# The Rosetta Stone (E2-05): what you knew on the NOC floor, what it's called now, and why it changed.
+# Schema: src/content/schema.ts (rosettaFile). `terms` link to Field Guide entries.
+entries:
+  - then: A server
+    now: A node
+    why: Machines are cattle, not pets. The cluster places work on whichever node has room, and replaces nodes that fail.
+    terms: [node]
+  - then: A process
+    now: A container
+    why: The program ships with everything it needs, so it runs the same on every node.
+    terms: [container]
+  - then: A golden image you patch in place
+    now: A container image you rebuild and never change
+    why: Rebuilding from a file every time means you know exactly what's running, and can roll back to the last good build.
+    terms: [image]
+  - then: An init script or a systemd service
+    now: A Deployment
+    why: You say how many copies should run, and the cluster keeps it so, restarting and replacing them for you.
+    terms: [deployment]
+  - then: A VIP on a load balancer
+    now: A Service
+    why: Pods come and go with new addresses. A Service is a stable name in front of whichever pods are healthy now.
+    terms: [service]
+  - then: A host group in your monitoring
+    now: A namespace and labels
+    why: Grouping is part of the object itself, so every tool sees the same groups.
+    terms: [namespace, label]
+  - then: A change ticket
+    now: A merge request
+    why: The change itself is what gets reviewed, tested by the pipeline, and recorded in history.
+    terms: [merge-request]
+  - then: A manual change on the box
+    now: A GitOps sync
+    why: Git holds the desired state, and Argo CD makes the cluster match it, so drift is visible and undone.
+    terms: [gitops]
+  - then: Rolling back by hand at 3am
+    now: Reverting a commit (or kubectl rollout undo)
+    why: The previous version is still described in Git and still known to the cluster, so going back is one step.
+    terms: [rollback]
+  - then: A Nagios check
+    now: A Prometheus alert rule
+    why: Alerts are queries over metrics the services already expose, kept in version control with everything else.
+    terms: [alert-rule]
+  - then: tail -f /var/log/app.log
+    now: kubectl logs, or Loki
+    why: Containers write to standard output and the platform collects it, so logs outlive the container that wrote them.
+    terms: [logs]
+  - then: Watching the wall for red
+    now: Alerting on SLOs
+    why: You're paged for what users feel, not for every graph that twitches.
+    terms: [slo]
+  - then: The runbook binder
+    now: Runbooks linked from each alert
+    why: The steps are one click from the page that woke you, and are updated with the system.
+    terms: [runbook]
+  - then: ping and traceroute
+    now: Distributed traces
+    why: A trace follows one request through every service it touched, with the time spent in each.
+    terms: [trace]
+  - then: SSH into the box to look around
+    now: kubectl describe, logs and exec
+    why: You ask the cluster about the workload, wherever it's running, without logging in to a machine.
+    terms: [kubectl]
+  - then: Adding a server for the busy season
+    now: Scaling replicas, or an autoscaler (HPA)
+    why: More copies start in seconds, and an autoscaler adds and removes them as load changes.
+    terms: [hpa]
+  - then: A service that keeps dying overnight
+    now: CrashLoopBackOff
+    why: The kubelet restarts the container for you and waits longer each time; the restart count tells you how often.
+    terms: [crashloopbackoff]
+  - then: The box ran out of memory
+    now: OOMKilled
+    why: Each container has a memory limit, and the kernel stops only that container when it goes over.
+    terms: [oom]
+  - then: Config files edited on each server
+    now: ConfigMaps and Secrets
+    why: Settings live beside the workload as objects, and every copy reads the same ones.
+    terms: [configmap]
+  - then: A health check on the load balancer
+    now: Readiness and liveness probes
+    why: The cluster checks each container itself. Not ready means no traffic; not alive means a restart.
+    terms: [probe]
+  - then: The NOC's dashboards
+    now: Grafana dashboards over Prometheus and OpenTelemetry data
+    why: Every service exposes the same kinds of signals, so one set of dashboards and queries covers them all.
+    terms: [metrics]
+  - then: Which datacentre am I logged in to?
+    now: Which context am I pointed at?
+    why: kubectl talks to whichever cluster your context names, so checking it before a change is the first habit.
+    terms: [context]

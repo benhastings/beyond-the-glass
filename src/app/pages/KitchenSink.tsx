@@ -11,7 +11,7 @@ import LessonSample from '../../../content/_samples/components.mdx'
 import sampleChecks from '../../../content/_samples/components.checks.yaml?raw'
 import { parse as parseYaml } from 'yaml'
 import { checksFile } from '@/content/checks'
-import { MdxContent } from '../lesson/LessonBody'
+import { MdxContent } from '../lesson/MdxContent'
 import { Page } from '../shell/Page'
 import type { Mood } from '../display/display'
 import {

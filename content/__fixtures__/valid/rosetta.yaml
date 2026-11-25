@@ -1,0 +1,5 @@
+entries:
+  - then: A process
+    now: A container
+    why: It ships with what it needs.
+    terms: [container]
