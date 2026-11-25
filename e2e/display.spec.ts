@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 import { acTest } from './ac.ts'
-import { expect, expectNoA11yViolations, test } from './fixtures.ts'
+import { expect, expectNoA11yViolations, test, withSettings } from './fixtures.ts'
 
 const ROUTES = [
   './',
@@ -16,20 +16,6 @@ const ROUTES = [
   './#/stormwatch',
   './#/nowhere',
 ]
-
-/** Stored progress with the given settings, planted before the app loads. */
-async function withSettings(page: Page, settings: Record<string, unknown>) {
-  const at = '2026-11-24T10:00:00.000Z'
-  const progress = {
-    schemaVersion: 1,
-    createdAt: at,
-    updatedAt: at,
-    settings: { reduceMotion: 'system', highContrast: 'system', textSize: 100, ...settings },
-  }
-  await page.addInitScript(
-    `localStorage.setItem('btg:progress', ${JSON.stringify(JSON.stringify({ state: { progress }, version: 1 }))})`,
-  )
-}
 
 const rgb = (hex: string) =>
   `rgb(${[1, 3, 5].map((i) => String(parseInt(hex.slice(i, i + 2), 16))).join(', ')})`
