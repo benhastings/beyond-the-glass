@@ -1,16 +1,16 @@
-import { Link } from 'react-router'
+import { lazy, Suspense } from 'react'
 import { Page } from '../shell/Page'
+import { PageSkeleton } from '../shell/Skeleton'
+
+const Results = lazy(() => import('../threshold/Results').then((m) => ({ default: m.Results })))
 
 /** `/threshold/results`: "Your trail" (E4-04). */
 export default function ThresholdResults() {
   return (
     <Page title="Your trail" mood="console">
-      <p className="mt-4 max-w-prose">Your starting trail through the Reach will appear here.</p>
-      <p className="mt-6">
-        <Link to="/map" className="underline">
-          View the map
-        </Link>
-      </p>
+      <Suspense fallback={<PageSkeleton />}>
+        <Results />
+      </Suspense>
     </Page>
   )
 }

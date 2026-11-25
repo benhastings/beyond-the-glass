@@ -98,7 +98,18 @@ export function journey(
         planned: plan.modules.find((x) => x.regionId === region.id && x.moduleId === m.id),
       })),
   )
+  // A starting point the learner chose on the results page comes first.
+  const chosen = p.threshold.startRegion
   const pick =
+    // (An explicit choice wins even over modules the placement says can be tested out.)
+    (chosen !== undefined &&
+      regions
+        .filter(({ region }) => region.id === chosen)
+        .flatMap(({ region, modules }) =>
+          modules
+            .filter((m) => m.lessons > 0 && m.status !== 'complete')
+            .map((m) => ({ key: `${region.id}/${m.id}`, m, planned: undefined })),
+        )[0]) ||
     (placed && candidates.find((c) => c.planned?.status === 'recommended')) ||
     (placed && candidates.find((c) => c.planned?.status === 'review')) ||
     candidates[0]

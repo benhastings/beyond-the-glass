@@ -43,7 +43,7 @@ test.describe('E2-01 app shell', () => {
       const journey: [link: string, title: string][] = [
         ['Step up to the Threshold', 'The Threshold'],
         ['Skip the Threshold and start from the very beginning', 'Your trail'],
-        ['View the map', 'Map of the Reach'],
+        ['Step through the glass', 'Map of the Reach'],
         // The map is one Tab stop (arrow keys move between regions); the list view has a link per region.
         ['List view', ''],
         ['Stormwatch', 'Stormwatch'],
