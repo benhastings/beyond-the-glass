@@ -2,3 +2,9 @@ id: harbor
 title: The Harbor
 order: 1
 summary: Containers and images. What a container is, how images are built, tagged and stored, and why they never change once shipped.
+intro: >-
+  Every service in the Reach arrives by ship: an image, packed once and never changed. In the Harbor you learn what's inside a container, how images are built and tagged, and why that makes releases repeatable.
+outcomes:
+  - Explain the difference between an image and a container
+  - Read an image name and tag
+  - Say why images never change once shipped

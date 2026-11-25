@@ -24,3 +24,6 @@ variant (`src/sim/__fixtures__/variants.ts`) and checks:
 
 Pulling events depend on the image cache, so they're ignored. When a fixture changes and the test fails, fix
 the simulator, not the fixture.
+
+GitHub doesn't run other workflows for pull requests opened with a workflow's own token, so the pull
+request the workflow opens has no CI checks at first. Close and reopen it (or push to its branch) to run them.

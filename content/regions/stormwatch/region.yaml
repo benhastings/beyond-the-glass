@@ -3,3 +3,12 @@ title: Stormwatch
 order: 6
 mood: stormwatch
 summary: 'The capstone, "The Long Night": Ravenpost fails in several layered ways, and you bring it back.'
+intro: >-
+  A long night is coming for Ravenpost. Everything you've learned comes together as you bring it back, one layer at a time.
+outcomes:
+  - Work a layered incident from first alert to recovery
+  - Use the terminal, Git and signals together
+  - Write up what happened and what to change
+link:
+  text: Enter the war room
+  to: /stormwatch

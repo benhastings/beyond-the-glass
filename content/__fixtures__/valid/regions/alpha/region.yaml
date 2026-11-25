@@ -2,3 +2,9 @@ id: alpha
 title: Alpha
 order: 0
 summary: The first fixture region (mood left to its default).
+intro: The alpha region, in two sentences. It is a fixture.
+outcomes:
+  - Do a first thing
+link:
+  text: Open the fixture
+  to: /map
