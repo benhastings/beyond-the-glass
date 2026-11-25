@@ -50,5 +50,5 @@ Events:
   Type     Reason     Age                 From               Message
   ----     ------     ----                ----               -------
   Normal   Scheduled  <age>                default-scheduler  Successfully assigned <ns>/web-<hash>-<id> to <node>
-  Normal   Pulled     <age> (x10 over <age>)  kubelet            spec.containers{web}: Container image "nginx:1.27-alpine" already present on machine
-  Warning  Failed     <age> (x10 over <age>)  kubelet            spec.containers{web}: Error: couldn't find key NOPE in ConfigMap <ns>/web-config
+  Normal   Pulled     <age> (x11 over <age>)  kubelet            Container image "nginx:1.27-alpine" already present on machine
+  Warning  Failed     <age> (x11 over <age>)  kubelet            Error: couldn't find key NOPE in ConfigMap <ns>/web-config
