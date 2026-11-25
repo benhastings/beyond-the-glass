@@ -58,6 +58,18 @@ const base = {
   }),
   answered: z.strictObject({ type: z.literal('answered'), question: slug, matcher }),
   noForbidden: z.strictObject({ type: z.literal('noForbidden'), pattern: regex }),
+  /**
+   * How an object was changed (E7-03): `mr` when Argo CD synced it from a revision that includes one of the
+   * learner's merged merge requests, `kubectl` when the learner changed it directly. `only` also requires
+   * that the other way wasn't used.
+   */
+  changedVia: z.strictObject({
+    type: z.literal('changedVia'),
+    via: z.enum(['mr', 'kubectl']),
+    kind: z.string(),
+    name: z.string(),
+    only: z.boolean().default(false),
+  }),
   mutated: z.strictObject({
     type: z.literal('mutated'),
     verb: z.string(),

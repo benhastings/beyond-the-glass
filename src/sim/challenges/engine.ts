@@ -1,6 +1,9 @@
 import { auditLog } from '../core/audit.ts'
 import type { Resource } from '../core/resources.ts'
 import { readPath } from '../core/path.ts'
+import { application } from '../gitops/argo.ts'
+import { mergeRequests, repo } from '../gitops/git.ts'
+import { ancestors, LEARNER } from '../gitops/mr.ts'
 import type { Simulator } from '../core/simulator.ts'
 import type { Session } from '../commands/types.ts'
 import type { Challenge, Predicate } from './schema.ts'
@@ -104,6 +107,26 @@ export class ChallengeRun {
         })
         const hits = all.filter((o) => o.metadata.name.startsWith(a))
         return hits.length > 0 && hits.every((o) => names.includes(o.metadata.name))
+      }
+      case 'changedVia': {
+        const log = auditLog(this.sim).filter((e) => e.kind === p.kind && e.name === p.name)
+        const byKubectl = log.some((e) => e.actor === 'learner')
+        const byMr = log.some((e) => {
+          if (e.actor !== 'argocd' || (e.verb !== 'sync' && e.verb !== 'prune')) return false
+          const appName = typeof e.detail?.app === 'string' ? e.detail.app : ''
+          const revision = typeof e.detail?.revision === 'string' ? e.detail.revision : ''
+          const r = repo(this.sim, application(this.sim, appName)?.source.repo ?? '')
+          if (!r) return false
+          const reached = ancestors(r, revision)
+          return mergeRequests(this.sim, r.name).some(
+            (m) =>
+              m.state === 'merged' &&
+              m.author === LEARNER &&
+              m.mergedSha !== undefined &&
+              reached.has(m.mergedSha),
+          )
+        })
+        return p.via === 'mr' ? byMr && !(p.only && byKubectl) : byKubectl && !(p.only && byMr)
       }
       case 'mutated':
         return auditLog(this.sim).some(

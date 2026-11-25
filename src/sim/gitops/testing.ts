@@ -91,3 +91,43 @@ export function ciScenario(timeline: ScenarioInput['timeline'] = []) {
   const scenario = scenarioSchema.parse(input)
   return { scenario, sim: loadSimulation(scenario) }
 }
+
+/**
+ * The mini cluster with a deploy repo whose merge requests run validation (policies: no latest tag,
+ * memory limits) and an automated Argo app without self-heal, so a kubectl fix stays (tests only).
+ */
+export function mrScenario(
+  opts: { selfHeal?: boolean; timeline?: ScenarioInput['timeline'] } = {},
+) {
+  const selfHeal = opts.selfHeal ?? false
+  const base = miniScenarioInput()
+  const input: ScenarioInput = {
+    ...base,
+    timeline: opts.timeline ?? [],
+    gitops: {
+      repos: {
+        'ravenpost-deploy': {
+          files: {
+            'shop/web.yaml': webManifest('registry.example/web:1.0'),
+            'shop/config.yaml': configManifest,
+          },
+        },
+      },
+      ci: { 'ravenpost-deploy': { policies: ['no-latest-tag', 'memory-limits'] } },
+      applications: [
+        {
+          name: 'shop',
+          source: { repo: 'ravenpost-deploy', path: 'shop' },
+          destination: { cluster: 'dev', namespace: 'shop' },
+          syncPolicy: { automated: { prune: true, selfHeal } },
+        },
+      ],
+    },
+  }
+  const scenario = scenarioSchema.parse(input)
+  return { scenario, sim: loadSimulation(scenario) }
+}
+
+/** `webManifest` with a memory limit on its container (what the memory-limits policy wants). */
+export const webWithLimit = (image: string, memory = '256Mi', replicas = 2) =>
+  `${webManifest(image, replicas).trimEnd()}\n          resources:\n            limits:\n              memory: ${memory}\n`

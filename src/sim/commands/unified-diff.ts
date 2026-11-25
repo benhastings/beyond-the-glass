@@ -41,11 +41,18 @@ function ops(a: string[], b: string[]): Op[] {
 const range = (start: number, count: number) =>
   count === 1 ? String(start) : `${String(start)},${String(count)}`
 
-/** The hunks only (no `---`/`+++` header); empty when the texts are the same. */
-export function unifiedHunks(before: string, after: string, context = CONTEXT): string {
+/** One row of a unified diff: a hunk header, or a line with its line numbers (1-based) on each side. */
+export type DiffRow =
+  | { kind: '@'; text: string }
+  | { kind: ' '; text: string; oldLine: number; newLine: number }
+  | { kind: '-'; text: string; oldLine: number }
+  | { kind: '+'; text: string; newLine: number }
+
+/** The rows of a unified diff, for views that show line numbers (E7-03). Empty when the texts match. */
+export function diffRows(before: string, after: string, context = CONTEXT): DiffRow[] {
   const all = ops(lines(before), lines(after))
   const changed = all.map((o, k) => (o.kind !== ' ' ? k : -1)).filter((k) => k >= 0)
-  if (!changed.length) return ''
+  if (!changed.length) return []
   // Group changes whose context windows touch.
   const groups: [number, number][] = []
   for (const k of changed) {
@@ -53,7 +60,7 @@ export function unifiedHunks(before: string, after: string, context = CONTEXT): 
     if (last && k - last[1] <= context * 2) last[1] = k
     else groups.push([k, k])
   }
-  const out: string[] = []
+  const out: DiffRow[] = []
   for (const [first, lastChange] of groups) {
     const from = Math.max(0, first - context)
     const to = Math.min(all.length - 1, lastChange + context)
@@ -63,10 +70,24 @@ export function unifiedHunks(before: string, after: string, context = CONTEXT): 
     const head = all[from]
     const aStart = aCount === 0 ? (head?.a ?? 0) : (head?.a ?? 0) + 1
     const bStart = bCount === 0 ? (head?.b ?? 0) : (head?.b ?? 0) + 1
-    out.push(`@@ -${range(aStart, aCount)} +${range(bStart, bCount)} @@`)
-    for (const o of hunk) out.push(`${o.kind}${o.line}`)
+    out.push({ kind: '@', text: `@@ -${range(aStart, aCount)} +${range(bStart, bCount)} @@` })
+    for (const o of hunk)
+      out.push(
+        o.kind === ' '
+          ? { kind: ' ', text: o.line, oldLine: o.a + 1, newLine: o.b + 1 }
+          : o.kind === '-'
+            ? { kind: '-', text: o.line, oldLine: o.a + 1 }
+            : { kind: '+', text: o.line, newLine: o.b + 1 },
+      )
   }
-  return out.join('\n')
+  return out
+}
+
+/** The hunks only (no `---`/`+++` header); empty when the texts are the same. */
+export function unifiedHunks(before: string, after: string, context = CONTEXT): string {
+  return diffRows(before, after, context)
+    .map((r) => (r.kind === '@' ? r.text : `${r.kind}${r.text}`))
+    .join('\n')
 }
 
 /**
