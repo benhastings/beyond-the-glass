@@ -122,7 +122,8 @@ export const UNSUPPORTED_KUBECTL: Readonly<Record<string, Unsupported>> = {
 }
 
 /** Real kubectl commands the simulator is adding (support matrix). Until they land, they say so kindly. */
-export const PLANNED_KUBECTL = ['apply', 'diff', 'edit'] as const
+/** Real kubectl verbs still to come. Empty since E6-08; kept for the next ones. */
+export const PLANNED_KUBECTL: readonly string[] = []
 
 export function unsupportedMessage(verb: string): string {
   const u = UNSUPPORTED_KUBECTL[verb]

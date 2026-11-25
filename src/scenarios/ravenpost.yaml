@@ -11,6 +11,64 @@ startTime: 2026-03-14T02:10:00Z
 currentContext: kind-ravenpost
 # How each image behaves when it runs: steady CPU and memory (kubectl top) and, for the notifier, the
 # lines it writes before it exits (kubectl logs --previous).
+# The operator's home folder (ls, cat, cd; kubectl apply -f and diff -f read these).
+files:
+  README.md: |
+    Ravenpost manifests, as the platform team last applied them.
+
+    manifests/notifier.yaml         the notifier Deployment
+    manifests/notifier-config.yaml  the ConfigMap the Ravenpost services read
+
+    Before applying a change, `kubectl diff -f <file>` shows what it would do.
+  manifests/notifier.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ravenpost-notifier
+      namespace: ravenpost
+      labels:
+        app: ravenpost-notifier
+        app.kubernetes.io/part-of: ravenpost
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ravenpost-notifier
+      template:
+        metadata:
+          labels:
+            app: ravenpost-notifier
+            app.kubernetes.io/part-of: ravenpost
+        spec:
+          containers:
+            - name: notifier
+              image: registry.example/ravenpost/notifier:0.9.2
+              ports:
+                - name: http
+                  containerPort: 8080
+              env:
+                - name: SMTP_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ravenpost-config
+                      key: SMTP_HOST
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 128Mi
+  manifests/notifier-config.yaml: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: ravenpost-config
+      namespace: ravenpost
+    data:
+      LOG_LEVEL: info
+      QUEUE_URL: amqp://ravenpost-queue.ravenpost.svc:5672
+      SMTP_HOST: smtp.ravenpost.example
+      SMTP_PORT: "587"
 images:
   registry.example/ravenpost/web:2.3.1: { cpuMillis: 4, memoryMi: 58, healthPaths: [/healthz] }
   registry.example/ravenpost/api:1.14.0:

@@ -150,3 +150,39 @@ acTest(
     }
   },
 )
+
+acTest(
+  'E6-08.AC1',
+  'kubectl edit’s editor works from the keyboard alone and passes axe',
+  async ({ page }) => {
+    await page.goto('./#/kitchen-sink')
+    const run = page.getByRole('button', { name: 'Run kubectl edit configmap ravenpost-config' })
+    await run.focus()
+    await page.keyboard.press('Enter')
+    const area = page.getByRole('textbox', { name: 'YAML for configmap/ravenpost-config' })
+    await expect(area).toBeFocused()
+    await expectNoA11yViolations(page)
+    // Edit, then Tab to Save and press Enter.
+    await page.keyboard.press('Control+End')
+    await area.press('Control+Home')
+    const text = await area.inputValue()
+    await area.fill(text.replace('LOG_LEVEL: info', 'LOG_LEVEL: debug'))
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'Save' })).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.getByLabel('Command output')).toContainText(
+      'configmap/ravenpost-config edited',
+    )
+    // A broken edit reopens with the error announced; Escape then cancels.
+    await run.focus()
+    await page.keyboard.press('Enter')
+    await area.fill('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: ravenpost-config\n bad: [')
+    await page.keyboard.press('Control+s')
+    await expect(page.getByRole('alert')).toContainText(/Not saved\. Line \d+:/)
+    await expect(area).toBeFocused()
+    await expectNoA11yViolations(page)
+    await page.keyboard.press('Escape')
+    await expect(page.getByLabel('Command output')).toHaveText('Edit cancelled, no changes made.')
+    await expect(run).toBeVisible()
+  },
+)

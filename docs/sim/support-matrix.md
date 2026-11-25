@@ -67,12 +67,14 @@ Flags may come before or after the verb (`kubectl -n ravenpost get pods`), in an
 | `kubectl delete TYPE[,TYPE] (NAME… \| -l SELECTOR \| --all)` | Supported (E6-07) | pods, deployments (cascading to ReplicaSets and pods), replicasets, services, configmaps, secrets. Waits for pods to stop; `--force --grace-period=0` skips that, with kubectl's warning. Nodes and namespaces aren't deletable here |
 | `kubectl set image deploy/NAME CONTAINER=IMAGE…` | Supported (E6-07) | `*=IMAGE` for every container. Other `set` subcommands explain themselves |
 | `kubectl label`, `kubectl annotate TYPE NAME KEY=VALUE… KEY-` | Supported (E6-07) | `--overwrite`; label keys and values validated as Kubernetes does |
-| `kubectl apply`, `diff`, `edit` | Planned (E6-08) | |
+| `kubectl apply -f FILE\|DIR[,…]` | Supported (E6-08) | Deployments, Services, ConfigMaps, Secrets, Namespaces; `-R`, `--dry-run=client\|server`; created/configured/unchanged and the last-applied warning as kubectl prints them. Errors in kubectl's words: YAML syntax (with line), unknown fields (strict decoding), wrong apiVersion, missing required fields, selector/template mismatch, immutable selector. Real fields the sim doesn't model (volumes, tolerations, …) are named as such |
+| `kubectl diff -f FILE\|DIR` | Supported (E6-08) | Unified diff with `diff -u -N` headers; exit 1 when there are differences |
+| `kubectl edit TYPE NAME` | Supported (E6-08) | Opens an accessible editor (textarea with line numbers; Ctrl+S saves, Esc cancels, Tab reaches the buttons). Invalid saves reopen with kubectl's error comments; syntax errors give the line as the editor numbers it |
+| `ls [-l]`, `cat`, `cd`, `pwd` | Supported (E6-08) | The scenario's read-only `files:` under `/home/operator` |
 | `kubectl config get-contexts [NAME]` | Supported (E6-12) | `*` marks the current context; `--no-headers`, `-o name` |
 | `kubectl config current-context`, `use-context NAME` | Supported (E6-12) | `Switched to context "prod".` |
 | `kubectl config set-context --current\|NAME --namespace=NS` | Supported (E6-12) | Changes the context's default namespace; creating contexts isn't simulated |
 
-Planned commands answer "works on a real cluster, but this simulator doesn't run it yet" until they land.
 
 ### Real, but not simulated
 

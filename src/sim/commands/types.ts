@@ -8,7 +8,35 @@ export interface Output {
   exitCode: number
   /** Terminal effects for the UI: clear the screen, or close the terminal panel. */
   effect?: 'clear' | 'exit'
+  /** `kubectl edit` (E6-08): the UI opens this text in its editor and calls back with the result. */
+  edit?: EditRequest
 }
+
+/**
+ * An object opened for editing. The terminal shows `text` in an accessible editor; Save calls `save`,
+ * which either finishes (`done`, printed like any command's output) or asks for the editor to open again
+ * with kubectl's error comments added (`reopen`), as `kubectl edit` does. Cancel calls `cancel`.
+ */
+export interface EditRequest {
+  /** What is being edited, e.g. `deployment.apps/ravenpost-api`. */
+  title: string
+  /** The temporary file kubectl would open, for the editor's label. */
+  fileName: string
+  text: string
+  save: (text: string) => EditStep
+  cancel: () => Output
+}
+
+export type EditStep =
+  | { done: Output }
+  | {
+      /** The text to edit again, with the errors as `#` comments at the top. */
+      reopen: string
+      /** The error, for the editor to announce. */
+      error: string
+      /** 1-based line of a syntax error in the text that was saved, if there was one. */
+      line?: number
+    }
 
 /** Per-terminal state that outlives one command. */
 export interface Session {
