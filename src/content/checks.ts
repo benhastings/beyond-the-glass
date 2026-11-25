@@ -18,6 +18,8 @@ const base = {
   prompt: z.string().min(1),
   /** Shown once the check is passed. */
   explanation: z.string().min(1),
+  /** Must be passed before the lesson counts as complete (E5-04). */
+  required: z.boolean().default(false),
 }
 
 export const checkSchema = z.discriminatedUnion('type', [

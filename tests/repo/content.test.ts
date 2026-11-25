@@ -17,6 +17,7 @@ async function buildWith(edit?: (contentDir: string) => void) {
   dirs.push(dir)
   cpSync(join(ROOT, 'content/__fixtures__/valid'), join(dir, 'content'), { recursive: true })
   cpSync(join(ROOT, 'src/scenarios/ravenpost.yaml'), join(dir, 'src/scenarios/ravenpost.yaml'))
+  cpSync(join(ROOT, 'src/challenges'), join(dir, 'src/challenges'), { recursive: true })
   writeFileSync(
     join(dir, 'main.js'),
     "import m from 'virtual:btg-content'\nconsole.log(m.regions.length)\n",

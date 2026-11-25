@@ -3,17 +3,31 @@ import { lazy, Suspense, useMemo, type ComponentType } from 'react'
 import { PageSkeleton } from '../shell/Skeleton'
 import type { Check } from '@/content/checks'
 import { ChecksContext } from './checks/context'
+import { StepContext } from './step-context'
 import { LESSON_COMPONENTS } from './components'
 import { lessonLoader } from './load'
 
 /** A lesson's MDX body with every lesson component available (E5-02). */
-export function LessonBody({ file, checks = [] }: { file: string; checks?: readonly Check[] }) {
+export function LessonBody({
+  file,
+  checks = [],
+  step,
+}: {
+  file: string
+  checks?: readonly Check[]
+  /** The step to show; every step when undefined. */
+  step?: string
+}) {
   const Body = useMemo(() => {
     const load = lessonLoader(file)
     return load ? lazy(load) : undefined
   }, [file])
   if (!Body) return null
-  return <MdxContent Body={Body} checks={checks} />
+  return (
+    <StepContext value={step}>
+      <MdxContent Body={Body} checks={checks} />
+    </StepContext>
+  )
 }
 
 export function MdxContent({

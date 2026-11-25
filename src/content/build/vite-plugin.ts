@@ -18,17 +18,22 @@ export interface ContentPluginOptions {
 export function contentPlugin(opts: ContentPluginOptions = {}): Plugin {
   let root = ''
   let scenarios = ''
+  let challenges = ''
   let json = ''
   return {
     name: 'btg-content',
     configResolved(config) {
       root = opts.root ?? join(config.root, 'content')
       scenarios = join(config.root, 'src/scenarios')
+      challenges = join(config.root, 'src/challenges')
     },
     // Built at the start of every build (and dev-server start), whether or not anything imports it yet,
     // so invalid content always fails `npm run build`.
     buildStart() {
-      const { manifest, files } = buildManifest(root, { scenarioIds: scenarioIdsIn(scenarios) })
+      const { manifest, files } = buildManifest(root, {
+        scenarioIds: scenarioIdsIn(scenarios),
+        challengeIds: scenarioIdsIn(challenges),
+      })
       for (const f of files) this.addWatchFile(f)
       json = JSON.stringify(manifest)
     },
@@ -38,7 +43,10 @@ export function contentPlugin(opts: ContentPluginOptions = {}): Plugin {
     load(id) {
       if (id !== RESOLVED) return null
       // Rebuilt here too, so the dev server picks up edits to watched content files.
-      const { manifest } = buildManifest(root, { scenarioIds: scenarioIdsIn(scenarios) })
+      const { manifest } = buildManifest(root, {
+        scenarioIds: scenarioIdsIn(scenarios),
+        challengeIds: scenarioIdsIn(challenges),
+      })
       json = JSON.stringify(manifest)
       return `export default ${json}`
     },
