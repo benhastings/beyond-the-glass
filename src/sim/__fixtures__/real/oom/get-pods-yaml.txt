@@ -133,7 +133,7 @@ status:
     started: false
     state:
       waiting:
-        message: back-off <age> restarting failed container=web pod=web-<hash>-9zhzb_<ns>(<uid>)
+        message: back-off <age> restarting failed container=web pod=web-<hash>-v7vsk_<ns>(<uid>)
         reason: CrashLoopBackOff
     user:
       linux:
