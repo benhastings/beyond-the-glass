@@ -1,0 +1,27 @@
+$ kubectl get all -n ravenpost
+NAME                                      READY     STATUS             RESTARTS       AGE
+pod/ravenpost-api-576b7f4d5d-b4874        1/1       Running            0              8d
+pod/ravenpost-api-576b7f4d5d-kqgx5        1/1       Running            0              8d
+pod/ravenpost-api-576b7f4d5d-qq7df        1/1       Running            0              8d
+pod/ravenpost-notifier-79c79b9687-rd2j2   0/1       CrashLoopBackOff   9 (110s ago)   25m
+pod/ravenpost-web-74d9fdfcd5-252jk        1/1       Running            0              8d
+pod/ravenpost-web-74d9fdfcd5-dn4wr        1/1       Running            0              8d
+pod/ravenpost-worker-794f477b59-jp8ml     1/1       Running            0              8d
+pod/ravenpost-worker-794f477b59-rwbj7     1/1       Running            0              8d
+
+NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/ravenpost-api        ClusterIP   10.96.186.171   <none>        8080/TCP   9d
+service/ravenpost-notifier   ClusterIP   10.96.15.67     <none>        8080/TCP   9d
+service/ravenpost-web        ClusterIP   10.96.162.24    <none>        80/TCP     9d
+
+NAME                                 READY     UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ravenpost-api        3/3       3            3           9d
+deployment.apps/ravenpost-notifier   0/1       1            0           9d
+deployment.apps/ravenpost-web        2/2       2            2           9d
+deployment.apps/ravenpost-worker     2/2       2            2           9d
+
+NAME                                            DESIRED   CURRENT   READY     AGE
+replicaset.apps/ravenpost-api-576b7f4d5d        3         3         3         9d
+replicaset.apps/ravenpost-notifier-79c79b9687   1         1         0         9d
+replicaset.apps/ravenpost-web-74d9fdfcd5        2         2         2         9d
+replicaset.apps/ravenpost-worker-794f477b59     2         2         2         9d

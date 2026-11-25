@@ -1,0 +1,5 @@
+$ kubectl get pods -n ravenpost -l app!=ravenpost-api,app!=ravenpost-web
+NAME                                  READY     STATUS             RESTARTS       AGE
+ravenpost-notifier-79c79b9687-rd2j2   0/1       CrashLoopBackOff   9 (110s ago)   25m
+ravenpost-worker-794f477b59-jp8ml     1/1       Running            0              8d
+ravenpost-worker-794f477b59-rwbj7     1/1       Running            0              8d

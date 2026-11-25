@@ -1,0 +1,4 @@
+$ kubectl get services -n ravenpost -o name
+service/ravenpost-api
+service/ravenpost-notifier
+service/ravenpost-web

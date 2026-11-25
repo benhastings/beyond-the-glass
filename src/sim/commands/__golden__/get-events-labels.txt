@@ -1,0 +1,7 @@
+$ kubectl get events -A --show-labels
+NAMESPACE   LAST SEEN   TYPE      REASON      OBJECT                                    MESSAGE                                                                                                                                    LABELS
+ravenpost   25m         Normal    Scheduled   pod/ravenpost-notifier-79c79b9687-rd2j2   Successfully assigned ravenpost/ravenpost-notifier-79c79b9687-rd2j2 to ravenpost-worker2                                                   <none>
+ravenpost   112s        Normal    Pulled      pod/ravenpost-notifier-79c79b9687-rd2j2   Container image "registry.example/ravenpost/notifier:0.9.2" already present on machine                                                     <none>
+ravenpost   112s        Normal    Created     pod/ravenpost-notifier-79c79b9687-rd2j2   Created container: notifier                                                                                                                <none>
+ravenpost   112s        Normal    Started     pod/ravenpost-notifier-79c79b9687-rd2j2   Started container notifier                                                                                                                 <none>
+ravenpost   110s        Warning   BackOff     pod/ravenpost-notifier-79c79b9687-rd2j2   Back-off restarting failed container notifier in pod ravenpost-notifier-79c79b9687-rd2j2_ravenpost(a072cf9d-cb02-401e-a77d-92fc339ecd5e)   <none>

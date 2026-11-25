@@ -1,0 +1,5 @@
+$ kubectl get pods -n ravenpost -l app=ravenpost-api
+NAME                             READY     STATUS    RESTARTS   AGE
+ravenpost-api-576b7f4d5d-b4874   1/1       Running   0          8d
+ravenpost-api-576b7f4d5d-kqgx5   1/1       Running   0          8d
+ravenpost-api-576b7f4d5d-qq7df   1/1       Running   0          8d

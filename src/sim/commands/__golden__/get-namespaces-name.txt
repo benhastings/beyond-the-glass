@@ -1,0 +1,7 @@
+$ kubectl get namespaces -o name
+namespace/default
+namespace/kube-node-lease
+namespace/kube-public
+namespace/kube-system
+namespace/local-path-storage
+namespace/ravenpost

@@ -52,10 +52,12 @@ Flags may come before or after the verb (`kubectl -n ravenpost get pods`), in an
 
 | Command | Status | Notes |
 |---|---|---|
-| `kubectl get pods [NAME…]` | Supported (E6-04) | Also `po`, `pod`, `pods/NAME`; `-o wide`, `-o name`, `--show-labels`, `-l` |
-| `kubectl get <other type>` | Planned (E6-05) | deployments, replicasets, services, endpoints, nodes, namespaces, configmaps, secrets, events |
-| `kubectl get … -o yaml\|json`, `-w` | Planned (E6-05) | |
-| `kubectl describe` | Planned (E6-05) | |
+| `kubectl get TYPE[,TYPE] [NAME…]` | Supported (E6-05) | pods (`po`), deployments (`deploy`), replicasets (`rs`), services (`svc`), endpoints (`ep`), nodes (`no`), namespaces (`ns`), configmaps (`cm`), secrets, events (`ev`); also `TYPE/NAME` and `all` |
+| `kubectl get … -o wide\|name\|yaml\|json` | Supported (E6-05) | YAML as kubectl writes it: sorted keys, quoted timestamps; Secret values show as `<redacted: N bytes>` |
+| `kubectl get … --show-labels`, `-l`, `--sort-by=.path`, `--no-headers` | Supported (E6-05) | `--sort-by` takes simple paths such as `.lastTimestamp` or `.status.containerStatuses[0].restartCount` |
+| `kubectl get … -w` | Supported (E6-05) | Watches for one minute of simulated time, printing rows as they change |
+| `kubectl describe pod\|deployment\|service\|node [NAME_PREFIX]` | Supported (E6-05) | kubectl's section layout, State/Last State, Conditions, Events with `(xN over …)`; names match by prefix; `-l` |
+| `kubectl describe` other types | Not yet | Explains, and suggests `kubectl get TYPE -o yaml` |
 | `kubectl logs`, `events`, `top` | Planned (E6-06) | |
 | `kubectl rollout`, `scale`, `delete`, `set image`, `label`, `annotate` | Planned (E6-07) | |
 | `kubectl apply`, `diff`, `edit` | Planned (E6-08) | |

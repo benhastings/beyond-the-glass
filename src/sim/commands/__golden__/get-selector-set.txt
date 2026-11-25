@@ -1,0 +1,7 @@
+$ kubectl get pods -A -l 'k8s-app in (kube-dns, kube-proxy)'
+NAMESPACE     NAME                       READY     STATUS    RESTARTS   AGE
+kube-system   coredns-86965d7658-2g4g2   1/1       Running   0          11d
+kube-system   coredns-86965d7658-rtks8   1/1       Running   0          11d
+kube-system   kube-proxy-8z5b2           1/1       Running   0          11d
+kube-system   kube-proxy-bt4nk           1/1       Running   0          11d
+kube-system   kube-proxy-frcmd           1/1       Running   0          11d

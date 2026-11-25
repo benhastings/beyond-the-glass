@@ -1,0 +1,6 @@
+$ kubectl get replicasets -n ravenpost --show-labels
+NAME                            DESIRED   CURRENT   READY     AGE       LABELS
+ravenpost-api-576b7f4d5d        3         3         3         9d        app=ravenpost-api,app.kubernetes.io/part-of=ravenpost,pod-template-hash=576b7f4d5d
+ravenpost-notifier-79c79b9687   1         1         0         9d        app=ravenpost-notifier,app.kubernetes.io/part-of=ravenpost,pod-template-hash=79c79b9687
+ravenpost-web-74d9fdfcd5        2         2         2         9d        app=ravenpost-web,app.kubernetes.io/part-of=ravenpost,pod-template-hash=74d9fdfcd5
+ravenpost-worker-794f477b59     2         2         2         9d        app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost,pod-template-hash=794f477b59

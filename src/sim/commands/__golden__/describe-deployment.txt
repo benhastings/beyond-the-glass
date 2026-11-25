@@ -1,0 +1,43 @@
+$ kubectl describe deployment ravenpost-api -n ravenpost
+Name:                   ravenpost-api
+Namespace:              ravenpost
+CreationTimestamp:      Thu, 05 Mar 2026 02:10:00 +0000
+Labels:                 app=ravenpost-api
+                        app.kubernetes.io/part-of=ravenpost
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=ravenpost-api
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=ravenpost-api
+           app.kubernetes.io/part-of=ravenpost
+  Containers:
+   api:
+    Image:      registry.example/ravenpost/api:1.14.0
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Limits:
+      memory:  512Mi
+    Requests:
+      cpu:      250m
+      memory:   256Mi
+    Liveness:   http-get http://:http/healthz delay=0s timeout=1s period=20s #success=1 #failure=3
+    Readiness:  http-get http://:http/ready delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment Variables from:
+      ravenpost-config  ConfigMap  Optional: false
+      ravenpost-db      Secret     Optional: false
+    Environment:        <none>
+    Mounts:             <none>
+  Volumes:              <none>
+  Node-Selectors:       <none>
+  Tolerations:          <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   ravenpost-api-576b7f4d5d (3/3 replicas created)
+Events:          <none>

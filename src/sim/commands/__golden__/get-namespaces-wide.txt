@@ -1,0 +1,8 @@
+$ kubectl get namespaces -o wide
+NAME                 STATUS    AGE
+default              Active    12d
+kube-node-lease      Active    12d
+kube-public          Active    12d
+kube-system          Active    12d
+local-path-storage   Active    12d
+ravenpost            Active    9d

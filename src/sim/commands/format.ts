@@ -54,3 +54,45 @@ export function humanDuration(ms: number): string {
   }
   return `${String(Math.floor(hours / 24 / 365))}y`
 }
+
+/**
+ * Go's text/tabwriter as `kubectl describe` uses it (minwidth 0, padding 2): each tab ends a cell, and a
+ * column is aligned across a block of consecutive lines that all have a cell there. Lines without tabs
+ * end the blocks, so nested sections align on their own.
+ */
+export function goTabwriter(lines: readonly string[], padding = 2): string {
+  const cells = lines.map((l) => l.split('\t'))
+  const widths = cells.map((c) => c.map(() => 0))
+  const maxCols = Math.max(0, ...cells.map((c) => c.length - 1))
+  for (let col = 0; col < maxCols; col++) {
+    let start = 0
+    while (start < cells.length) {
+      if ((cells[start]?.length ?? 0) - 1 <= col) {
+        start++
+        continue
+      }
+      let end = start
+      while (end < cells.length && (cells[end]?.length ?? 0) - 1 > col) end++
+      const w = Math.max(...cells.slice(start, end).map((c) => (c[col] ?? '').length)) + padding
+      for (let i = start; i < end; i++) (widths[i] as number[])[col] = w
+      start = end
+    }
+  }
+  return cells
+    .map((c, i) =>
+      c
+        .map((cell, j) => (j < c.length - 1 ? cell.padEnd((widths[i] as number[])[j] ?? 0) : cell))
+        .join(''),
+    )
+    .join('\n')
+}
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** Go's RFC1123Z in UTC, as `kubectl describe` prints times: "Sat, 14 Mar 2026 02:10:00 +0000". */
+export function rfc1123z(iso: string): string {
+  const d = new Date(iso)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${DAYS[d.getUTCDay()] ?? ''}, ${p(d.getUTCDate())} ${MONTHS[d.getUTCMonth()] ?? ''} ${String(d.getUTCFullYear())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} +0000`
+}

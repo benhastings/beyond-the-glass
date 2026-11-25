@@ -1,0 +1,17 @@
+$ kubectl describe svc ravenpost-web -n ravenpost
+Name:                     ravenpost-web
+Namespace:                ravenpost
+Labels:                   app=ravenpost-web
+Annotations:              <none>
+Selector:                 app=ravenpost-web
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.162.24
+IPs:                      10.96.162.24
+Port:                     http  80/TCP
+TargetPort:               http/TCP
+Endpoints:                10.244.1.2:8080,10.244.2.2:8080
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>

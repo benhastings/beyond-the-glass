@@ -1,0 +1,27 @@
+$ kubectl get configmaps -n ravenpost -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "ConfigMap",
+            "metadata": {
+                "name": "ravenpost-config",
+                "namespace": "ravenpost",
+                "uid": "01d75e13-8e7e-43a0-9f64-873b86e0bc40",
+                "resourceVersion": "1039",
+                "creationTimestamp": "2026-03-05T02:10:00Z"
+            },
+            "data": {
+                "LOG_LEVEL": "info",
+                "QUEUE_URL": "amqp://ravenpost-queue.ravenpost.svc:5672",
+                "SMTP_HOST": "smtp.ravenpost.example",
+                "SMTP_PORT": "587"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

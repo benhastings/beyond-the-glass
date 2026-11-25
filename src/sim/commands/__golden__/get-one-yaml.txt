@@ -1,0 +1,72 @@
+$ kubectl get deployment ravenpost-notifier -n ravenpost -o yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2026-03-05T02:10:00Z"
+  generation: 1
+  labels:
+    app: ravenpost-notifier
+    app.kubernetes.io/part-of: ravenpost
+  name: ravenpost-notifier
+  namespace: ravenpost
+  resourceVersion: "1085"
+  uid: 2ae581de-199d-43d9-9268-7a707da38d41
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: ravenpost-notifier
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ravenpost-notifier
+        app.kubernetes.io/part-of: ravenpost
+    spec:
+      containers:
+      - env:
+        - name: SMTP_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: SMTP_HOST
+              name: ravenpost-config
+        image: registry.example/ravenpost/notifier:0.9.2
+        imagePullPolicy: IfNotPresent
+        name: notifier
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+status:
+  availableReplicas: 0
+  conditions:
+  - lastTransitionTime: "2026-03-05T02:10:00Z"
+    lastUpdateTime: "2026-03-14T02:10:00Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  - lastTransitionTime: "2026-03-05T02:10:00Z"
+    lastUpdateTime: "2026-03-14T02:10:00Z"
+    message: ReplicaSet "ravenpost-notifier-79c79b9687" is progressing.
+    reason: ReplicaSetUpdated
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 0
+  replicas: 1
+  unavailableReplicas: 1
+  updatedReplicas: 1

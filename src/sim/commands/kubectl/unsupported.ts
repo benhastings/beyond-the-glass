@@ -123,7 +123,6 @@ export const UNSUPPORTED_KUBECTL: Readonly<Record<string, Unsupported>> = {
 
 /** Real kubectl commands the simulator is adding (support matrix). Until they land, they say so kindly. */
 export const PLANNED_KUBECTL = [
-  'describe',
   'logs',
   'events',
   'top',

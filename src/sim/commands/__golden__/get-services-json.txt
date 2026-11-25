@@ -1,0 +1,118 @@
+$ kubectl get services -n ravenpost -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "ravenpost-api",
+                "namespace": "ravenpost",
+                "uid": "0ff9de1f-731b-4794-8606-7fedb6478a37",
+                "resourceVersion": "1058",
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-api"
+                }
+            },
+            "spec": {
+                "type": "ClusterIP",
+                "selector": {
+                    "app": "ravenpost-api"
+                },
+                "clusterIP": "10.96.186.171",
+                "clusterIPs": [
+                    "10.96.186.171"
+                ],
+                "sessionAffinity": "None",
+                "ports": [
+                    {
+                        "name": "http",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": "http"
+                    }
+                ]
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "ravenpost-notifier",
+                "namespace": "ravenpost",
+                "uid": "939fe658-5501-4cad-90ab-3c772c404e98",
+                "resourceVersion": "1059",
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-notifier"
+                }
+            },
+            "spec": {
+                "type": "ClusterIP",
+                "selector": {
+                    "app": "ravenpost-notifier"
+                },
+                "clusterIP": "10.96.15.67",
+                "clusterIPs": [
+                    "10.96.15.67"
+                ],
+                "sessionAffinity": "None",
+                "ports": [
+                    {
+                        "name": "http",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": "http"
+                    }
+                ]
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "ravenpost-web",
+                "namespace": "ravenpost",
+                "uid": "b4ade067-44c9-4ea8-8570-510a40227c5a",
+                "resourceVersion": "1057",
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-web"
+                }
+            },
+            "spec": {
+                "type": "ClusterIP",
+                "selector": {
+                    "app": "ravenpost-web"
+                },
+                "clusterIP": "10.96.162.24",
+                "clusterIPs": [
+                    "10.96.162.24"
+                ],
+                "sessionAffinity": "None",
+                "ports": [
+                    {
+                        "name": "http",
+                        "protocol": "TCP",
+                        "port": 80,
+                        "targetPort": "http"
+                    }
+                ]
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
