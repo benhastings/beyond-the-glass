@@ -136,7 +136,6 @@ export const PLANNED_KUBECTL = [
   'apply',
   'diff',
   'edit',
-  'config',
 ] as const
 
 export function unsupportedMessage(verb: string): string {

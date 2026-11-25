@@ -59,7 +59,9 @@ Flags may come before or after the verb (`kubectl -n ravenpost get pods`), in an
 | `kubectl logs`, `events`, `top` | Planned (E6-06) | |
 | `kubectl rollout`, `scale`, `delete`, `set image`, `label`, `annotate` | Planned (E6-07) | |
 | `kubectl apply`, `diff`, `edit` | Planned (E6-08) | |
-| `kubectl config get-contexts\|current-context\|use-context` | Planned (E6-12) | |
+| `kubectl config get-contexts [NAME]` | Supported (E6-12) | `*` marks the current context; `--no-headers`, `-o name` |
+| `kubectl config current-context`, `use-context NAME` | Supported (E6-12) | `Switched to context "prod".` |
+| `kubectl config set-context --current\|NAME --namespace=NS` | Supported (E6-12) | Changes the context's default namespace; creating contexts isn't simulated |
 
 Planned commands answer "works on a real cluster, but this simulator doesn't run it yet" until they land.
 
@@ -86,7 +88,7 @@ in-world explanation too (`src/sim/commands/not-here.ts`). Anything else gets ba
 | Missing flag value | `error: flag needs an argument: 'n' in -n` / `error: flag needs an argument: --namespace` |
 | Unknown pod | `Error from server (NotFound): pods "x" not found` |
 | Nothing found | `No resources found in <ns> namespace.` (or `No resources found` with `-A`) on stderr |
-| Unknown context | `error: context "x" does not exist` |
+| Unknown context | `error: context "x" does not exist` (`--context`), `error: no context exists with the name: "x"` (`use-context`) |
 | Bad selector | `error: unable to parse requirement: invalid selector "…"` |
 
 "Did you mean" suggestions use the optimal string alignment distance (insert, delete, substitute or swap
@@ -101,3 +103,9 @@ adjacent letters), up to 2.
 - `AGE` uses kubectl's human duration format (`45s`, `3m12s`, `26h`, `2d4h`, `8d`).
 - Until E6-11's captured fixtures land, formats are checked against kubectl's source and documented
   behavior; E6-11 adds structural comparisons with a real kind cluster.
+
+## The prompt
+
+The terminal prompt shows the current context and namespace (`promptState`). A context whose name or
+cluster contains `prod` or `production` as a word is shown as a warning, with an icon and the word
+"(production)". When the context or namespace changes, a polite live region announces it.

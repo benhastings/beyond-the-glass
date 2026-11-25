@@ -6,6 +6,7 @@ import { Shell } from './shell.ts'
 import type { Session } from './types.ts'
 
 export { COMMANDS } from './registry.ts'
+export { promptState, isProdContext, type PromptState } from './kubectl/config.ts'
 export { Shell, type Completion, type ShellOptions } from './shell.ts'
 export {
   defineCommand,
