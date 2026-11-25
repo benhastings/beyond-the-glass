@@ -9,6 +9,19 @@ description: >-
 seed: 1998
 startTime: 2026-03-14T02:10:00Z
 currentContext: kind-ravenpost
+# How each image behaves when it runs: steady CPU and memory (kubectl top) and, for the notifier, the
+# lines it writes before it exits (kubectl logs --previous).
+images:
+  registry.example/ravenpost/web:2.3.1: { cpuMillis: 4, memoryMi: 58, healthPaths: [/healthz] }
+  registry.example/ravenpost/api:1.14.0:
+    { cpuMillis: 22, memoryMi: 174, healthPaths: [/ready, /healthz] }
+  registry.example/ravenpost/worker:1.14.0: { cpuMillis: 35, memoryMi: 141 }
+  registry.example/ravenpost/notifier:0.9.2:
+    memoryMi: 48
+    log:
+      - '{"level":"info","msg":"connecting to SMTP relay","host":"smtp.ravenpost.example","port":587}'
+      - '{"level":"error","msg":"SMTP relay unreachable","error":"dial tcp: lookup smtp.ravenpost.example on 10.96.0.10:53: no such host"}'
+      - '{"level":"fatal","msg":"notifier cannot start without a mail relay","exit_code":1}'
 contexts:
   - name: kind-ravenpost
     cluster: ravenpost

@@ -58,7 +58,9 @@ Flags may come before or after the verb (`kubectl -n ravenpost get pods`), in an
 | `kubectl get … -w` | Supported (E6-05) | Watches for one minute of simulated time, printing rows as they change |
 | `kubectl describe pod\|deployment\|service\|node [NAME_PREFIX]` | Supported (E6-05) | kubectl's section layout, State/Last State, Conditions, Events with `(xN over …)`; names match by prefix; `-l` |
 | `kubectl describe` other types | Not yet | Explains, and suggests `kubectl get TYPE -o yaml` |
-| `kubectl logs`, `events`, `top` | Planned (E6-06) | |
+| `kubectl logs POD\|deploy/NAME\|-l SELECTOR` | Supported (E6-06) | `-c`, `--all-containers`, `-p/--previous`, `--tail`, `--since`, `--timestamps`, `--prefix`; `-f` follows for 30 s of simulated time. Lines come from the shared log source (`src/sim/telemetry/logs.ts`) the log explorer also reads. A pod with several containers and no `-c` prints kubectl's `Defaulted container …` notice |
+| `kubectl events` | Supported (E6-06) | Oldest first, `(xN over …)`; `--for TYPE/NAME`, `--types Normal,Warning`, `-A`, `--no-headers` |
+| `kubectl top pod\|node` | Supported (E6-06) | From each image's `cpuMillis`/`memoryMi` in the scenario; `--containers`, `-l`, `--sort-by cpu\|memory`, `-A`. Pods with no running container are left out, as metrics-server does |
 | `kubectl rollout`, `scale`, `delete`, `set image`, `label`, `annotate` | Planned (E6-07) | |
 | `kubectl apply`, `diff`, `edit` | Planned (E6-08) | |
 | `kubectl config get-contexts [NAME]` | Supported (E6-12) | `*` marks the current context; `--no-headers`, `-o name` |
