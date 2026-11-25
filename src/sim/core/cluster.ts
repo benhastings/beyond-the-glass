@@ -131,8 +131,10 @@ export class Cluster {
     reason: string,
     message: string,
     source: Event['source'],
+    /** For history written at scenario start: when it began, when it last happened, how often. */
+    history?: { first: string; last: string; count: number },
   ): Event {
-    const now = this.clock.iso()
+    const now = history?.last ?? this.clock.iso()
     const ns = involved.namespace ?? 'default'
     const existing = this.list('Event', { namespace: ns }).find(
       (e) =>
@@ -163,8 +165,8 @@ export class Cluster {
       reason,
       message,
       type,
-      count: 1,
-      firstTimestamp: now,
+      count: history?.count ?? 1,
+      firstTimestamp: history?.first ?? now,
       lastTimestamp: now,
       source,
       reportingComponent: source.component,

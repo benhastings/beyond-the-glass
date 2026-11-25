@@ -1,0 +1,58 @@
+$ kubectl describe node ravenpost-worker
+Name:               ravenpost-worker
+Roles:              <none>
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=ravenpost-worker
+                    kubernetes.io/os=linux
+Annotations:        node.alpha.kubernetes.io/ttl: 0
+CreationTimestamp:  Mon, 02 Mar 2026 02:10:00 +0000
+Taints:             <none>
+Unschedulable:      false
+Conditions:
+  Type            Status  LastHeartbeatTime                LastTransitionTime               Reason                      Message
+  ----            ------  -----------------                ------------------               ------                      -------
+  MemoryPressure  False   Mon, 02 Mar 2026 02:10:00 +0000  Mon, 02 Mar 2026 02:10:00 +0000  KubeletHasSufficientMemory  kubelet has sufficient memory available
+  DiskPressure    False   Mon, 02 Mar 2026 02:10:00 +0000  Mon, 02 Mar 2026 02:10:00 +0000  KubeletHasNoDiskPressure    kubelet has no disk pressure
+  PIDPressure     False   Mon, 02 Mar 2026 02:10:00 +0000  Mon, 02 Mar 2026 02:10:00 +0000  KubeletHasSufficientPID     kubelet has sufficient PID available
+  Ready           True    Mon, 02 Mar 2026 02:10:00 +0000  Mon, 02 Mar 2026 02:10:00 +0000  KubeletReady                kubelet is posting ready status
+Addresses:
+  InternalIP:  198.51.100.11
+  Hostname:    ravenpost-worker
+Capacity:
+  cpu:                4
+  ephemeral-storage:  102350Mi
+  memory:             8Gi
+  pods:               110
+Allocatable:
+  cpu:                4
+  ephemeral-storage:  102350Mi
+  memory:             8Gi
+  pods:               110
+System Info:
+  Kernel Version:             6.8.0-60-generic
+  OS Image:                   Debian GNU/Linux 12 (bookworm)
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://2.1.3
+  Kubelet Version:            v1.34.0
+PodCIDR:                      10.244.1.0/24
+PodCIDRs:                     10.244.1.0/24
+Non-terminated Pods:          (6 in total)
+  Namespace                   Name                               CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                               ------------  ----------  ---------------  -------------  ---
+  kube-system                 kindnet-pls96                      0 (0%)        0 (0%)      0 (0%)           0 (0%)         11d
+  kube-system                 kube-proxy-bt4nk                   0 (0%)        0 (0%)      0 (0%)           0 (0%)         11d
+  ravenpost                   ravenpost-api-576b7f4d5d-b4874     250m (6%)     0 (0%)      256Mi (3%)       512Mi (6%)     8d
+  ravenpost                   ravenpost-api-576b7f4d5d-qq7df     250m (6%)     0 (0%)      256Mi (3%)       512Mi (6%)     8d
+  ravenpost                   ravenpost-web-74d9fdfcd5-252jk     100m (2%)     0 (0%)      128Mi (1%)       256Mi (3%)     8d
+  ravenpost                   ravenpost-worker-794f477b59-jp8ml  200m (5%)     0 (0%)      256Mi (3%)       512Mi (6%)     8d
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests     Limits
+  --------           --------     ------
+  cpu                800m (20%)   0 (0%)
+  memory             896Mi (10%)  1792Mi (21%)
+  ephemeral-storage  0 (0%)       0 (0%)
+Events:              <none>

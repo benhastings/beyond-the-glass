@@ -1,0 +1,73 @@
+$ kubectl get namespaces -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      kubernetes.io/metadata.name: default
+    name: default
+    resourceVersion: "1001"
+    uid: 2419705c-5508-46f0-b39f-a7bf2688b749
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      kubernetes.io/metadata.name: kube-node-lease
+    name: kube-node-lease
+    resourceVersion: "1002"
+    uid: aa63982b-c013-49f3-9e9e-5b81e50ae07d
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      kubernetes.io/metadata.name: kube-public
+    name: kube-public
+    resourceVersion: "1003"
+    uid: d3f6a3f0-2ac6-4227-8eb1-ad5355fc5f35
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      kubernetes.io/metadata.name: kube-system
+    name: kube-system
+    resourceVersion: "1004"
+    uid: 0be171fc-4007-4c37-87bd-f27d8d9e1ae8
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      kubernetes.io/metadata.name: local-path-storage
+    name: local-path-storage
+    resourceVersion: "1005"
+    uid: e52ef5e9-cd38-44ac-9077-55e127c0dc10
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2026-03-05T02:10:00Z"
+    labels:
+      app.kubernetes.io/part-of: ravenpost
+      kubernetes.io/metadata.name: ravenpost
+    name: ravenpost
+    resourceVersion: "1006"
+    uid: cb4ccba2-63aa-427d-8988-935f5c95eeff
+  status:
+    phase: Active
+kind: List
+metadata:
+  resourceVersion: ""

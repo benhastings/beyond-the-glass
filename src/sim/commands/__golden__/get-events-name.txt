@@ -1,0 +1,6 @@
+$ kubectl get events -A -o name
+event/ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb001
+event/ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb002
+event/ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb003
+event/ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb004
+event/ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb005

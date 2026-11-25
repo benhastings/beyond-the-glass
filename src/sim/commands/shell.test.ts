@@ -99,15 +99,11 @@ describe('Shell: kubectl get pods', () => {
     )
   })
 
-  it('explains the parts of get that arrive later', () => {
-    for (const line of [
-      'kubectl get deployments',
-      'kubectl get pods -o yaml',
-      'kubectl get pods -w',
-    ]) {
+  it('explains resource types the simulator does not have', () => {
+    for (const line of ['kubectl get statefulsets', 'kubectl get hpa -A']) {
       const out = run(line)
       expect(out.exitCode).toBe(1)
-      expect(out.stderr).toMatch(/works on a real cluster/)
+      expect(out.stderr).toMatch(/works on a real cluster, but this simulator doesn't have any/)
     }
   })
 })

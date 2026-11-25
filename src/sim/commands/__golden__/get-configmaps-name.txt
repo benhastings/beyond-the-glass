@@ -1,0 +1,2 @@
+$ kubectl get configmaps -n ravenpost -o name
+configmap/ravenpost-config

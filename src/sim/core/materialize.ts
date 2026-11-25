@@ -393,6 +393,79 @@ function applyOverride(cluster: Cluster, clock: SimClock, pod: Pod, o: Override)
     }
   }
   cluster.put(pod)
+  crashLoopHistory(cluster, clock, pod)
+}
+
+/**
+ * The events a pod that has been crash-looping since before the scenario began would already have, so
+ * `describe pod` and `get events` tell its story: scheduled, started and backed off, many times over.
+ */
+function crashLoopHistory(cluster: Cluster, clock: SimClock, pod: Pod): void {
+  const ns = pod.metadata.namespace ?? 'default'
+  const created = pod.metadata.creationTimestamp
+  const node = pod.spec.nodeName
+  const ref = (container?: string) => ({
+    kind: 'Pod',
+    name: pod.metadata.name,
+    namespace: ns,
+    uid: pod.metadata.uid,
+    apiVersion: 'v1',
+    ...(container ? { fieldPath: `spec.containers{${container}}` } : {}),
+  })
+  const kubelet = { component: 'kubelet', ...(node ? { host: node } : {}) }
+  const after = (ms: number) => clock.iso(Date.parse(created) - clock.epochMs + ms)
+  if (node)
+    cluster.recordEvent(
+      ref(),
+      'Normal',
+      'Scheduled',
+      `Successfully assigned ${ns}/${pod.metadata.name} to ${node}`,
+      { component: 'default-scheduler' },
+      { first: created, last: created, count: 1 },
+    )
+  for (const cs of pod.status.containerStatuses ?? []) {
+    const last = cs.lastState.terminated
+    if (cs.state.waiting?.reason !== 'CrashLoopBackOff' || !last) continue
+    const starts = cs.restartCount + 1
+    const lastStart = last.startedAt ?? clock.iso()
+    const h = (count: number, lastAt: string) => ({ first: after(3000), last: lastAt, count })
+    cluster.recordEvent(
+      ref(cs.name),
+      'Normal',
+      'Pulled',
+      `Container image "${cs.image}" already present on machine`,
+      kubelet,
+      h(starts, lastStart),
+    )
+    cluster.recordEvent(
+      ref(cs.name),
+      'Normal',
+      'Created',
+      `Created container: ${cs.name}`,
+      kubelet,
+      h(starts, lastStart),
+    )
+    cluster.recordEvent(
+      ref(cs.name),
+      'Normal',
+      'Started',
+      `Started container ${cs.name}`,
+      kubelet,
+      h(starts, lastStart),
+    )
+    cluster.recordEvent(
+      ref(cs.name),
+      'Warning',
+      'BackOff',
+      `Back-off restarting failed container ${cs.name} in pod ${pod.metadata.name}_${ns}(${pod.metadata.uid})`,
+      kubelet,
+      {
+        first: after(6000),
+        last: last.finishedAt ?? clock.iso(),
+        count: Math.max(1, cs.restartCount * 4),
+      },
+    )
+  }
 }
 
 const KIND_IMAGES = {

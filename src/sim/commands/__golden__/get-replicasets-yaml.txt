@@ -1,0 +1,258 @@
+$ kubectl get replicasets -n ravenpost -o yaml
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "3"
+      deployment.kubernetes.io/max-replicas: "4"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-03-05T02:10:00Z"
+    generation: 1
+    labels:
+      app: ravenpost-api
+      app.kubernetes.io/part-of: ravenpost
+      pod-template-hash: 576b7f4d5d
+    name: ravenpost-api-576b7f4d5d
+    namespace: ravenpost
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: ravenpost-api
+      uid: 66f82331-eda3-4c5f-b1d3-033dd19dae74
+    resourceVersion: "1092"
+    uid: a3c97271-647a-4758-b4d5-9c762a0938fc
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        app: ravenpost-api
+        pod-template-hash: 576b7f4d5d
+    template:
+      metadata:
+        labels:
+          app: ravenpost-api
+          app.kubernetes.io/part-of: ravenpost
+          pod-template-hash: 576b7f4d5d
+      spec:
+        containers:
+        - envFrom:
+          - configMapRef:
+              name: ravenpost-config
+          - secretRef:
+              name: ravenpost-db
+          image: registry.example/ravenpost/api:1.14.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+          name: api
+          ports:
+          - containerPort: 8080
+            name: http
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 10
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+  status:
+    availableReplicas: 3
+    fullyLabeledReplicas: 3
+    observedGeneration: 1
+    readyReplicas: 3
+    replicas: 3
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-03-05T02:10:00Z"
+    generation: 1
+    labels:
+      app: ravenpost-notifier
+      app.kubernetes.io/part-of: ravenpost
+      pod-template-hash: 79c79b9687
+    name: ravenpost-notifier-79c79b9687
+    namespace: ravenpost
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: ravenpost-notifier
+      uid: 2ae581de-199d-43d9-9268-7a707da38d41
+    resourceVersion: "1093"
+    uid: d4e352b8-d325-4d5e-ba95-436f10b54e3c
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: ravenpost-notifier
+        pod-template-hash: 79c79b9687
+    template:
+      metadata:
+        labels:
+          app: ravenpost-notifier
+          app.kubernetes.io/part-of: ravenpost
+          pod-template-hash: 79c79b9687
+      spec:
+        containers:
+        - env:
+          - name: SMTP_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: SMTP_HOST
+                name: ravenpost-config
+          image: registry.example/ravenpost/notifier:0.9.2
+          imagePullPolicy: IfNotPresent
+          name: notifier
+          ports:
+          - containerPort: 8080
+            name: http
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+  status:
+    availableReplicas: 0
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 0
+    replicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-03-05T02:10:00Z"
+    generation: 1
+    labels:
+      app: ravenpost-web
+      app.kubernetes.io/part-of: ravenpost
+      pod-template-hash: 74d9fdfcd5
+    name: ravenpost-web-74d9fdfcd5
+    namespace: ravenpost
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: ravenpost-web
+      uid: 8d5d11a5-8928-40ef-afd3-4bd99adceacc
+    resourceVersion: "1094"
+    uid: 1defb12b-cc53-40e7-84f6-6dfc43602b97
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: ravenpost-web
+        pod-template-hash: 74d9fdfcd5
+    template:
+      metadata:
+        labels:
+          app: ravenpost-web
+          app.kubernetes.io/part-of: ravenpost
+          pod-template-hash: 74d9fdfcd5
+      spec:
+        containers:
+        - image: registry.example/ravenpost/web:2.3.1
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+          - containerPort: 8080
+            name: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-03-05T02:10:00Z"
+    generation: 1
+    labels:
+      app: ravenpost-worker
+      app.kubernetes.io/part-of: ravenpost
+      pod-template-hash: 794f477b59
+    name: ravenpost-worker-794f477b59
+    namespace: ravenpost
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: ravenpost-worker
+      uid: a3677cc1-0073-4173-a6d7-e3b8bfd23d36
+    resourceVersion: "1095"
+    uid: 214dee3f-ef6d-4e37-be5c-7c903635a393
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: ravenpost-worker
+        pod-template-hash: 794f477b59
+    template:
+      metadata:
+        labels:
+          app: ravenpost-worker
+          app.kubernetes.io/part-of: ravenpost
+          pod-template-hash: 794f477b59
+      spec:
+        containers:
+        - envFrom:
+          - configMapRef:
+              name: ravenpost-config
+          - secretRef:
+              name: ravenpost-db
+          image: registry.example/ravenpost/worker:1.14.0
+          imagePullPolicy: IfNotPresent
+          name: worker
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+kind: List
+metadata:
+  resourceVersion: ""

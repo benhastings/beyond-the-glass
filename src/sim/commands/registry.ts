@@ -5,6 +5,7 @@ import { hintCommand } from './builtins/hint.ts'
 import { historyCommand } from './builtins/history.ts'
 import { whoamiCommand } from './builtins/whoami.ts'
 import { kubectlConfig } from './kubectl/config.ts'
+import { kubectlDescribe } from './kubectl/describe.ts'
 import { kubectlGet } from './kubectl/get.ts'
 import type { CommandDef } from './types.ts'
 
@@ -20,5 +21,6 @@ export const COMMANDS: readonly CommandDef[] = [
   whoamiCommand,
   exitCommand,
   kubectlGet,
+  kubectlDescribe,
   kubectlConfig,
 ]

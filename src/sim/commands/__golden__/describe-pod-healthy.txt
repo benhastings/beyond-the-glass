@@ -1,0 +1,111 @@
+$ kubectl describe pods -n ravenpost -l app=ravenpost-web
+Name:             ravenpost-web-74d9fdfcd5-252jk
+Namespace:        ravenpost
+Priority:         0
+Service Account:  default
+Node:             ravenpost-worker/198.51.100.11
+Start Time:       Thu, 05 Mar 2026 02:10:01 +0000
+Labels:           app=ravenpost-web
+                  app.kubernetes.io/part-of=ravenpost
+                  pod-template-hash=74d9fdfcd5
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.2
+IPs:
+  IP:           10.244.1.2
+Controlled By:  ReplicaSet/ravenpost-web-74d9fdfcd5
+Containers:
+  web:
+    Container ID:   containerd://bbee7e811194b684735de73f550cbb6786acbad0714bf16041ebeadf58d56513
+    Image:          registry.example/ravenpost/web:2.3.1
+    Image ID:       registry.example/ravenpost/web@sha256:cc0c8aa25d7aede4d6eaf5d00bbadebf5b649cf0c52b913431a9d4a64c62f9d0
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Thu, 05 Mar 2026 02:10:04 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Readiness:    http-get http://:http/healthz delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fjrtn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-fjrtn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             ravenpost-web-74d9fdfcd5-dn4wr
+Namespace:        ravenpost
+Priority:         0
+Service Account:  default
+Node:             ravenpost-worker2/198.51.100.12
+Start Time:       Thu, 05 Mar 2026 02:10:01 +0000
+Labels:           app=ravenpost-web
+                  app.kubernetes.io/part-of=ravenpost
+                  pod-template-hash=74d9fdfcd5
+Annotations:      <none>
+Status:           Running
+IP:               10.244.2.2
+IPs:
+  IP:           10.244.2.2
+Controlled By:  ReplicaSet/ravenpost-web-74d9fdfcd5
+Containers:
+  web:
+    Container ID:   containerd://f7743d49325cd4bfc1231380585d13153791ba2c65ed05ce41f30ee257d4af4b
+    Image:          registry.example/ravenpost/web:2.3.1
+    Image ID:       registry.example/ravenpost/web@sha256:cc0c8aa25d7aede4d6eaf5d00bbadebf5b649cf0c52b913431a9d4a64c62f9d0
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Thu, 05 Mar 2026 02:10:03 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Readiness:    http-get http://:http/healthz delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hlhgs (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-hlhgs:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>

@@ -1,0 +1,129 @@
+$ kubectl get events -A -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  count: 1
+  firstTimestamp: "2026-03-14T01:45:00Z"
+  involvedObject:
+    apiVersion: v1
+    kind: Pod
+    name: ravenpost-notifier-79c79b9687-rd2j2
+    namespace: ravenpost
+    uid: a072cf9d-cb02-401e-a77d-92fc339ecd5e
+  kind: Event
+  lastTimestamp: "2026-03-14T01:45:00Z"
+  message: Successfully assigned ravenpost/ravenpost-notifier-79c79b9687-rd2j2 to ravenpost-worker2
+  metadata:
+    creationTimestamp: "2026-03-14T01:45:00Z"
+    name: ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb001
+    namespace: ravenpost
+    resourceVersion: "1061"
+    uid: 372e9cda-202f-4f0b-a29c-060a9ac5d280
+  reason: Scheduled
+  reportingComponent: default-scheduler
+  source:
+    component: default-scheduler
+  type: Normal
+- apiVersion: v1
+  count: 10
+  firstTimestamp: "2026-03-14T01:45:03Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{notifier}
+    kind: Pod
+    name: ravenpost-notifier-79c79b9687-rd2j2
+    namespace: ravenpost
+    uid: a072cf9d-cb02-401e-a77d-92fc339ecd5e
+  kind: Event
+  lastTimestamp: "2026-03-14T02:08:08Z"
+  message: Container image "registry.example/ravenpost/notifier:0.9.2" already present on machine
+  metadata:
+    creationTimestamp: "2026-03-14T02:08:08Z"
+    name: ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb002
+    namespace: ravenpost
+    resourceVersion: "1062"
+    uid: 663fd373-ab80-48cf-8ab4-beaa77d76d92
+  reason: Pulled
+  reportingComponent: kubelet
+  source:
+    component: kubelet
+    host: ravenpost-worker2
+  type: Normal
+- apiVersion: v1
+  count: 10
+  firstTimestamp: "2026-03-14T01:45:03Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{notifier}
+    kind: Pod
+    name: ravenpost-notifier-79c79b9687-rd2j2
+    namespace: ravenpost
+    uid: a072cf9d-cb02-401e-a77d-92fc339ecd5e
+  kind: Event
+  lastTimestamp: "2026-03-14T02:08:08Z"
+  message: "Created container: notifier"
+  metadata:
+    creationTimestamp: "2026-03-14T02:08:08Z"
+    name: ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb003
+    namespace: ravenpost
+    resourceVersion: "1063"
+    uid: 8f1e8b40-a644-495e-af29-755d90d45496
+  reason: Created
+  reportingComponent: kubelet
+  source:
+    component: kubelet
+    host: ravenpost-worker2
+  type: Normal
+- apiVersion: v1
+  count: 10
+  firstTimestamp: "2026-03-14T01:45:03Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{notifier}
+    kind: Pod
+    name: ravenpost-notifier-79c79b9687-rd2j2
+    namespace: ravenpost
+    uid: a072cf9d-cb02-401e-a77d-92fc339ecd5e
+  kind: Event
+  lastTimestamp: "2026-03-14T02:08:08Z"
+  message: Started container notifier
+  metadata:
+    creationTimestamp: "2026-03-14T02:08:08Z"
+    name: ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb004
+    namespace: ravenpost
+    resourceVersion: "1064"
+    uid: d5d6e859-2ffa-47d9-9a9f-e70232b08a5d
+  reason: Started
+  reportingComponent: kubelet
+  source:
+    component: kubelet
+    host: ravenpost-worker2
+  type: Normal
+- apiVersion: v1
+  count: 36
+  firstTimestamp: "2026-03-14T01:45:06Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{notifier}
+    kind: Pod
+    name: ravenpost-notifier-79c79b9687-rd2j2
+    namespace: ravenpost
+    uid: a072cf9d-cb02-401e-a77d-92fc339ecd5e
+  kind: Event
+  lastTimestamp: "2026-03-14T02:08:10Z"
+  message: Back-off restarting failed container notifier in pod ravenpost-notifier-79c79b9687-rd2j2_ravenpost(a072cf9d-cb02-401e-a77d-92fc339ecd5e)
+  metadata:
+    creationTimestamp: "2026-03-14T02:08:10Z"
+    name: ravenpost-notifier-79c79b9687-rd2j2.189c9332e06cb005
+    namespace: ravenpost
+    resourceVersion: "1065"
+    uid: 90bda4df-61ff-4b2f-b248-15d3c8d7c2bd
+  reason: BackOff
+  reportingComponent: kubelet
+  source:
+    component: kubelet
+    host: ravenpost-worker2
+  type: Warning
+kind: List
+metadata:
+  resourceVersion: ""

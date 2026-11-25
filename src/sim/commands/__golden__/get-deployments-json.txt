@@ -1,0 +1,433 @@
+$ kubectl get deployments -n ravenpost -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "ravenpost-api",
+                "namespace": "ravenpost",
+                "uid": "66f82331-eda3-4c5f-b1d3-033dd19dae74",
+                "resourceVersion": "1083",
+                "generation": 1,
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-api",
+                    "app.kubernetes.io/part-of": "ravenpost"
+                },
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1"
+                }
+            },
+            "spec": {
+                "replicas": 3,
+                "selector": {
+                    "matchLabels": {
+                        "app": "ravenpost-api"
+                    }
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "ravenpost-api",
+                            "app.kubernetes.io/part-of": "ravenpost"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "api",
+                                "image": "registry.example/ravenpost/api:1.14.0",
+                                "ports": [
+                                    {
+                                        "name": "http",
+                                        "containerPort": 8080
+                                    }
+                                ],
+                                "envFrom": [
+                                    {
+                                        "configMapRef": {
+                                            "name": "ravenpost-config"
+                                        }
+                                    },
+                                    {
+                                        "secretRef": {
+                                            "name": "ravenpost-db"
+                                        }
+                                    }
+                                ],
+                                "resources": {
+                                    "requests": {
+                                        "cpu": "250m",
+                                        "memory": "256Mi"
+                                    },
+                                    "limits": {
+                                        "memory": "512Mi"
+                                    }
+                                },
+                                "readinessProbe": {
+                                    "httpGet": {
+                                        "path": "/ready",
+                                        "port": "http"
+                                    },
+                                    "periodSeconds": 10
+                                },
+                                "livenessProbe": {
+                                    "httpGet": {
+                                        "path": "/healthz",
+                                        "port": "http"
+                                    },
+                                    "periodSeconds": 20
+                                }
+                            }
+                        ]
+                    }
+                },
+                "strategy": {
+                    "type": "RollingUpdate",
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    }
+                },
+                "revisionHistoryLimit": 10,
+                "progressDeadlineSeconds": 600
+            },
+            "status": {
+                "observedGeneration": 1,
+                "replicas": 3,
+                "updatedReplicas": 3,
+                "readyReplicas": 3,
+                "availableReplicas": 3,
+                "conditions": [
+                    {
+                        "type": "Available",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "MinimumReplicasAvailable",
+                        "message": "Deployment has minimum availability."
+                    },
+                    {
+                        "type": "Progressing",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "NewReplicaSetAvailable",
+                        "message": "ReplicaSet \"ravenpost-api-576b7f4d5d\" has successfully progressed."
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "ravenpost-notifier",
+                "namespace": "ravenpost",
+                "uid": "2ae581de-199d-43d9-9268-7a707da38d41",
+                "resourceVersion": "1085",
+                "generation": 1,
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-notifier",
+                    "app.kubernetes.io/part-of": "ravenpost"
+                },
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1"
+                }
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "matchLabels": {
+                        "app": "ravenpost-notifier"
+                    }
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "ravenpost-notifier",
+                            "app.kubernetes.io/part-of": "ravenpost"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "notifier",
+                                "image": "registry.example/ravenpost/notifier:0.9.2",
+                                "ports": [
+                                    {
+                                        "name": "http",
+                                        "containerPort": 8080
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "SMTP_HOST",
+                                        "valueFrom": {
+                                            "configMapKeyRef": {
+                                                "name": "ravenpost-config",
+                                                "key": "SMTP_HOST"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "resources": {
+                                    "requests": {
+                                        "cpu": "50m",
+                                        "memory": "64Mi"
+                                    },
+                                    "limits": {
+                                        "memory": "128Mi"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "strategy": {
+                    "type": "RollingUpdate",
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    }
+                },
+                "revisionHistoryLimit": 10,
+                "progressDeadlineSeconds": 600
+            },
+            "status": {
+                "observedGeneration": 1,
+                "replicas": 1,
+                "updatedReplicas": 1,
+                "readyReplicas": 0,
+                "availableReplicas": 0,
+                "unavailableReplicas": 1,
+                "conditions": [
+                    {
+                        "type": "Available",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "MinimumReplicasUnavailable",
+                        "message": "Deployment does not have minimum availability."
+                    },
+                    {
+                        "type": "Progressing",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "ReplicaSetUpdated",
+                        "message": "ReplicaSet \"ravenpost-notifier-79c79b9687\" is progressing."
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "ravenpost-web",
+                "namespace": "ravenpost",
+                "uid": "8d5d11a5-8928-40ef-afd3-4bd99adceacc",
+                "resourceVersion": "1087",
+                "generation": 1,
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-web",
+                    "app.kubernetes.io/part-of": "ravenpost"
+                },
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1"
+                }
+            },
+            "spec": {
+                "replicas": 2,
+                "selector": {
+                    "matchLabels": {
+                        "app": "ravenpost-web"
+                    }
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "ravenpost-web",
+                            "app.kubernetes.io/part-of": "ravenpost"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "web",
+                                "image": "registry.example/ravenpost/web:2.3.1",
+                                "ports": [
+                                    {
+                                        "name": "http",
+                                        "containerPort": 8080
+                                    }
+                                ],
+                                "resources": {
+                                    "requests": {
+                                        "cpu": "100m",
+                                        "memory": "128Mi"
+                                    },
+                                    "limits": {
+                                        "memory": "256Mi"
+                                    }
+                                },
+                                "readinessProbe": {
+                                    "httpGet": {
+                                        "path": "/healthz",
+                                        "port": "http"
+                                    },
+                                    "periodSeconds": 10
+                                }
+                            }
+                        ]
+                    }
+                },
+                "strategy": {
+                    "type": "RollingUpdate",
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    }
+                },
+                "revisionHistoryLimit": 10,
+                "progressDeadlineSeconds": 600
+            },
+            "status": {
+                "observedGeneration": 1,
+                "replicas": 2,
+                "updatedReplicas": 2,
+                "readyReplicas": 2,
+                "availableReplicas": 2,
+                "conditions": [
+                    {
+                        "type": "Available",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "MinimumReplicasAvailable",
+                        "message": "Deployment has minimum availability."
+                    },
+                    {
+                        "type": "Progressing",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "NewReplicaSetAvailable",
+                        "message": "ReplicaSet \"ravenpost-web-74d9fdfcd5\" has successfully progressed."
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "ravenpost-worker",
+                "namespace": "ravenpost",
+                "uid": "a3677cc1-0073-4173-a6d7-e3b8bfd23d36",
+                "resourceVersion": "1089",
+                "generation": 1,
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "app": "ravenpost-worker",
+                    "app.kubernetes.io/part-of": "ravenpost"
+                },
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1"
+                }
+            },
+            "spec": {
+                "replicas": 2,
+                "selector": {
+                    "matchLabels": {
+                        "app": "ravenpost-worker"
+                    }
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "ravenpost-worker",
+                            "app.kubernetes.io/part-of": "ravenpost"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "worker",
+                                "image": "registry.example/ravenpost/worker:1.14.0",
+                                "envFrom": [
+                                    {
+                                        "configMapRef": {
+                                            "name": "ravenpost-config"
+                                        }
+                                    },
+                                    {
+                                        "secretRef": {
+                                            "name": "ravenpost-db"
+                                        }
+                                    }
+                                ],
+                                "resources": {
+                                    "requests": {
+                                        "cpu": "200m",
+                                        "memory": "256Mi"
+                                    },
+                                    "limits": {
+                                        "memory": "512Mi"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "strategy": {
+                    "type": "RollingUpdate",
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    }
+                },
+                "revisionHistoryLimit": 10,
+                "progressDeadlineSeconds": 600
+            },
+            "status": {
+                "observedGeneration": 1,
+                "replicas": 2,
+                "updatedReplicas": 2,
+                "readyReplicas": 2,
+                "availableReplicas": 2,
+                "conditions": [
+                    {
+                        "type": "Available",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "MinimumReplicasAvailable",
+                        "message": "Deployment has minimum availability."
+                    },
+                    {
+                        "type": "Progressing",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-05T02:10:00Z",
+                        "lastUpdateTime": "2026-03-14T02:10:00Z",
+                        "reason": "NewReplicaSetAvailable",
+                        "message": "ReplicaSet \"ravenpost-worker-794f477b59\" has successfully progressed."
+                    }
+                ]
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

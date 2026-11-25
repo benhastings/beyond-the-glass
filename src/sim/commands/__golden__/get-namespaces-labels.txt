@@ -1,0 +1,8 @@
+$ kubectl get namespaces --show-labels
+NAME                 STATUS    AGE       LABELS
+default              Active    12d       kubernetes.io/metadata.name=default
+kube-node-lease      Active    12d       kubernetes.io/metadata.name=kube-node-lease
+kube-public          Active    12d       kubernetes.io/metadata.name=kube-public
+kube-system          Active    12d       kubernetes.io/metadata.name=kube-system
+local-path-storage   Active    12d       kubernetes.io/metadata.name=local-path-storage
+ravenpost            Active    9d        kubernetes.io/metadata.name=ravenpost,app.kubernetes.io/part-of=ravenpost

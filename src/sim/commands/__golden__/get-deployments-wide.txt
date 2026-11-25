@@ -1,0 +1,6 @@
+$ kubectl get deployments -n ravenpost -o wide
+NAME                 READY     UP-TO-DATE   AVAILABLE   AGE       CONTAINERS   IMAGES                                      SELECTOR
+ravenpost-api        3/3       3            3           9d        api          registry.example/ravenpost/api:1.14.0       app=ravenpost-api
+ravenpost-notifier   0/1       1            0           9d        notifier     registry.example/ravenpost/notifier:0.9.2   app=ravenpost-notifier
+ravenpost-web        2/2       2            2           9d        web          registry.example/ravenpost/web:2.3.1        app=ravenpost-web
+ravenpost-worker     2/2       2            2           9d        worker       registry.example/ravenpost/worker:1.14.0    app=ravenpost-worker

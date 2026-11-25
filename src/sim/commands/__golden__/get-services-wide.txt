@@ -1,0 +1,5 @@
+$ kubectl get services -n ravenpost -o wide
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE       SELECTOR
+ravenpost-api        ClusterIP   10.96.186.171   <none>        8080/TCP   9d        app=ravenpost-api
+ravenpost-notifier   ClusterIP   10.96.15.67     <none>        8080/TCP   9d        app=ravenpost-notifier
+ravenpost-web        ClusterIP   10.96.162.24    <none>        80/TCP     9d        app=ravenpost-web

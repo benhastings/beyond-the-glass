@@ -1,0 +1,4 @@
+$ kubectl get nodes -o name
+node/ravenpost-control-plane
+node/ravenpost-worker
+node/ravenpost-worker2

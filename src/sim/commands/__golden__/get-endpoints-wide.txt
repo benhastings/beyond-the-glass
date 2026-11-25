@@ -1,0 +1,7 @@
+$ kubectl get endpoints -n ravenpost -o wide
+NAME                 ENDPOINTS                                         AGE
+ravenpost-api        10.244.1.4:8080,10.244.2.3:8080,10.244.1.3:8080   9d
+ravenpost-notifier   <none>                                            9d
+ravenpost-web        10.244.1.2:8080,10.244.2.2:8080                   9d
+--- stderr ---
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice

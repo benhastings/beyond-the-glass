@@ -1,0 +1,205 @@
+$ kubectl get nodes -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.alpha.kubernetes.io/ttl: "0"
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ravenpost-control-plane
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/control-plane: ""
+    name: ravenpost-control-plane
+    resourceVersion: "1007"
+    uid: 7c0f54f0-ee81-4c3a-a2e5-ae4b44ab64d2
+  spec:
+    podCIDR: 10.244.0.0/24
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+  status:
+    addresses:
+    - address: 198.51.100.10
+      type: InternalIP
+    - address: ravenpost-control-plane
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      ephemeral-storage: 102350Mi
+      memory: 8Gi
+      pods: "110"
+    capacity:
+      cpu: "4"
+      ephemeral-storage: 102350Mi
+      memory: 8Gi
+      pods: "110"
+    conditions:
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    nodeInfo:
+      architecture: amd64
+      containerRuntimeVersion: containerd://2.1.3
+      kernelVersion: 6.8.0-60-generic
+      kubeletVersion: v1.34.0
+      operatingSystem: linux
+      osImage: Debian GNU/Linux 12 (bookworm)
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.alpha.kubernetes.io/ttl: "0"
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ravenpost-worker
+      kubernetes.io/os: linux
+    name: ravenpost-worker
+    resourceVersion: "1008"
+    uid: 6a83cd90-c436-4cdc-a2a5-b399cd49a5dd
+  spec:
+    podCIDR: 10.244.1.0/24
+  status:
+    addresses:
+    - address: 198.51.100.11
+      type: InternalIP
+    - address: ravenpost-worker
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      ephemeral-storage: 102350Mi
+      memory: 8Gi
+      pods: "110"
+    capacity:
+      cpu: "4"
+      ephemeral-storage: 102350Mi
+      memory: 8Gi
+      pods: "110"
+    conditions:
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    nodeInfo:
+      architecture: amd64
+      containerRuntimeVersion: containerd://2.1.3
+      kernelVersion: 6.8.0-60-generic
+      kubeletVersion: v1.34.0
+      operatingSystem: linux
+      osImage: Debian GNU/Linux 12 (bookworm)
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.alpha.kubernetes.io/ttl: "0"
+    creationTimestamp: "2026-03-02T02:10:00Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ravenpost-worker2
+      kubernetes.io/os: linux
+    name: ravenpost-worker2
+    resourceVersion: "1009"
+    uid: 4d713b2e-58d2-4078-bf7e-7dadcb1485d7
+  spec:
+    podCIDR: 10.244.2.0/24
+  status:
+    addresses:
+    - address: 198.51.100.12
+      type: InternalIP
+    - address: ravenpost-worker2
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      ephemeral-storage: 102350Mi
+      memory: 8Gi
+      pods: "110"
+    capacity:
+      cpu: "4"
+      ephemeral-storage: 102350Mi
+      memory: 8Gi
+      pods: "110"
+    conditions:
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: "2026-03-02T02:10:00Z"
+      lastTransitionTime: "2026-03-02T02:10:00Z"
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    nodeInfo:
+      architecture: amd64
+      containerRuntimeVersion: containerd://2.1.3
+      kernelVersion: 6.8.0-60-generic
+      kubeletVersion: v1.34.0
+      operatingSystem: linux
+      osImage: Debian GNU/Linux 12 (bookworm)
+kind: List
+metadata:
+  resourceVersion: ""

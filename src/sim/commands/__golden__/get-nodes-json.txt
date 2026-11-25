@@ -1,0 +1,284 @@
+$ kubectl get nodes -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "name": "ravenpost-control-plane",
+                "uid": "7c0f54f0-ee81-4c3a-a2e5-ae4b44ab64d2",
+                "resourceVersion": "1007",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "ravenpost-control-plane",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/control-plane": ""
+                },
+                "annotations": {
+                    "node.alpha.kubernetes.io/ttl": "0"
+                }
+            },
+            "spec": {
+                "podCIDR": "10.244.0.0/24",
+                "taints": [
+                    {
+                        "key": "node-role.kubernetes.io/control-plane",
+                        "effect": "NoSchedule"
+                    }
+                ]
+            },
+            "status": {
+                "capacity": {
+                    "cpu": "4",
+                    "memory": "8Gi",
+                    "pods": "110",
+                    "ephemeral-storage": "102350Mi"
+                },
+                "allocatable": {
+                    "cpu": "4",
+                    "memory": "8Gi",
+                    "pods": "110",
+                    "ephemeral-storage": "102350Mi"
+                },
+                "conditions": [
+                    {
+                        "type": "MemoryPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasSufficientMemory",
+                        "message": "kubelet has sufficient memory available",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "DiskPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "message": "kubelet has no disk pressure",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "PIDPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasSufficientPID",
+                        "message": "kubelet has sufficient PID available",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "Ready",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletReady",
+                        "message": "kubelet is posting ready status",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    }
+                ],
+                "addresses": [
+                    {
+                        "type": "InternalIP",
+                        "address": "198.51.100.10"
+                    },
+                    {
+                        "type": "Hostname",
+                        "address": "ravenpost-control-plane"
+                    }
+                ],
+                "nodeInfo": {
+                    "kubeletVersion": "v1.34.0",
+                    "containerRuntimeVersion": "containerd://2.1.3",
+                    "osImage": "Debian GNU/Linux 12 (bookworm)",
+                    "kernelVersion": "6.8.0-60-generic",
+                    "operatingSystem": "linux",
+                    "architecture": "amd64"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "name": "ravenpost-worker",
+                "uid": "6a83cd90-c436-4cdc-a2a5-b399cd49a5dd",
+                "resourceVersion": "1008",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "ravenpost-worker",
+                    "kubernetes.io/os": "linux"
+                },
+                "annotations": {
+                    "node.alpha.kubernetes.io/ttl": "0"
+                }
+            },
+            "spec": {
+                "podCIDR": "10.244.1.0/24"
+            },
+            "status": {
+                "capacity": {
+                    "cpu": "4",
+                    "memory": "8Gi",
+                    "pods": "110",
+                    "ephemeral-storage": "102350Mi"
+                },
+                "allocatable": {
+                    "cpu": "4",
+                    "memory": "8Gi",
+                    "pods": "110",
+                    "ephemeral-storage": "102350Mi"
+                },
+                "conditions": [
+                    {
+                        "type": "MemoryPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasSufficientMemory",
+                        "message": "kubelet has sufficient memory available",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "DiskPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "message": "kubelet has no disk pressure",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "PIDPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasSufficientPID",
+                        "message": "kubelet has sufficient PID available",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "Ready",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletReady",
+                        "message": "kubelet is posting ready status",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    }
+                ],
+                "addresses": [
+                    {
+                        "type": "InternalIP",
+                        "address": "198.51.100.11"
+                    },
+                    {
+                        "type": "Hostname",
+                        "address": "ravenpost-worker"
+                    }
+                ],
+                "nodeInfo": {
+                    "kubeletVersion": "v1.34.0",
+                    "containerRuntimeVersion": "containerd://2.1.3",
+                    "osImage": "Debian GNU/Linux 12 (bookworm)",
+                    "kernelVersion": "6.8.0-60-generic",
+                    "operatingSystem": "linux",
+                    "architecture": "amd64"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "name": "ravenpost-worker2",
+                "uid": "4d713b2e-58d2-4078-bf7e-7dadcb1485d7",
+                "resourceVersion": "1009",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "ravenpost-worker2",
+                    "kubernetes.io/os": "linux"
+                },
+                "annotations": {
+                    "node.alpha.kubernetes.io/ttl": "0"
+                }
+            },
+            "spec": {
+                "podCIDR": "10.244.2.0/24"
+            },
+            "status": {
+                "capacity": {
+                    "cpu": "4",
+                    "memory": "8Gi",
+                    "pods": "110",
+                    "ephemeral-storage": "102350Mi"
+                },
+                "allocatable": {
+                    "cpu": "4",
+                    "memory": "8Gi",
+                    "pods": "110",
+                    "ephemeral-storage": "102350Mi"
+                },
+                "conditions": [
+                    {
+                        "type": "MemoryPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasSufficientMemory",
+                        "message": "kubelet has sufficient memory available",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "DiskPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "message": "kubelet has no disk pressure",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "PIDPressure",
+                        "status": "False",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletHasSufficientPID",
+                        "message": "kubelet has sufficient PID available",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    },
+                    {
+                        "type": "Ready",
+                        "status": "True",
+                        "lastTransitionTime": "2026-03-02T02:10:00Z",
+                        "reason": "KubeletReady",
+                        "message": "kubelet is posting ready status",
+                        "lastHeartbeatTime": "2026-03-02T02:10:00Z"
+                    }
+                ],
+                "addresses": [
+                    {
+                        "type": "InternalIP",
+                        "address": "198.51.100.12"
+                    },
+                    {
+                        "type": "Hostname",
+                        "address": "ravenpost-worker2"
+                    }
+                ],
+                "nodeInfo": {
+                    "kubeletVersion": "v1.34.0",
+                    "containerRuntimeVersion": "containerd://2.1.3",
+                    "osImage": "Debian GNU/Linux 12 (bookworm)",
+                    "kernelVersion": "6.8.0-60-generic",
+                    "operatingSystem": "linux",
+                    "architecture": "amd64"
+                }
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

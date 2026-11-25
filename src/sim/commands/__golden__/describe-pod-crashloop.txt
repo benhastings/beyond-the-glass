@@ -1,0 +1,67 @@
+$ kubectl describe pod ravenpost-notifier -n ravenpost
+Name:             ravenpost-notifier-79c79b9687-rd2j2
+Namespace:        ravenpost
+Priority:         0
+Service Account:  default
+Node:             ravenpost-worker2/198.51.100.12
+Start Time:       Sat, 14 Mar 2026 01:45:00 +0000
+Labels:           app=ravenpost-notifier
+                  app.kubernetes.io/part-of=ravenpost
+                  pod-template-hash=79c79b9687
+Annotations:      <none>
+Status:           Running
+IP:               10.244.2.5
+IPs:
+  IP:           10.244.2.5
+Controlled By:  ReplicaSet/ravenpost-notifier-79c79b9687
+Containers:
+  notifier:
+    Container ID:   containerd://9fa0d90a1c43a995539a9acaaad0687b5fc4383f9bee14592f67038b8f101a76
+    Image:          registry.example/ravenpost/notifier:0.9.2
+    Image ID:       registry.example/ravenpost/notifier@sha256:c65d1c62510b0c8ec27c4c4299e0c3c1629e199c27996ce5679166fc942d77ca
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Sat, 14 Mar 2026 02:08:08 +0000
+      Finished:     Sat, 14 Mar 2026 02:08:10 +0000
+    Ready:          False
+    Restart Count:  9
+    Limits:
+      memory:  128Mi
+    Requests:
+      cpu:     50m
+      memory:  64Mi
+    Environment:
+      SMTP_HOST:  <set to the key 'SMTP_HOST' of config map 'ravenpost-config'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-jbsfh (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-jbsfh:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                  From               Message
+  ----     ------     ----                 ----               -------
+  Normal   Scheduled  25m                  default-scheduler  Successfully assigned ravenpost/ravenpost-notifier-79c79b9687-rd2j2 to ravenpost-worker2
+  Normal   Pulled     112s (x10 over 24m)  kubelet            Container image "registry.example/ravenpost/notifier:0.9.2" already present on machine
+  Normal   Created    112s (x10 over 24m)  kubelet            Created container: notifier
+  Normal   Started    112s (x10 over 24m)  kubelet            Started container notifier
+  Warning  BackOff    110s (x36 over 24m)  kubelet            Back-off restarting failed container notifier in pod ravenpost-notifier-79c79b9687-rd2j2_ravenpost(a072cf9d-cb02-401e-a77d-92fc339ecd5e)

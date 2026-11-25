@@ -1,0 +1,107 @@
+$ kubectl get namespaces -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": "default",
+                "uid": "2419705c-5508-46f0-b39f-a7bf2688b749",
+                "resourceVersion": "1001",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "kubernetes.io/metadata.name": "default"
+                }
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": "kube-node-lease",
+                "uid": "aa63982b-c013-49f3-9e9e-5b81e50ae07d",
+                "resourceVersion": "1002",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "kubernetes.io/metadata.name": "kube-node-lease"
+                }
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": "kube-public",
+                "uid": "d3f6a3f0-2ac6-4227-8eb1-ad5355fc5f35",
+                "resourceVersion": "1003",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "kubernetes.io/metadata.name": "kube-public"
+                }
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": "kube-system",
+                "uid": "0be171fc-4007-4c37-87bd-f27d8d9e1ae8",
+                "resourceVersion": "1004",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "kubernetes.io/metadata.name": "kube-system"
+                }
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": "local-path-storage",
+                "uid": "e52ef5e9-cd38-44ac-9077-55e127c0dc10",
+                "resourceVersion": "1005",
+                "creationTimestamp": "2026-03-02T02:10:00Z",
+                "labels": {
+                    "kubernetes.io/metadata.name": "local-path-storage"
+                }
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": "ravenpost",
+                "uid": "cb4ccba2-63aa-427d-8988-935f5c95eeff",
+                "resourceVersion": "1006",
+                "creationTimestamp": "2026-03-05T02:10:00Z",
+                "labels": {
+                    "kubernetes.io/metadata.name": "ravenpost",
+                    "app.kubernetes.io/part-of": "ravenpost"
+                }
+            },
+            "status": {
+                "phase": "Active"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

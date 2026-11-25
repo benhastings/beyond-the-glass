@@ -1,0 +1,9 @@
+$ kubectl get pods -n ravenpost -o name
+pod/ravenpost-api-576b7f4d5d-b4874
+pod/ravenpost-api-576b7f4d5d-kqgx5
+pod/ravenpost-api-576b7f4d5d-qq7df
+pod/ravenpost-notifier-79c79b9687-rd2j2
+pod/ravenpost-web-74d9fdfcd5-252jk
+pod/ravenpost-web-74d9fdfcd5-dn4wr
+pod/ravenpost-worker-794f477b59-jp8ml
+pod/ravenpost-worker-794f477b59-rwbj7
