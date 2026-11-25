@@ -1,20 +1,11 @@
 import { parseDuration } from '../../core/duration.ts'
-import type { Resource } from '../../core/resources.ts'
 import type { Simulator } from '../../core/simulator.ts'
-import {
-  application,
-  applications,
-  desiredManifests,
-  refresh,
-  sync,
-  type Application,
-} from '../../gitops/argo.ts'
-import { applyObject, LAST_APPLIED } from '../kubectl/manifests.ts'
+import { application, applications, refresh, sync, type Application } from '../../gitops/argo.ts'
+import { apiGroup as group, resourceDiffs } from '../../gitops/tree.ts'
 import { kubectlYaml } from '../kubectl/get.ts'
 import { bool, str } from '../flags.ts'
 import { goTabwriter } from '../format.ts'
 import { defineCommand, fail, ok, type Output } from '../types.ts'
-import { normalDiff } from '../unified-diff.ts'
 
 /** Where Argo CD's API "is" in this world, for `argocd login` and app URLs. */
 export const ARGOCD_HOST = 'argocd.ravenpost.example'
@@ -36,7 +27,6 @@ const policy = (a: Application) => {
 }
 const iso = (sim: Simulator, t: number) =>
   new Date(sim.clock.epochMs + t).toISOString().replace('.000Z', '+00:00')
-const group = (kind: string) => (kind === 'Deployment' || kind === 'ReplicaSet' ? 'apps' : '')
 
 /** The Application as the API returns it (`-o yaml|json`). */
 function apiObject(sim: Simulator, a: Application) {
@@ -153,50 +143,11 @@ function operationBlock(sim: Simulator, a: Application): string {
 
 /** `argocd app diff`: live versus desired, per resource, in `diff`'s classic format. */
 function diff(sim: Simulator, a: Application, revision?: string): Output {
-  const cluster = sim.clusterByName(a.destination.cluster)
-  const d = desiredManifests(sim, a, revision)
-  if (!cluster || d.error)
-    return fatal(`rpc error: code = Unknown desc = ${d.error ?? 'no cluster'}`)
-  const view = (o: Resource | undefined) => {
-    if (!o) return ''
-    const rest: Record<string, unknown> & { metadata: Resource['metadata'] } = { ...o }
-    delete rest.status
-    const meta = { ...rest.metadata }
-    for (const k of [
-      'uid',
-      'resourceVersion',
-      'creationTimestamp',
-      'generation',
-      'managedFields',
-    ] as const)
-      Reflect.deleteProperty(meta, k)
-    // Like argocd, leave out the last-applied record: it repeats the whole object on one line.
-    if (meta.annotations) {
-      const annotations = Object.fromEntries(
-        Object.entries(meta.annotations).filter(([k]) => k !== LAST_APPLIED),
-      )
-      if (Object.keys(annotations).length) meta.annotations = annotations
-      else delete meta.annotations
-    }
-    return `${kubectlYaml({ ...rest, metadata: meta })}\n`
-  }
-  const out: string[] = []
-  for (const doc of d.docs) {
-    const res = applyObject(sim, cluster, doc, {
-      source: a.name,
-      namespace: a.destination.namespace,
-      namespaceFlag: false,
-      dryRun: true,
-      verb: 'apply',
-    })
-    if (!res.ok || res.action === 'unchanged') continue
-    const changes = normalDiff(view(res.before), view(res.after))
-    if (changes)
-      out.push(
-        `===== ${group(res.kind)}/${res.kind} ${a.destination.namespace}/${res.name} ======`,
-        changes,
-      )
-  }
+  const r = resourceDiffs(sim, a, revision)
+  if (r.error) return fatal(`rpc error: code = Unknown desc = ${r.error}`)
+  const out = r.diffs
+    .filter((d) => d.diff)
+    .flatMap((d) => [`===== ${d.group}/${d.kind} ${d.namespace}/${d.name} ======`, d.diff])
   return out.length ? { stdout: out.join('\n'), stderr: '', exitCode: 1 } : ok('')
 }
 

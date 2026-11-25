@@ -65,3 +65,23 @@ timeline:
   - { at: +20m, type: pipeline, project: shop-web, failure: test }
   - { at: +40m, type: ciFailure, project: shop-web, failure: bad-tag } # the next run, however it starts
 ```
+
+## The Argo CD console (E7-05)
+
+`src/app/gitops/argo/ArgoConsole.tsx` is a console that evokes Argo CD's layout, with no Argo CD logo,
+colours or marks. It reads `src/sim/gitops/tree.ts`:
+
+- **Applications:** tiles or a list (table), with health and sync shown as an icon and a word.
+- **An application:**
+  - Refresh, Sync… (a dialog with prune and dry run; a dry run lists what would change and changes
+    nothing), and History and rollback. Rollback is off while auto-sync is on, with the reason given.
+  - **Tree:** the resource tree (Application → Deployment → ReplicaSet → Pods; Service → Endpoints) as a
+    WAI-ARIA tree with one tab stop and arrow keys.
+  - **Table:** the same nodes, with what each is part of.
+  - Each node has health by Argo's rules for Deployments, ReplicaSets and Pods. The app's health is the
+    worst of its resources, live.
+- **A node:**
+  - Summary, live manifest, desired manifest, diff and events.
+  - For pods, the logs: the same lines `kubectl logs` prints, from the same function.
+
+`argocd app diff` and the console's Diff tab share `resourceDiffs`.
