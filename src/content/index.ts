@@ -3,3 +3,4 @@
 export * from './schema.ts'
 export * from './manifest.ts'
 export * from './completion.ts'
+export * from './search.ts'

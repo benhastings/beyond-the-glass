@@ -3,6 +3,8 @@ import { join, relative } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import {
   glossaryFile,
+  rosettaFile,
+  type RosettaEntry,
   lessonFrontMatter,
   moduleFile,
   regionFile,
@@ -150,6 +152,18 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
     glossary = glossaryYaml.parse(glossaryFile, issues)?.terms ?? []
   }
   const termIds = new Set(glossary.map((t) => t.id))
+  const rosettaPath = join(root, 'rosetta.yaml')
+  let rosetta: RosettaEntry[] | undefined
+  if (existsSync(rosettaPath)) {
+    const ry = new YamlSource(read(rosettaPath), rel(rosettaPath))
+    rosetta = ry.parse(rosettaFile, issues)?.entries ?? []
+    rosetta.forEach((e, i) => {
+      e.terms.forEach((t, j) => {
+        if (!termIds.has(t))
+          issues.push(ry.issue(['entries', i, 'terms', j], `unknown glossary term "${t}"`))
+      })
+    })
+  }
 
   // Regions → modules → lessons
   const invalidLessonIds = new Set<string>()
@@ -459,7 +473,11 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         modules,
       }
     })
-  return { manifest: { regions: manifestRegions, glossary }, files, warnings }
+  return {
+    manifest: { regions: manifestRegions, glossary, ...(rosetta ? { rosetta } : {}) },
+    files,
+    warnings,
+  }
 }
 
 export { ContentError, type ContentIssue }

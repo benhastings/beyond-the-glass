@@ -6,7 +6,7 @@ import { acTest } from '@/test/ac'
 import { checksFile } from '@/content/checks'
 import Template from '../../../content/_template/module-template/lesson-template.mdx'
 import checks from '../../../content/_template/module-template/lesson-template.checks.yaml?raw'
-import { MdxContent } from './LessonBody'
+import { MdxContent } from './MdxContent'
 
 vi.mock('../content', () => ({
   useManifest: () => ({

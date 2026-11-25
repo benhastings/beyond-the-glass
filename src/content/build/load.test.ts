@@ -110,8 +110,16 @@ describe('buildManifest on the fixture content', () => {
     })
     // Underscore drafts are skipped; every real file was read (for watching).
     expect(files.some((f) => /(^|[\\/])_/.test(relative(FIXTURES, f)))).toBe(false)
-    // glossary + 2 regions + 2 modules + 3 lessons + 1 checks file
-    expect(files).toHaveLength(9)
+    // glossary + rosetta + 2 regions + 2 modules + 3 lessons + 1 checks file
+    expect(files).toHaveLength(10)
+    expect(manifest.rosetta).toEqual([
+      {
+        then: 'A process',
+        now: 'A container',
+        why: 'It ships with what it needs.',
+        terms: ['container'],
+      },
+    ])
   })
 
   acTest('E5-01.AC4', 'the fixtures set and omit every optional field at least once', () => {
@@ -272,6 +280,15 @@ describe('buildManifest errors', () => {
       expect(buildManifest(FIXTURES, opts).warnings).toEqual([])
     },
   )
+
+  it('Rosetta Stone rows must link to real glossary terms', () => {
+    const root = variant({
+      'rosetta.yaml': (t) => t.replace('terms: [container]', 'terms: [contianer]'),
+    })
+    expect(issuesOf(root).map((i) => [i.field, i.message])).toEqual([
+      ['entries.0.terms.0', 'unknown glossary term "contianer"'],
+    ])
+  })
 
   acTest('E5-01.AC1', 'broken glossary references are reported', () => {
     const root = variant({
