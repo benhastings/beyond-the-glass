@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { SkipLink } from '../ui/SkipLink'
 import { useDisplayPreferences } from '../display/useDisplayPreferences'
@@ -21,6 +21,11 @@ const linkClass = 'rounded underline-offset-4 hover:underline aria-[current=page
  * The layout around every page: skip link, header with navigation and progress, `<main>` and footer,
  * plus the live region pages announce themselves in and the storage notice.
  */
+// Dev-only sim inspector (E6-13). Behind import.meta.env.DEV, so production builds leave it out entirely.
+const Inspector = import.meta.env.DEV ? lazy(() => import('../inspector/Inspector')) : null
+const wantsInspector = () =>
+  /[?&]inspector=1\b/.test(window.location.search) || /[?&]inspector=1\b/.test(window.location.hash)
+
 export function Shell() {
   const location = useLocation()
   const [initialKey] = useState(location.key)
@@ -69,6 +74,11 @@ export function Shell() {
             <Outlet />
           </Suspense>
         </main>
+        {Inspector && wantsInspector() && (
+          <Suspense fallback={null}>
+            <Inspector />
+          </Suspense>
+        )}
         <footer className="border-t border-ink/20 px-6 py-4 text-sm">
           <p>
             Your progress stays in this browser. Nothing is sent anywhere.{' '}

@@ -6,6 +6,8 @@ import type { Output } from './types.ts'
  * progress snapshot brings both back after a reload. Bounded, so a long session can't grow without end.
  */
 export interface TranscriptEntry {
+  /** Sim time when the command started (for replaying it, E6-13). */
+  at?: number
   /** `kind-ravenpost ▸ ravenpost`, as the prompt read when the command ran. */
   prompt: string
   command: string
@@ -21,6 +23,8 @@ export const MAX_HISTORY = 500
 interface TranscriptState extends Record<string, unknown> {
   history: string[]
   entries: TranscriptEntry[]
+  /** Every command with its start time, kept through `clear`, for replay (E6-13). */
+  log?: { at: number; command: string }[]
 }
 
 export const transcript = (sim: Simulator) =>
@@ -41,9 +45,11 @@ export function record(
   prompt: string,
   command: string,
   out: Output,
+  at?: number,
 ): TranscriptEntry {
   const t = transcript(sim)
   const entry = {
+    ...(at !== undefined ? { at } : {}),
     prompt,
     command,
     stdout: clip(out.stdout),
@@ -51,6 +57,11 @@ export function record(
     exitCode: out.exitCode,
   }
   t.entries.push(entry)
+  if (at !== undefined) {
+    const log = (t.log ??= [])
+    log.push({ at, command })
+    if (log.length > MAX_HISTORY) log.splice(0, log.length - MAX_HISTORY)
+  }
   if (t.entries.length > MAX_ENTRIES) t.entries.splice(0, t.entries.length - MAX_ENTRIES)
   if (t.history.length > MAX_HISTORY) t.history.splice(0, t.history.length - MAX_HISTORY)
   return entry
