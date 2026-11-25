@@ -66,6 +66,7 @@ The lesson player shows one `<Step>` at a time, with a step list and Previous/Ne
 - `<Terminal challenge="…" required />` challenges must be complete.
 
 Everything else is optional. `/lesson/<id>` resumes at the learner's saved step; `/lesson/<id>/<n>` opens step `n`.
+<<<<<<< HEAD
 
 ## Depth layers (E5-05)
 
@@ -73,3 +74,5 @@ Everything else is optional. `/lesson/<id>` resumes at the learner's saved step;
 left out, but the build warns when there's no `<ELI5>`. The tab it opens on is the learner's last choice in
 that domain, and otherwise depends on their placement level: wayfarer gets ELI5, deckhand and navigator get
 Operator, and pathfinder gets Deep dive. Before the Threshold it opens on Operator.
+=======
+>>>>>>> origin/main
