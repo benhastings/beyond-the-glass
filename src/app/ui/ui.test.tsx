@@ -364,4 +364,30 @@ describe('E1-03 component primitives', () => {
       act(() => undefined)
     },
   )
+
+  acTest(
+    'E1-03.AC4',
+    'StatusPill never conveys status by colour alone: each status has its own icon and words',
+    () => {
+      const statuses = ['ok', 'warn', 'alert', 'info', 'neutral'] as const
+      render(
+        <>
+          {statuses.map((s) => (
+            <StatusPill key={s} status={s}>{`label-${s}`}</StatusPill>
+          ))}
+        </>,
+      )
+      const icons = statuses.map((s) => {
+        const pill = screen.getByText(`label-${s}`)
+        const icon = pill.querySelector('[aria-hidden="true"]')
+        expect(icon, s).not.toBeNull()
+        expect(icon?.textContent.trim(), s).not.toBe('')
+        // The words are visible text, not just a colour or an icon.
+        expect(pill).toHaveTextContent(`label-${s}`)
+        return icon?.textContent
+      })
+      // Every status looks different even in greyscale.
+      expect(new Set(icons).size).toBe(statuses.length)
+    },
+  )
 })

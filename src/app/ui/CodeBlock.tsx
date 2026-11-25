@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex -- the code region scrolls, so it must be keyboard-reachable */
-import { useId, useState } from 'react'
+import { useId, useState, type CSSProperties } from 'react'
 import { Button } from './Button'
 
 export interface CodeBlockProps {
@@ -28,7 +28,11 @@ export function CodeBlock({ code, language, caption }: CodeBlockProps) {
     }
   }
   return (
-    <figure className="overflow-hidden rounded-md border border-line bg-term-ground text-term-ink">
+    // Inside the dark code surface, focus uses the terminal's focus colour in every mood.
+    <figure
+      className="overflow-hidden rounded-md border border-line bg-term-ground text-term-ink"
+      style={{ '--color-focus': 'var(--color-term-focus)' } as CSSProperties}
+    >
       <figcaption className="flex items-center justify-between gap-3 border-b border-term-surface px-3 py-1 text-sm">
         <span>
           {caption ? `${caption} · ` : ''}

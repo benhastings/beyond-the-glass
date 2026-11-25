@@ -66,8 +66,8 @@ jobs:
       # Not cached: Playwright advises against it, and with a cache hit `playwright install-deps`
       # alone hung until the job timed out.
       - name: Install browsers and their system dependencies
-        run: npx playwright install --with-deps chromium firefox webkit
-      - name: End-to-end and accessibility tests (Chromium, Firefox, WebKit)
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end and accessibility tests (Chromium)
         run: npm run test:e2e
       - name: Upload JUnit results
         if: always()

@@ -22,13 +22,13 @@ acTest(
       'Status and progress',
       'Callouts, keys and code',
     ])
-      await expect(page.getByRole('region', { name: region })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 2, name: region })).toBeVisible()
     await expect(page.getByRole('tablist', { name: 'Depth' })).toBeVisible()
     await expect(page.getByRole('progressbar', { name: 'Lessons in Helm Keep' })).toBeVisible()
     await expect(
       page.getByRole('checkbox', { name: 'Remind me to export my progress' }),
     ).toBeChecked()
-    await expect(page.getByRole('region', { name: 'shell code' })).toBeVisible()
+    await expect(page.locator('pre[role="region"][aria-label="shell code"]')).toBeVisible()
 
     for (const [label, mood] of MOODS) {
       await page.getByRole('radio', { name: label }).check()
@@ -80,5 +80,63 @@ acTest(
       'true',
     )
     await expect(page.getByRole('tabpanel')).toContainText('share a network namespace')
+  },
+)
+
+/** For the focused element: its outline, and the contrast between the outline and what's behind it. */
+const RING = `(() => {
+  const el = document.activeElement
+  if (!el || el === document.body) return null
+  const ctx = document.createElement('canvas').getContext('2d')
+  const rgb = (c) => { ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = '#000'; ctx.fillStyle = c; ctx.fillRect(0, 0, 1, 1); return [...ctx.getImageData(0, 0, 1, 1).data] }
+  const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b) }
+  let bg = null
+  for (let e = el.parentElement; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor); if (c[3] === 255) { bg = c; break } }
+  bg ??= rgb(getComputedStyle(document.documentElement).backgroundColor)
+  const s = getComputedStyle(el)
+  const ring = rgb(s.outlineColor)
+  const [hi, lo] = [lum(ring), lum(bg)].sort((a, b) => b - a)
+  const repeat = el.hasAttribute('data-ring-seen')
+  el.setAttribute('data-ring-seen', '')
+  const label = el.getAttribute('aria-label') || el.labels?.[0]?.textContent || el.textContent || el.tagName
+  return { repeat, name: label.trim().slice(0, 40), style: s.outlineStyle, width: parseFloat(s.outlineWidth), ratio: (hi + 0.05) / (lo + 0.05) }
+})()`
+
+acTest(
+  'E1-03.AC3',
+  'the focus ring is visible on every interactive element in every mood, at 3:1 or more',
+  async ({ page }) => {
+    await page.goto('./#/kitchen-sink')
+    await expect(page.getByRole('heading', { level: 1, name: 'Kitchen sink' })).toBeVisible()
+    for (const [label, mood] of MOODS) {
+      await page.getByRole('radio', { name: label }).check()
+      await expect(page.locator('html')).toHaveAttribute('data-mood', mood)
+      // Start from the top of the page and Tab through everything.
+      await page.evaluate(
+        `document.querySelectorAll('[data-ring-seen]').forEach((e) => e.removeAttribute('data-ring-seen'))`,
+      )
+      await page.locator('body').click({ position: { x: 1, y: 1 } })
+      const seen = new Set<string>()
+      const problems: string[] = []
+      for (let i = 0; i < 80; i++) {
+        await page.keyboard.press('Tab')
+        const r = await page.evaluate<{
+          repeat: boolean
+          name: string
+          style: string
+          width: number
+          ratio: number
+        } | null>(RING)
+        if (!r) continue
+        if (r.repeat) break
+        seen.add(r.name)
+        if (r.style === 'none' || r.width < 2)
+          problems.push(`${mood}: no visible ring on "${r.name}"`)
+        else if (r.ratio < 3)
+          problems.push(`${mood}: ring on "${r.name}" is ${r.ratio.toFixed(2)}:1`)
+      }
+      expect(seen.size, `${mood}: interactive elements reached`).toBeGreaterThan(15)
+      expect(problems).toEqual([])
+    }
   },
 )

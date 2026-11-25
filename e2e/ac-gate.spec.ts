@@ -24,12 +24,28 @@ test(
         [
           "import { expect, test } from './fixtures.ts'",
           "import { acTest } from './ac.ts'",
-          `acTest('${tag('E99-01', 3)}', 'passes in chromium, skips in firefox', async ({ page, browserName }) => {`,
-          "  test.skip(browserName === 'firefox', 'skip in one project')",
+          `acTest('${tag('E99-01', 3)}', 'passes in one project, skips in the other', async ({ page }, info) => {`,
+          "  test.skip(info.project.name === 'second', 'skip in one project')",
           "  await page.setContent('<h1>ok</h1>')",
           "  await expect(page.getByRole('heading')).toHaveText('ok')",
           '})',
           `test.fixme('[${tag('E99-01', 4)}] not written yet', () => {})`,
+          '',
+        ].join('\n'),
+      )
+      // Two projects (both Chromium: the suite runs in one browser), so one can skip what the other passes.
+      writeFileSync(
+        join(dir, 'gate.config.ts'),
+        [
+          "import { defineConfig, devices } from '@playwright/test'",
+          'export default defineConfig({',
+          "  testDir: './e2e',",
+          "  reporter: [['junit', { outputFile: 'reports/playwright.xml' }]],",
+          '  projects: [',
+          "    { name: 'first', use: { ...devices['Desktop Chrome'] } },",
+          "    { name: 'second', use: { ...devices['Desktop Chrome'] } },",
+          '  ],',
+          '})',
           '',
         ].join('\n'),
       )
@@ -42,17 +58,7 @@ test(
 
       const run = sh(
         'npx',
-        [
-          'playwright',
-          'test',
-          'e2e/gate.spec.ts',
-          '--project',
-          'chromium',
-          '--project',
-          'firefox',
-          '--retries',
-          '0',
-        ],
+        ['playwright', 'test', 'e2e/gate.spec.ts', '--config', 'gate.config.ts', '--retries', '0'],
         { CI: '1', BASE_URL: 'http://127.0.0.1:9/' },
       )
       expect(run.status, run.stdout + run.stderr).toBe(0)

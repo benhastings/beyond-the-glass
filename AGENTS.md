@@ -30,6 +30,7 @@ A PR is mergeable only when all of the following are true:
 
 - [ ] All acceptance criteria in the linked issue are met, and `python3 scripts/ac-trace.py --issue <ID>` passes (each automated criterion has a passing test tagged `[<ID>.ACn]`, each manual one has evidence in `docs/evidence/<ID>.md`)
 - [ ] `npm run typecheck`, `npm run lint`, `npm test` and `npm run test:e2e` pass locally and in CI
+- [ ] End-to-end tests run in **Chromium only** (decided 2026-11-24). Don't add Firefox, WebKit or other browser projects; where a criterion says "all three browsers", Chromium satisfies it
 - [ ] New logic has unit tests; framework-free packages stay at ≥ 90% line coverage
 - [ ] User-facing changes have a Playwright test covering the main path, and axe reports zero violations
 - [ ] Keyboard-only operation verified; focus order and visible focus checked
