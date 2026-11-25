@@ -541,6 +541,7 @@ function adoptCrashLoop(sim: Simulator, cluster: Cluster, pod: Pod) {
         ? Date.parse(last.finishedAt) - Date.parse(last.startedAt)
         : 2000
     setPodBehaviour(sim, pod.metadata.uid, cs.name, {
+      ...behaviourOf(sim, pod, cs.name),
       exitAfterMs: Math.max(500, ran),
       exitCode: last.exitCode,
       reason: last.reason ?? 'Error',
