@@ -28,6 +28,7 @@ describe('summarize', () => {
       displayName: 'Sam',
       placement: { containers: 'navigator', delivery: 'pathfinder', kubernetes: 'wayfarer' },
       lessonsCompleted: 1,
+      modulesTestedOut: 0,
       lessonsStarted: 1,
       challengesCompleted: 1,
       regionsCompleted: ['harbor'],

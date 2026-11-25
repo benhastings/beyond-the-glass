@@ -180,6 +180,9 @@ export function LeadPanel() {
                     {PLACEMENT_DOMAINS.map((d) => header(d, DOMAIN_SHORT[d] ?? d))}
                     {header('regions', 'Regions complete')}
                     <th scope="col" className="p-2">
+                      Modules tested out
+                    </th>
+                    <th scope="col" className="p-2">
                       Capstone
                     </th>
                     {header('activity', 'Last activity')}
@@ -199,6 +202,7 @@ export function LeadPanel() {
                       <td className="p-2">
                         {r.summary.regionsCompleted.length} of {manifest.regions.length}
                       </td>
+                      <td className="p-2">{r.summary.modulesTestedOut}</td>
                       <td className="p-2">{r.capstone}</td>
                       <td className="p-2">{r.summary.lastActivity.slice(0, 10)}</td>
                     </tr>

@@ -73,3 +73,11 @@ Everything else is optional. `/lesson/<id>` resumes at the learner's saved step;
 left out, but the build warns when there's no `<ELI5>`. The tab it opens on is the learner's last choice in
 that domain, and otherwise depends on their placement level: wayfarer gets ELI5, deckhand and navigator get
 Operator, and pathfinder gets Deep dive. Before the Threshold it opens on Operator.
+
+## Test-outs (E4-05)
+
+A module can have a `test-out.yaml` beside its `module.yaml`. It holds 3 to 5 checks (any type, same fields as
+above), each with `review: { lesson, step }` naming the step that teaches it. A learner who gets 80% right
+has tested out: the module counts toward completion, and the lead view shows it apart from completed lessons.
+A learner who doesn't is shown the steps to review. The region page offers the test-out for any module that
+has one.

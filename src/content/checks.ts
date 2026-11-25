@@ -185,3 +185,42 @@ export function stableShuffle<T>(seed: string, items: readonly T[]): T[] {
   if (out.length > 1 && out.every((x, i) => x === items[i])) out.push(out.shift() as T)
   return out
 }
+
+/**
+ * A module's test-out (E4-05): `test-out.yaml` beside `module.yaml`, 3–5 checks, each saying which lesson
+ * step teaches it, so a learner who misses it is sent there. Passing (80%) marks the module tested out.
+ */
+export const TEST_OUT_PASS = 0.8
+const review = z.strictObject({ lesson: slug, step: slug })
+/** A check plus where it's taught. (`review` is taken off before the strict check schema sees the rest.) */
+const testOutItem = z.looseObject({ review }).transform((v, ctx) => {
+  const { review: where, ...rest } = v
+  const r = checkSchema.safeParse(rest)
+  if (!r.success) {
+    for (const issue of r.error.issues) ctx.addIssue({ ...issue, path: issue.path })
+    return z.NEVER
+  }
+  return { ...r.data, review: where }
+})
+export const testOutFile = z.strictObject({
+  checks: z
+    .array(testOutItem)
+    .min(3, 'a test-out has 3 to 5 questions')
+    .max(5, 'a test-out has 3 to 5 questions'),
+})
+export type TestOutCheck = z.output<typeof testOutFile>['checks'][number]
+
+/** Grades a whole test-out: the share right, whether it passes, and the items to review. */
+export function gradeTestOut(
+  checks: readonly TestOutCheck[],
+  answers: Readonly<Record<string, string | readonly string[]>>,
+) {
+  const results = checks.map((c) => ({ check: c, ...grade(c, answers[c.id] ?? []) }))
+  const right = results.filter((r) => r.passed).length
+  return {
+    right,
+    total: checks.length,
+    passed: right / Math.max(1, checks.length) >= TEST_OUT_PASS,
+    review: results.filter((r) => !r.passed).map((r) => r.check),
+  }
+}

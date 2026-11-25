@@ -87,11 +87,13 @@ export default function Region() {
                     {j && j.lessonsDone > 0 ? ` · ${String(j.lessonsDone)} done` : ''}
                   </p>
                   {j?.reason && <p className="mt-1 text-sm">{j.reason}</p>}
-                  {j?.status === 'optional' && first && (
+                  {j?.testedOut && <p className="mt-1 text-sm">You tested out of this module.</p>}
+                  {m.testOut && !j?.testedOut && j?.status !== 'complete' && (
                     <p className="mt-1 text-sm">
-                      <Link to={`/lesson/${first.id}`} className={link}>
+                      <Link to={`/test-out/${region.id}/${m.id}`} className={link}>
                         Test out of {m.title}
-                      </Link>
+                      </Link>{' '}
+                      ({m.testOut.length} questions)
                     </p>
                   )}
                 </li>

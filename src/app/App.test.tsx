@@ -162,6 +162,8 @@ describe('App shell', () => {
       '/map',
       '/region/:regionId',
       '/lesson/:lessonId/:step?',
+      // Added by E4-05 (module test-outs), after the E2-01 route list was written.
+      '/test-out/:regionId/:moduleId',
       '/guide',
       '/guide/:term',
       '/settings',

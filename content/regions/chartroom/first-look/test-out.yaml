@@ -1,0 +1,48 @@
+# Test out of "A first look" (E4-05): get 80% right and the module counts as done. Each question says
+# which step teaches it, so a miss sends the learner there.
+checks:
+  - id: test-out-first-look-namespace
+    type: single
+    review: { lesson: your-first-look, step: ask }
+    prompt: How do you list the pods in the ravenpost namespace?
+    explanation: '-n picks one namespace; without it, kubectl uses your context’s default.'
+    options:
+      - id: n-flag
+        text: kubectl get pods -n ravenpost
+        correct: true
+      - id: all
+        text: kubectl get pods
+        feedback: That lists the pods in your current namespace, which may not be ravenpost.
+      - id: describe
+        text: kubectl describe namespace ravenpost
+        feedback: That describes the namespace itself, not the pods in it.
+  - id: test-out-first-look-all
+    type: single
+    review: { lesson: your-first-look, step: ask }
+    prompt: Which flag lists pods in every namespace at once?
+    explanation: '-A (or --all-namespaces) adds a NAMESPACE column and shows everything.'
+    options:
+      - id: a
+        text: '-A'
+        correct: true
+      - id: w
+        text: '-w'
+        feedback: '-w watches for changes; it doesn’t widen the search.'
+      - id: o
+        text: '-o wide'
+        feedback: '-o wide adds columns (node, IP) for the same pods.'
+  - id: test-out-first-look-status
+    type: single
+    review: { lesson: your-first-look, step: find-it }
+    prompt: 'READY shows 0/1 and STATUS shows CrashLoopBackOff. What does that tell you?'
+    explanation: The container keeps exiting and the kubelet keeps restarting it, more slowly each time.
+    options:
+      - id: crash
+        text: The container keeps exiting and being restarted
+        correct: true
+      - id: pending
+        text: The pod is waiting for a node
+        feedback: A pod waiting for a node shows Pending.
+      - id: fine
+        text: It is starting up normally
+        feedback: A container that's starting shows ContainerCreating, not a back-off.

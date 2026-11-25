@@ -1,9 +1,13 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render as rtlRender, screen, waitFor } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { MemoryRouter } from 'react-router'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { encodeProgress, emptyProgress } from '@/progress'
 import { useProgress } from '../progress'
 import { SettingsPanel } from './SettingsPanel'
+
+const render = (ui: ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>)
 
 describe('E2-06 import', () => {
   beforeEach(() => {

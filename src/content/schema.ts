@@ -1,4 +1,4 @@
-import type { Check } from './checks.ts'
+import type { Check, TestOutCheck } from './checks.ts'
 import { z } from 'zod'
 import { LEVELS } from '../progress/schema.ts'
 
@@ -128,6 +128,8 @@ export interface LessonEntry extends Omit<LessonFrontMatter, 'order'> {
 
 export interface ModuleEntry extends Omit<ModuleFile, 'order'> {
   regionId: string
+  /** The module's test-out questions (E4-05), from its `test-out.yaml`. */
+  testOut?: TestOutCheck[]
   /** Sum of the module's lesson estimates. */
   estimatedMinutes: number
   lessons: LessonEntry[]

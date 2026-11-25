@@ -9,6 +9,7 @@ import JourneyMap from './pages/Map'
 import Region from './pages/Region'
 import Settings from './pages/Settings'
 import Stormwatch from './pages/Stormwatch'
+import TestOut from './pages/TestOut'
 import Threshold from './pages/Threshold'
 import ThresholdResults from './pages/ThresholdResults'
 import { ErrorScreen, RootErrorScreen } from './shell/ErrorScreen'
@@ -29,6 +30,7 @@ export const PAGES: RouteObject[] = [
   { path: 'map', Component: JourneyMap },
   { path: 'region/:regionId', Component: Region },
   { path: 'lesson/:lessonId/:step?', Component: Lesson },
+  { path: 'test-out/:regionId/:moduleId', Component: TestOut },
   { path: 'guide', Component: Guide },
   { path: 'guide/:term', Component: GuideTerm },
   { path: 'settings', Component: Settings },

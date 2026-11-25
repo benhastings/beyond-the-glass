@@ -7,6 +7,8 @@ export interface ProgressSummary {
   /** Per-domain level, overrides applied. Empty until the Threshold is done. */
   placement: Record<string, Level>
   lessonsCompleted: number
+  /** Modules tested out of (E4-05), counted apart from completed lessons. */
+  modulesTestedOut: number
   lessonsStarted: number
   challengesCompleted: number
   /** Region IDs complete, in journey order (needs the course outline). */
@@ -30,6 +32,7 @@ export function summarize(p: Progress, outline?: CourseOutline): ProgressSummary
     displayName: p.displayName,
     placement,
     lessonsCompleted: lessons.filter((l) => l.completedAt).length,
+    modulesTestedOut: Object.keys(p.testedOut ?? {}).length,
     lessonsStarted: lessons.filter((l) => !l.completedAt).length,
     challengesCompleted: challengesCompleted(p),
     regionsCompleted: outline ? completedRegions(p, outline) : [],

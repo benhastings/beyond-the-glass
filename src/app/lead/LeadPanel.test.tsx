@@ -161,6 +161,7 @@ describe('E3-05 lead view', () => {
       'Delivery',
       'Observability',
       'Regions complete',
+      'Modules tested out',
       'Capstone',
       'Last activity',
     ])
@@ -170,7 +171,7 @@ describe('E3-05 lead view', () => {
         .map((h) => h.textContent)
     expect(names()).toEqual(['Ada', 'Zoe'])
     expect(within(table).getAllByRole('row')[2]).toHaveTextContent(
-      'Zoe–WayfarerWayfarer––2 of 2complete2026-11-21',
+      'Zoe–WayfarerWayfarer––2 of 20complete2026-11-21',
     )
     // Keyboard: Tab to a heading button, Enter sorts; Enter again reverses.
     const regions = within(table).getByRole('button', { name: /Regions complete/ })

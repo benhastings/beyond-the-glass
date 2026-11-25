@@ -290,6 +290,36 @@ describe('buildManifest errors', () => {
     ])
   })
 
+  it('test-outs need 3–5 questions, each pointing at a real lesson step in the module', () => {
+    const q = (id: string, lesson: string, step: string) =>
+      `  - id: ${id}\n    type: single\n    review: { lesson: ${lesson}, step: ${step} }\n    prompt: P\n    explanation: E\n    options:\n      - { id: a, text: A, correct: true }\n      - { id: b, text: B }\n`
+    const file = 'regions/alpha/basics/test-out.yaml'
+    const ok = `checks:\n${q('t1', 'first-steps', 'look')}${q('t2', 'first-steps', 'wrap-up')}${q('t3', 'second-steps', 'x')}`
+    expect(issuesOf(variant({ [file]: ok })).map((i) => i.message)).toEqual([
+      'no step "x" in second-steps',
+    ])
+    const wrong = `checks:\n${q('t1', 'first-steps', 'look')}${q('t2', 'nowhere', 'look')}${q('t3', 'first-steps', 'look')}`
+    expect(issuesOf(variant({ [file]: wrong })).map((i) => i.message)).toEqual([
+      '"nowhere" is not a lesson in this module',
+    ])
+    expect(
+      issuesOf(variant({ [file]: `checks:\n${q('t1', 'first-steps', 'look')}` })).map(
+        (i) => i.message,
+      ),
+    ).toEqual(['a test-out has 3 to 5 questions'])
+    const { manifest } = buildManifest(
+      variant({
+        [file]: ok.replace('lesson: second-steps, step: x', 'lesson: first-steps, step: look'),
+      }),
+      opts,
+    )
+    expect(manifest.regions[0]?.modules[0]?.testOut?.map((c) => c.review)).toEqual([
+      { lesson: 'first-steps', step: 'look' },
+      { lesson: 'first-steps', step: 'wrap-up' },
+      { lesson: 'first-steps', step: 'look' },
+    ])
+  })
+
   acTest('E5-01.AC1', 'broken glossary references are reported', () => {
     const root = variant({
       'glossary.yaml': (t) =>
