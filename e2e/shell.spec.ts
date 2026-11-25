@@ -42,7 +42,7 @@ test.describe('E2-01 app shell', () => {
 
       const journey: [link: string, title: string][] = [
         ['Step up to the Threshold', 'The Threshold'],
-        ['See your trail', 'Your trail'],
+        ['Skip the Threshold and start from the very beginning', 'Your trail'],
         ['View the map', 'Map of the Reach'],
         ['Stormwatch', 'Stormwatch'],
         ['Enter the war room', 'Stormwatch'],
