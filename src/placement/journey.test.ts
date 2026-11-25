@@ -172,6 +172,16 @@ describe('journey statuses', () => {
     expect(statuses(done(placed, 'a2-0'))[0]).toBe('a:complete:a1=optional,a2=complete')
   })
 
+  it('a starting region the learner chose comes first', () => {
+    const p: Progress = { ...fresh(), threshold: { answers: {}, overrides: {}, startRegion: 'b' } }
+    expect(statuses(p).slice(0, 2)).toEqual([
+      'a:not-started:a1=not-started,a2=not-started',
+      'b:recommended:b1=recommended',
+    ])
+    // Once that region is done, the usual order resumes.
+    expect(statuses(done(p, 'b1-0', 'b1-1'))[0]).toBe('a:recommended:a1=recommended,a2=not-started')
+  })
+
   it('labels name the region, its status and its module count', () => {
     const [a, , c] = journey(M, fresh()).regions
     expect(a && regionLabel(a)).toBe('A, recommended next, 0 of 2 modules')
