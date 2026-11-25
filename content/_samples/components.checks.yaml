@@ -1,0 +1,74 @@
+# Sample knowledge checks for content/_samples/components.mdx (#/kitchen-sink); one of each type.
+checks:
+  - id: sample-single
+    type: single
+    prompt: What restarts a container that keeps crashing?
+    explanation: The kubelet on the node restarts containers, waiting longer between tries (CrashLoopBackOff).
+    options:
+      - id: kubelet
+        text: The kubelet
+        correct: true
+      - id: scheduler
+        text: The scheduler
+        feedback: The scheduler only decides which node a pod runs on.
+      - id: you
+        text: You do, by hand
+        feedback: Not any more. Something in the cluster does it for you.
+  - id: sample-multiple
+    type: multiple
+    prompt: Which of these show why a pod isn't running?
+    explanation: describe shows state and events; logs show what the program said before it stopped.
+    options:
+      - id: describe
+        text: kubectl describe pod
+        correct: true
+      - id: logs
+        text: kubectl logs --previous
+        correct: true
+      - id: top
+        text: kubectl top nodes
+        feedback: That shows CPU and memory, not why a pod stopped.
+  - id: sample-ordering
+    type: ordering
+    prompt: Put these triage steps in order.
+    explanation: Look before you touch, then read the evidence, then change one thing and check.
+    items:
+      - id: context
+        text: Check which context you're in
+      - id: get
+        text: List the pods
+      - id: describe
+        text: Describe the failing pod
+      - id: fix
+        text: Fix one thing and watch
+  - id: sample-matching
+    type: matching
+    prompt: Match each server habit to its cluster counterpart.
+    explanation: The habits carry over; the commands change.
+    pairs:
+      - id: journalctl
+        left: journalctl -u web
+        right: kubectl logs deploy/web
+      - id: systemctl
+        left: systemctl restart web
+        right: kubectl rollout restart deploy/web
+      - id: ps
+        left: ps aux
+        right: kubectl get pods
+  - id: sample-bug
+    type: spot-the-bug
+    prompt: Which line stops this Deployment from being accepted?
+    explanation: replicas must be a number. "three" is a string, so the API server rejects it.
+    code: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: web
+      spec:
+        replicas: three
+        selector:
+          matchLabels:
+            app: web
+    bugLines: [6]
+    lineFeedback:
+      '2': Deployment is the right kind for this.

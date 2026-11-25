@@ -5,7 +5,7 @@
  */
 export function Diagram({ alt, svg, caption }: { alt: string; svg?: string; caption?: string }) {
   return (
-    <figure className="grid gap-2">
+    <figure className="grid min-w-0 gap-2">
       <img
         alt={alt}
         src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg ?? '')}`}

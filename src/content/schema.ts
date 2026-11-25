@@ -1,3 +1,4 @@
+import type { Check } from './checks.ts'
 import { z } from 'zod'
 import { LEVELS } from '../progress/schema.ts'
 
@@ -97,6 +98,8 @@ export interface LessonEntry extends Omit<LessonFrontMatter, 'order'> {
   terms: string[]
   /** Path of the MDX file, relative to the content root. */
   file: string
+  /** Knowledge checks from `<id>.checks.yaml` (E5-03). */
+  checks: Check[]
 }
 
 export interface ModuleEntry extends Omit<ModuleFile, 'order'> {

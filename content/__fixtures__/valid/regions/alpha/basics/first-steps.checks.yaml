@@ -1,0 +1,8 @@
+checks:
+  - id: what-runs-containers
+    type: single
+    prompt: What runs your containers?
+    explanation: A pod wraps one or more containers that share a network and storage.
+    options:
+      - { id: pod, text: A pod, correct: true }
+      - { id: node, text: A node, feedback: A node runs pods. What's inside them? }

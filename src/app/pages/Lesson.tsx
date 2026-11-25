@@ -18,7 +18,7 @@ export default function Lesson() {
           Step {index + 1} of {lesson.steps.length}
         </p>
       )}
-      <LessonBody file={lesson.file} />
+      <LessonBody file={lesson.file} checks={lesson.checks} />
     </Page>
   )
 }
