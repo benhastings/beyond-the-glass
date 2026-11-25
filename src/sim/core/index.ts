@@ -46,3 +46,10 @@ export {
   type Traffic,
   type Wakeup,
 } from './simulator.ts'
+export {
+  behaviourSchema,
+  behaviourOf,
+  setImageBehaviour,
+  setPodBehaviour,
+  type ContainerBehaviour,
+} from './behaviour.ts'

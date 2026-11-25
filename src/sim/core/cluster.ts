@@ -189,7 +189,13 @@ export class Cluster {
     const notReady = pods.filter((p) => !isPodReady(p)).map(addr)
     const ports = svc.spec.ports.map((p) => ({
       ...(p.name ? { name: p.name } : {}),
-      port: typeof p.targetPort === 'number' ? p.targetPort : p.port,
+      // A named targetPort resolves through the pods' container ports, as the endpoints controller does.
+      port:
+        typeof p.targetPort === 'number'
+          ? p.targetPort
+          : (pods
+              .flatMap((pod) => pod.spec.containers.flatMap((c) => c.ports ?? []))
+              .find((cp) => cp.name === p.targetPort)?.containerPort ?? p.port),
       protocol: p.protocol,
     }))
     return {

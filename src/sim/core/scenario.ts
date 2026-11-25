@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { behaviourSchema } from './behaviour.ts'
 import { isDuration } from './duration.ts'
 import type { RedactedValue } from './resources.ts'
 import { TIMELINE_EVENTS, timelineEvent, timelineParams } from './timeline/index.ts'
@@ -294,6 +295,8 @@ export const scenarioSchema = z
     contexts: z.array(context).min(1),
     clusters: z.array(cluster).min(1),
     timeline: z.array(timelineEntry).default([]),
+    /** How each image behaves when it runs (healthy if absent): crashes, memory use, log lines (E6-03). */
+    images: z.record(z.string(), behaviourSchema).default({}),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */
     objectives: z.array(slug).default([]),
   })

@@ -3,7 +3,8 @@ import { imageId, digestOf } from '../core/names.ts'
 import { condition, nextPodIP } from '../core/pods.ts'
 import type { ContainerStatus, ObjectReference, Pod, Probe } from '../core/resources.ts'
 import type { Controller, Simulator } from '../core/simulator.ts'
-import { behaviourOf, setPodBehaviour } from './behaviour.ts'
+import { behaviourOf, setPodBehaviour, type ContainerBehaviour } from '../core/behaviour.ts'
+import { memoryBytes } from './quantity.ts'
 
 /**
  * The kubelet: takes a bound pod through ContainerCreating to Running, runs readiness and liveness
@@ -20,10 +21,30 @@ export const BACKOFF_RESET_MS = 600_000
 /** How long a deleted pod takes to stop (its containers exit promptly on SIGTERM). */
 export const STOP_MS = 2_000
 const DEFAULT_PERIOD_S = 10
+/** How often the kubelet retries a container whose config is broken. */
+export const CONFIG_RETRY_MS = 10_000
 const DEFAULT_FAILURE_THRESHOLD = 3
 
 type Action =
-  'pulled' | 'started' | 'ready' | 'unready' | 'exit' | 'liveness' | 'restart' | 'removed'
+  | 'pulled'
+  | 'started'
+  | 'ready'
+  | 'unready'
+  | 'exit'
+  | 'liveness'
+  | 'restart'
+  | 'removed'
+  | 'pullFailed'
+  | 'pullBackOff'
+  | 'pullRetry'
+
+/** containerd's error for an image it can't pull. */
+export function pullError(image: string, kind: ContainerBehaviour['pull']): string {
+  const ref = /^[^/]+[.:][^/]+\//.test(image) ? image : `docker.io/library/${image}`
+  return kind === 'unauthorized'
+    ? `rpc error: code = Unknown desc = failed to pull and unpack image "${ref}": failed to resolve reference "${ref}": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed`
+    : `rpc error: code = NotFound desc = failed to pull and unpack image "${ref}": failed to resolve reference "${ref}": ${ref}: not found`
+}
 
 interface Wake extends Record<string, unknown> {
   cluster: string
@@ -76,8 +97,8 @@ function findPod(cluster: Cluster, uid: string): Pod | undefined {
 const probeDelay = (p: Probe | undefined) => (p?.initialDelaySeconds ?? 0) * 1000
 const probePeriod = (p: Probe | undefined) => (p?.periodSeconds ?? DEFAULT_PERIOD_S) * 1000
 
-function probeTarget(p: Probe): string {
-  if (p.httpGet) return 'HTTP probe failed with statuscode: 503'
+function probeTarget(p: Probe, code = 503): string {
+  if (p.httpGet) return `HTTP probe failed with statuscode: ${String(code)}`
   if (p.tcpSocket) return `dial tcp: connect: connection refused`
   return 'command exited with non-zero code 1'
 }
@@ -150,6 +171,18 @@ function beginStartup(sim: Simulator, cluster: Cluster, pod: Pod) {
   cluster.put(pod)
   let t = now + 500
   for (const c of pod.spec.containers) {
+    const pull = behaviourOf(sim, pod, c.name).pull
+    if (pull === 'notFound' || pull === 'unauthorized') {
+      event(cluster, pod, c.name, 'Normal', 'Pulling', `Pulling image "${c.image}"`)
+      schedule(sim, t + 800, {
+        cluster: cluster.name,
+        uid: pod.metadata.uid,
+        container: c.name,
+        action: 'pullFailed',
+        life: 0,
+      })
+      continue
+    }
     if (pulled.includes(c.image)) {
       event(
         cluster,
@@ -186,6 +219,56 @@ function beginStartup(sim: Simulator, cluster: Cluster, pod: Pod) {
   }
 }
 
+/**
+ * What stops the kubelet creating a container from its config: a missing ConfigMap or Secret, or a
+ * missing key in one (CreateContainerConfigError), worded as the kubelet words it.
+ */
+export function configError(cluster: Cluster, pod: Pod, container: string): string | undefined {
+  const ns = pod.metadata.namespace ?? 'default'
+  const spec = pod.spec.containers.find((c) => c.name === container)
+  for (const e of spec?.env ?? []) {
+    const cm = e.valueFrom?.configMapKeyRef
+    if (cm && !cm.optional) {
+      const obj = cluster.get('ConfigMap', ns, cm.name)
+      if (!obj) return `configmap "${cm.name}" not found`
+      if (!Object.hasOwn(obj.data, cm.key))
+        return `couldn't find key ${cm.key} in ConfigMap ${ns}/${cm.name}`
+    }
+    const sec = e.valueFrom?.secretKeyRef
+    if (sec && !sec.optional) {
+      const obj = cluster.get('Secret', ns, sec.name)
+      if (!obj) return `secret "${sec.name}" not found`
+      if (!Object.hasOwn(obj.data, sec.key))
+        return `couldn't find key ${sec.key} in Secret ${ns}/${sec.name}`
+    }
+  }
+  for (const f of spec?.envFrom ?? []) {
+    if (f.configMapRef && !cluster.get('ConfigMap', ns, f.configMapRef.name))
+      return `configmap "${f.configMapRef.name}" not found`
+    if (f.secretRef && !cluster.get('Secret', ns, f.secretRef.name))
+      return `secret "${f.secretRef.name}" not found`
+  }
+  return undefined
+}
+
+/** Starts the container unless its config is broken; then it waits and the kubelet retries. */
+function tryStart(sim: Simulator, cluster: Cluster, pod: Pod, cs: ContainerStatus) {
+  const err = configError(cluster, pod, cs.name)
+  if (!err) {
+    startContainer(sim, cluster, pod, cs)
+    return
+  }
+  cs.state = { waiting: { reason: 'CreateContainerConfigError', message: err } }
+  event(cluster, pod, cs.name, 'Warning', 'Failed', `Error: ${err}`)
+  schedule(sim, sim.clock.now + CONFIG_RETRY_MS, {
+    cluster: cluster.name,
+    uid: pod.metadata.uid,
+    container: cs.name,
+    action: 'started',
+    life: cs.restartCount,
+  })
+}
+
 /** A container (re)starts running: schedule its exit, probes and readiness. */
 function startContainer(sim: Simulator, cluster: Cluster, pod: Pod, cs: ContainerStatus) {
   const now = sim.clock.iso()
@@ -204,20 +287,33 @@ function startContainer(sim: Simulator, cluster: Cluster, pod: Pod, cs: Containe
     life: cs.restartCount,
   }
   const t = sim.clock.now
-  if (b.exitAfterMs !== undefined) schedule(sim, t + b.exitAfterMs, { ...base, action: 'exit' })
+  // More memory than the limit allows: the kernel kills it a few seconds in (OOMKilled, 137).
+  const limit = memoryBytes(spec?.resources?.limits?.memory)
+  const oom = b.memoryMi !== undefined && limit > 0 && b.memoryMi * 1024 ** 2 > limit
+  if (oom) schedule(sim, t + (b.exitAfterMs ?? 4000), { ...base, action: 'exit', oom: true })
+  else if (b.exitAfterMs !== undefined)
+    schedule(sim, t + b.exitAfterMs, { ...base, action: 'exit' })
+  // A probe on a path the app doesn't serve gets a 404; a failing app answers 503 (readiness) or 500.
+  const wrongPath = (p: Probe | undefined) =>
+    p?.httpGet !== undefined &&
+    b.healthPaths !== undefined &&
+    !b.healthPaths.includes(p.httpGet.path)
   const rp = spec?.readinessProbe
   if (!rp) cs.ready = b.readiness !== 'fail'
-  else
+  else {
+    const fails = b.readiness === 'fail' || wrongPath(rp)
     schedule(sim, t + probeDelay(rp) + 1000, {
       ...base,
-      action: b.readiness === 'fail' ? 'unready' : 'ready',
+      action: fails ? 'unready' : 'ready',
+      ...(wrongPath(rp) ? { code: 404 } : {}),
     })
+  }
   const lp = spec?.livenessProbe
-  if (lp && b.liveness === 'fail')
+  if (lp && (b.liveness === 'fail' || wrongPath(lp)))
     schedule(
       sim,
       t + probeDelay(lp) + probePeriod(lp) * (lp.failureThreshold ?? DEFAULT_FAILURE_THRESHOLD),
-      { ...base, action: 'liveness' },
+      { ...base, action: 'liveness', code: wrongPath(lp) ? 404 : 500 },
     )
   pod.status.conditions = (pod.status.conditions ?? []).map((c) =>
     c.type === 'PodReadyToStartContainers' && c.status !== 'True'
@@ -305,10 +401,55 @@ function wake(sim: Simulator, payload: unknown) {
       )
       break
     }
-    case 'started':
-      if (!cs.state.waiting || cs.state.waiting.reason !== 'ContainerCreating') return
-      startContainer(sim, cluster, pod, cs)
+    case 'started': {
+      const reason = cs.state.waiting?.reason
+      if (reason !== 'ContainerCreating' && reason !== 'CreateContainerConfigError') return
+      tryStart(sim, cluster, pod, cs)
       break
+    }
+    case 'pullFailed': {
+      const err = pullError(cs.image, behaviourOf(sim, pod, cs.name).pull)
+      cs.state = { waiting: { reason: 'ErrImagePull', message: err } }
+      event(
+        cluster,
+        pod,
+        cs.name,
+        'Warning',
+        'Failed',
+        `Failed to pull image "${cs.image}": ${err}`,
+      )
+      event(cluster, pod, cs.name, 'Warning', 'Failed', 'Error: ErrImagePull')
+      schedule(sim, sim.clock.now + 1000, { ...w, action: 'pullBackOff' })
+      break
+    }
+    case 'pullBackOff': {
+      if (cs.state.waiting?.reason !== 'ErrImagePull') return
+      const st = kstate(sim)
+      const key = `${pod.metadata.uid}/${cs.name}/pull`
+      const n = st.backoff[key] ?? 0
+      st.backoff[key] = n + 1
+      cs.state = {
+        waiting: {
+          reason: 'ImagePullBackOff',
+          message: `Back-off pulling image "${cs.image}": ErrImagePull: ${cs.state.waiting.message ?? ''}`,
+        },
+      }
+      event(cluster, pod, cs.name, 'Normal', 'BackOff', `Back-off pulling image "${cs.image}"`)
+      event(cluster, pod, cs.name, 'Warning', 'Failed', 'Error: ImagePullBackOff')
+      schedule(sim, sim.clock.now + backoffMs(n), { ...w, action: 'pullRetry' })
+      break
+    }
+    case 'pullRetry': {
+      event(cluster, pod, cs.name, 'Normal', 'Pulling', `Pulling image "${cs.image}"`)
+      const pull = behaviourOf(sim, pod, cs.name).pull
+      if (pull === 'notFound' || pull === 'unauthorized')
+        schedule(sim, sim.clock.now + 800, { ...w, action: 'pullFailed' })
+      else {
+        cs.state = { waiting: { reason: 'ContainerCreating' } }
+        schedule(sim, sim.clock.now + 1500, { ...w, action: 'started' })
+      }
+      break
+    }
     case 'ready':
       if (!cs.state.running) return
       cs.ready = true
@@ -324,7 +465,7 @@ function wake(sim: Simulator, payload: unknown) {
           cs.name,
           'Warning',
           'Unhealthy',
-          `Readiness probe failed: ${probeTarget(rp)}`,
+          `Readiness probe failed: ${probeTarget(rp, Number(w.code ?? 503))}`,
         )
         schedule(sim, sim.clock.now + probePeriod(rp), { ...w, action: 'unready' })
       }
@@ -333,13 +474,15 @@ function wake(sim: Simulator, payload: unknown) {
     case 'exit': {
       if (!cs.state.running) return
       const b = behaviourOf(sim, pod, cs.name)
-      const reason = b.reason ?? 'Error'
+      const reason = w.oom === true ? 'OOMKilled' : (b.reason ?? 'Error')
       containerExited(
         sim,
         cluster,
         pod,
         cs,
-        b.exitCode ?? (reason === 'OOMKilled' ? 137 : reason === 'Completed' ? 0 : 1),
+        w.oom === true
+          ? 137
+          : (b.exitCode ?? (reason === 'OOMKilled' ? 137 : reason === 'Completed' ? 0 : 1)),
         reason,
       )
       break
@@ -354,7 +497,7 @@ function wake(sim: Simulator, payload: unknown) {
           cs.name,
           'Warning',
           'Unhealthy',
-          `Liveness probe failed: ${probeTarget(lp).replace('503', '500')}`,
+          `Liveness probe failed: ${probeTarget(lp, Number(w.code ?? 500))}`,
         )
       event(
         cluster,
@@ -378,7 +521,7 @@ function wake(sim: Simulator, payload: unknown) {
         'Pulled',
         `Container image "${cs.image}" already present on machine`,
       )
-      startContainer(sim, cluster, pod, cs)
+      tryStart(sim, cluster, pod, cs)
       break
   }
   refreshPod(sim, pod)
