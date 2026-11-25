@@ -25,6 +25,12 @@ export interface ProgressState {
   progress: Progress
   /** Set when a save failed; the StorageNotice shows it until dismissed. */
   storageFailure: StorageFailure['kind'] | undefined
+  /** When progress was last written to storage (E3-04), for the "Saved" indicator. */
+  savedAt: string | undefined
+  /** Set when another tab changed progress and this one picked it up (E3-04). */
+  changedElsewhere: boolean
+  dismissChangedElsewhere: () => void
+  setResumeAt: (path: string) => void
   /** Set when stored progress couldn't be read as-is; the RecoveryDialog shows it once (E3-02). */
   recovery: Recovery | undefined
   dismissStorageFailure: () => void
@@ -49,7 +55,11 @@ export interface ProgressState {
   reset: () => void
 }
 
-export type ProgressStore = UseBoundStore<StoreApi<ProgressState>> & { storage: DebouncedStore }
+export type ProgressStore = UseBoundStore<StoreApi<ProgressState>> & {
+  storage: DebouncedStore
+  /** Reads progress again from storage, after another tab wrote it (E3-04). */
+  reload: () => Promise<void>
+}
 
 export interface StoreOptions {
   /** Where progress is kept (default: localStorage). */
@@ -84,8 +94,10 @@ export function createProgressStore({
     undefined,
     () => {
       dismissed = undefined
+      saved(now())
     },
   )
+  let saved: (at: string) => void = () => undefined
 
   const useStore = create<ProgressState>()(
     persist(
@@ -96,6 +108,14 @@ export function createProgressStore({
         return {
           progress: emptyProgress(now()),
           storageFailure: undefined,
+          savedAt: undefined,
+          changedElsewhere: false,
+          dismissChangedElsewhere: () => {
+            set({ changedElsewhere: false })
+          },
+          setResumeAt: (path) => {
+            apply((p, t) => actions.setResumeAt(p, path, t))
+          },
           recovery,
           dismissRecovery: () => {
             set({ recovery: undefined })
@@ -170,5 +190,13 @@ export function createProgressStore({
   report = (f) => {
     useStore.setState({ storageFailure: f.kind })
   }
-  return Object.assign(useStore, { storage })
+  saved = (at) => {
+    useStore.setState({ savedAt: at })
+  }
+  return Object.assign(useStore, {
+    storage,
+    reload: async () => {
+      await useStore.persist.rehydrate()
+    },
+  })
 }

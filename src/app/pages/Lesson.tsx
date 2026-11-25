@@ -22,12 +22,17 @@ export default function Lesson() {
   const lesson = findLesson(manifest, lessonId)
   const saved = useProgress((s) => s.progress.lessons[lessonId])
   const goToStep = useProgress((s) => s.goToStep)
+  const setResumeAt = useProgress((s) => s.setResumeAt)
   const count = lesson?.steps.length ?? 0
   const index =
     step && /^\d+$/.test(step) ? Math.min(Math.max(Number(step), 1), Math.max(count, 1)) - 1 : 0
   useEffect(() => {
-    if (lesson && step && step !== 'done') goToStep(lesson.id, index)
-  }, [lesson, step, index, goToStep])
+    if (lesson && step && step !== 'done') {
+      goToStep(lesson.id, index)
+      // Remembered for "Continue" on the Console Room (E3-04).
+      setResumeAt(`/lesson/${lesson.id}/${String(index + 1)}`)
+    }
+  }, [lesson, step, index, goToStep, setResumeAt])
   if (!lesson) return <NotFound />
   // No step in the URL: carry on where the learner left off.
   if (step === undefined)

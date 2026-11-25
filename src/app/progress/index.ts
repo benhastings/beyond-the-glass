@@ -1,4 +1,4 @@
-import type { KeyValueStore } from '@/progress'
+import { PROGRESS_KEY, type KeyValueStore } from '@/progress'
 import { memoryStorage } from './memory-storage'
 import { createProgressStore } from './store'
 
@@ -20,6 +20,15 @@ const { store, available } = browserStorage()
 /** The app's progress store. Use with a selector: `useProgress((s) => s.progress.settings)`. */
 export const useProgress = createProgressStore({ backing: store })
 if (!available) useProgress.setState({ storageFailure: 'unavailable' })
+
+// Another tab saved progress (E3-04): read it in, so every open tab shows the same progress. The latest
+// write wins; this tab's own pending changes are written over the top on its next save.
+window.addEventListener('storage', (e) => {
+  if (e.key !== PROGRESS_KEY || e.newValue === null) return
+  void useProgress.reload().then(() => {
+    useProgress.setState({ changedElsewhere: true })
+  })
+})
 
 // Leaving the page (or hiding it on mobile, where pagehide may never come) writes anything pending.
 window.addEventListener('pagehide', () => {
