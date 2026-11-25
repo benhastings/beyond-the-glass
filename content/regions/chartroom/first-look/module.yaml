@@ -1,0 +1,5 @@
+id: first-look
+title: A first look
+order: 0
+summary: Point kubectl at the cluster, list what's running, and spot the one thing that isn't.
+domain: kubernetes

@@ -8,3 +8,10 @@ terms:
     operator: >-
       The smallest thing Kubernetes schedules: one or more containers that share an IP address and volumes,
       placed on a node and kept running by its kubelet. Where you'd have checked a process, you check its pod.
+  - id: namespace
+    term: Namespace
+    aliases: [namespaces, ns]
+    eli5: A folder in the cluster that keeps one team's things together.
+    operator: >-
+      A named group of objects in a cluster. Most commands work in one namespace at a time (-n), or across
+      all of them (-A). Like separate host groups in your monitoring, but enforced by the cluster.

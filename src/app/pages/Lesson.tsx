@@ -176,6 +176,11 @@ function Player({ lesson, index }: { lesson: LessonEntry; index: number }) {
 
 function Done({ lesson, next }: { lesson: LessonEntry; next: LessonEntry | undefined }) {
   const completed = useProgress((s) => s.progress.lessons[lesson.id]?.completedAt)
+  const setResumeAt = useProgress((s) => s.setResumeAt)
+  // "Continue" from the Console Room now shows this: the lesson, complete.
+  useEffect(() => {
+    if (completed) setResumeAt(`/lesson/${lesson.id}/done`)
+  }, [completed, lesson.id, setResumeAt])
   if (!completed) return <Navigate replace to={`/lesson/${lesson.id}`} />
   return (
     <Page title={`${lesson.title}: complete`} heading={lesson.title} region={lesson.regionId}>
