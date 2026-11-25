@@ -32,7 +32,7 @@ export {
   setPodBehaviour,
   behaviourOf,
   type ContainerBehaviour,
-} from './behaviour.ts'
+} from '../core/behaviour.ts'
 export { backoffMs, BACKOFF_RESET_MS, STOP_MS, formatGoDuration } from './kubelet.ts'
 export { placePod, podRequests, nodeFree } from './scheduler.ts'
 export { rollbackDeployment } from './deployment.ts'

@@ -81,3 +81,18 @@ Before restart *n + 1* (after *n* restarts) the kubelet waits **min(10 s × 2ⁿ
 
 The waiting message reads `back-off 40s restarting failed container=web pod=<pod>_<ns>(<uid>)`. A container
 that ran for 10 minutes before exiting starts again from 10 s. `RESTARTS` counts every restart.
+
+## Failure modes (E6-03)
+
+| Fault | `get pods` STATUS | Container state | Events |
+|---|---|---|---|
+| Tag that doesn't exist | `ErrImagePull`, then `ImagePullBackOff` (pod `Pending`) | waiting, with containerd's `rpc error: code = NotFound …` | `Pulling`, `Failed` "Failed to pull image …", `Failed` "Error: ErrImagePull", `BackOff` "Back-off pulling image …", `Failed` "Error: ImagePullBackOff"; retried with the 10s→5m backoff |
+| Crash on start | `CrashLoopBackOff` | waiting; Last State terminated with the exit code, reason `Error` | `BackOff` "Back-off restarting failed container …" |
+| Memory over the limit | `OOMKilled` briefly, then `CrashLoopBackOff` | Last State terminated `OOMKilled`, exit 137 | `BackOff` |
+| Missing ConfigMap/Secret (or key) | `CreateContainerConfigError` | waiting: `couldn't find key MODE in ConfigMap shop/web-config` (or `configmap "x" not found`) | `Failed` "Error: …"; retried every 10 s |
+| Readiness probe on a wrong path | `Running`, `0/1` | running, not ready | `Unhealthy` "Readiness probe failed: HTTP probe failed with statuscode: 404"; the pod is in the Service's `notReadyAddresses` |
+| Requests larger than any node | `Pending` | none | `FailedScheduling` "0/3 nodes are available: …" |
+| Selector that matches nothing | (pods fine) | | The Service has no endpoints |
+
+Repeated events fold into one with a count and a new last timestamp, as the event recorder does. A named
+`targetPort` resolves through the pods' container ports.

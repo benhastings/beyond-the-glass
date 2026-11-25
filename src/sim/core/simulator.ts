@@ -5,6 +5,7 @@ import { parseDuration } from './duration.ts'
 import { materialize } from './materialize.ts'
 import { Rng } from './rng.ts'
 import type { Scenario } from './scenario.ts'
+import { setImageBehaviour } from './behaviour.ts'
 import { timelineEvent, timelineParams } from './timeline/index.ts'
 
 /**
@@ -108,6 +109,7 @@ export class Simulator {
       new Rng(opts.seed ?? scenario.seed),
       opts.controllers ?? [],
     )
+    for (const [image, b] of Object.entries(scenario.images)) setImageBehaviour(sim, image, b)
     for (const c of scenario.clusters) {
       const cluster = Cluster.create(c.name, c.server, sim.clock, sim.rng)
       materialize(cluster, c, sim.clock, sim.rng)

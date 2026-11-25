@@ -197,6 +197,9 @@ describe('scenario schema', () => {
       'setMemoryLimit',
       'injectLatency',
       'load',
+      'setResources',
+      'setReadinessPath',
+      'setServiceSelector',
     ])
   })
 })

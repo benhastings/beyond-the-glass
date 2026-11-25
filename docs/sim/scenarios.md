@@ -23,6 +23,7 @@ To add a scenario: create `src/scenarios/<id>.yaml`, then add one line to the ma
 | `clusters` | yes | See below |
 | `timeline` | no | See below |
 | `objectives` | no | IDs of challenges that use this scenario |
+| `images` | no | How each image behaves when it runs ([below](#image-behaviour)); healthy if absent |
 
 ## Clusters
 
@@ -80,9 +81,47 @@ the type's own fields. References are checked against the cluster's manifests.
 | `deleteConfigKey` | `namespace`, `configMap`, `key` | Removes a key from a ConfigMap |
 | `injectLatency` | `namespace`, `service`, `ms` | Adds latency to a Service's requests (telemetry, E8-01) |
 | `load` | `namespace`, `service`, `rps` | Sets a Service's request rate (telemetry, E8-01) |
+| `setResources` | `namespace`, `deployment`, `container`, `requests`, `limits` | Changes requests/limits: too-large requests leave pods Pending; a memory limit below the app's use gets them OOMKilled |
+| `setReadinessPath` | `namespace`, `deployment`, `container`, `path` | Points the readiness probe at another path: a path the app doesn't serve gets 404 and the pod is never Ready |
+| `setServiceSelector` | `namespace`, `service`, `selector` | Replaces a Service's selector: one that matches no pods leaves it with no endpoints |
+
+`setImage` also takes an optional `behaviour` for the new image: the usual way to break something with a
+deploy (a crash on start, a tag that doesn't exist).
 
 Controllers (E6-02, E6-03) turn these changes into rollouts, restarts and events. To add a type: one file in
 `src/sim/core/timeline/` using `defineTimelineEvent`, plus one line in `src/sim/core/timeline/index.ts`.
+
+## Image behaviour
+
+`images` maps an image reference to how it behaves (all fields optional; see `behaviourSchema` in
+`src/sim/core/behaviour.ts`):
+
+| Field | Effect |
+|---|---|
+| `exitAfterMs`, `exitCode`, `reason` | The process exits this long after starting: CrashLoopBackOff |
+| `pull: notFound` / `unauthorized` | The image can't be pulled: ErrImagePull, then ImagePullBackOff |
+| `memoryMi` | Steady memory use: above the container's limit it's OOMKilled (exit 137) |
+| `cpuMillis` | Steady CPU use (`kubectl top`) |
+| `healthPaths` | Paths the app serves; probes on other paths get 404 |
+| `readiness`, `liveness` | `fail` makes that probe fail (503 / 500) |
+| `log` | Log lines it writes on start (and before a crash) |
+
+```yaml
+images:
+  registry.example/ravenpost/api:1.14.0: { healthPaths: [/ready, /healthz], memoryMi: 180 }
+timeline:
+  - at: +4m
+    type: setImage
+    namespace: ravenpost
+    deployment: ravenpost-api
+    container: api
+    image: registry.example/ravenpost/api:1.15.0
+    behaviour: { exitAfterMs: 1500, exitCode: 1, log: ['FATAL: missing required config key LEDGER_POOL_SIZE'] }
+```
+
+Deleting a ConfigMap key (`deleteConfigKey`) doesn't touch running pods: pods created afterwards fail with
+`CreateContainerConfigError`, as on a real cluster. See [`lifecycle.md`](lifecycle.md) for the evidence each
+fault leaves.
 
 ## Determinism and snapshots
 
