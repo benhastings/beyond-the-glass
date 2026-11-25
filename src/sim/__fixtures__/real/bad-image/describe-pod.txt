@@ -46,11 +46,11 @@ Node-Selectors:              <none>
 Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for <age>
                              node.kubernetes.io/unreachable:NoExecute op=Exists for <age>
 Events:
-  Type     Reason     Age                 From               Message
-  ----     ------     ----                ----               -------
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
   Normal   Scheduled  <age>               default-scheduler  Successfully assigned <ns>/web-<hash>-<id> to <node>
-  Normal   Pulling    <age> (x4 over <age>)  kubelet            spec.containers{web}: Pulling image "registry.example/ravenpost/web:missing"
-  Warning  Failed     <age> (x4 over <age>)  kubelet            spec.containers{web}: Failed to pull image "registry.example/ravenpost/web:missing": failed to pull and unpack image "registry.example/ravenpost/web:missing": failed to resolve reference "registry.example/ravenpost/web:missing": failed to do request: Head "https://registry.example/v2/ravenpost/web/manifests/missing": dial tcp: lookup registry.example on <ip>:53: no such host
-  Warning  Failed     <age> (x4 over <age>)  kubelet            spec.containers{web}: Error: ErrImagePull
-  Normal   BackOff    <age> (x7 over <age>)   kubelet            spec.containers{web}: Back-off pulling image "registry.example/ravenpost/web:missing"
-  Warning  Failed     <age> (x7 over <age>)   kubelet            spec.containers{web}: Error: ImagePullBackOff
+  Normal   Pulling    <age> (x4 over <age>)   kubelet            Pulling image "registry.example/ravenpost/web:missing"
+  Warning  Failed     <age> (x4 over <age>)   kubelet            Failed to pull image "registry.example/ravenpost/web:missing": failed to pull and unpack image "registry.example/ravenpost/web:missing": failed to resolve reference "registry.example/ravenpost/web:missing": failed to do request: Head "https://registry.example/v2/ravenpost/web/manifests/missing": dial tcp: lookup registry.example on <ip>:53: no such host
+  Warning  Failed     <age> (x4 over <age>)   kubelet            Error: ErrImagePull
+  Normal   BackOff    <age> (x7 over <age>)  kubelet            Back-off pulling image "registry.example/ravenpost/web:missing"
+  Warning  Failed     <age> (x7 over <age>)  kubelet            Error: ImagePullBackOff

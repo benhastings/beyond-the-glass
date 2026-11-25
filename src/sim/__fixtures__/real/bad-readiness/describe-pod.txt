@@ -24,7 +24,7 @@ Containers:
       Started:      <time>
     Ready:          False
     Restart Count:  0
-    Readiness:      http-get http://:http/ready delay=<age> timeout=<age> period=<age> successThreshold=1 failureThreshold=1
+    Readiness:      http-get http://:http/ready delay=<age> timeout=<age> period=<age> #success=1 #failure=1
     Environment:    <none>
     Mounts:
       /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-<id> (ro)
@@ -50,7 +50,7 @@ Events:
   Type     Reason     Age                 From               Message
   ----     ------     ----                ----               -------
   Normal   Scheduled  <age>                default-scheduler  Successfully assigned <ns>/web-<hash>-<id> to <node>
-  Normal   Pulled     <age>                kubelet            spec.containers{web}: Container image "nginx:1.27-alpine" already present on machine
-  Normal   Created    <age>                kubelet            spec.containers{web}: Created container: web
-  Normal   Started    <age>                kubelet            spec.containers{web}: Started container web
-  Warning  Unhealthy  <age> (x24 over <age>)  kubelet            spec.containers{web}: Readiness probe failed: HTTP probe failed with statuscode: 404
+  Normal   Pulled     <age>                kubelet            Container image "nginx:1.27-alpine" already present on machine
+  Normal   Created    <age>                kubelet            Created container: web
+  Normal   Started    <age>                kubelet            Started container web
+  Warning  Unhealthy  <age> (x25 over <age>)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 404

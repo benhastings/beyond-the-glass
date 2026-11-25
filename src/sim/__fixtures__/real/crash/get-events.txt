@@ -1,9 +1,9 @@
 $ kubectl get events --sort-by=.lastTimestamp -n <ns>
 LAST SEEN   TYPE      REASON              OBJECT                      MESSAGE
-<age>       Normal    ScalingReplicaSet   deployment/web              Scaled up replica set web-<hash> from 0 to 1
-<age>       Normal    Scheduled           pod/web-<hash>-<id>    Successfully assigned <ns>/web-<hash>-<id> to <node>
-<age>       Normal    SuccessfulCreate    replicaset/web-<hash>   Created pod: web-<hash>-<id>
+<age>        Normal    Scheduled           pod/web-<hash>-<id>    Successfully assigned <ns>/web-<hash>-<id> to <node>
+<age>        Normal    SuccessfulCreate    replicaset/web-<hash>   Created pod: web-<hash>-<id>
+<age>        Normal    ScalingReplicaSet   deployment/web              Scaled up replica set web-<hash> from 0 to 1
 <age>         Normal    Pulled              pod/web-<hash>-<id>    Container image "busybox:1.36" already present on machine
 <age>         Normal    Created             pod/web-<hash>-<id>    Created container: web
 <age>         Normal    Started             pod/web-<hash>-<id>    Started container web
-<age>          Warning   BackOff             pod/web-<hash>-<id>    Back-off restarting failed container web in pod web-<hash>-g4pl6_<ns>(<uid>)
+<age>          Warning   BackOff             pod/web-<hash>-<id>    Back-off restarting failed container web in pod web-<hash>-52h7v_<ns>(<uid>)
