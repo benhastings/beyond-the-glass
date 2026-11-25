@@ -26,6 +26,8 @@ export type Wakeup =
 export interface Traffic {
   rps?: number
   latencyMs?: number
+  /** Extra share of requests that fail (E8-01). */
+  errorRate?: number
 }
 
 export const SNAPSHOT_VERSION = 1

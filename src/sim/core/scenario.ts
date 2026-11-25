@@ -401,6 +401,53 @@ export const scenarioSchema = z
             })
       })
       .optional(),
+    /**
+     * Telemetry (E8-01): the services that serve requests, what each calls, and how they behave when
+     * healthy. Metrics, traces and correlated logs come from this plus the cluster's history.
+     */
+    telemetry: z
+      .strictObject({
+        /** How much the request rate swings over a day (0.3: ±30% around the average). */
+        dailyAmplitude: z.number().min(0).max(0.9).default(0.3),
+        services: z
+          .array(
+            z.strictObject({
+              /** The Kubernetes Service. */
+              name: slug,
+              namespace: slug,
+              cluster: slug.optional(),
+              /** The Deployment behind it (default: the same name). */
+              deployment: slug.optional(),
+              /** Services it calls for each request, in order. */
+              calls: z.array(slug).default([]),
+              /** Its own median processing time. */
+              latencyMs: z.number().positive().default(20),
+              /** Requests per second arriving from outside (entry services only). */
+              rps: z.number().nonnegative().optional(),
+              /** Share of its own requests that fail when healthy. */
+              errorRate: z.number().min(0).max(1).default(0.001),
+              /** What its spans look like: an HTTP server, a database, a queue, a background worker. */
+              kind: z.enum(['http', 'db', 'queue', 'worker']).default('http'),
+              /** The route or statement its spans are named after. */
+              operation: z.string().optional(),
+            }),
+          )
+          .default([]),
+      })
+      .superRefine((t, ctx) => {
+        const names = new Set(t.services.map((x) => x.name))
+        t.services.forEach((x, i) => {
+          x.calls.forEach((c, j) => {
+            if (!names.has(c))
+              ctx.addIssue({
+                code: 'custom',
+                path: ['services', i, 'calls', j],
+                message: `no telemetry service named ${c}`,
+              })
+          })
+        })
+      })
+      .optional(),
     /** How each image behaves when it runs (healthy if absent): crashes, memory use, log lines (E6-03). */
     images: z.record(z.string(), behaviourSchema).default({}),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */

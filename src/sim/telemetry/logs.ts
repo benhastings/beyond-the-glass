@@ -2,6 +2,7 @@ import { behaviourOf } from '../core/behaviour.ts'
 import type { Simulator } from '../core/simulator.ts'
 import { fnv1a32 } from '../core/rng.ts'
 import type { ContainerStatus, Pod } from '../core/resources.ts'
+import { spansServedBy } from './traces.ts'
 
 /**
  * The single source of container logs (E6-06). `kubectl logs` reads it, and so must the Loki log explorer
@@ -84,7 +85,34 @@ export function runLines(
     // Periodic request lines, deterministic per pod and run; only the newest MAX_LINES are kept.
     const first = Math.max(run.start + REQUEST_EVERY_MS, run.end - REQUEST_EVERY_MS * MAX_LINES)
     const from = run.start + Math.ceil((first - run.start) / REQUEST_EVERY_MS) * REQUEST_EVERY_MS
+    // With a telemetry topology (E8-01), each line describes a request this pod really served in a
+    // sampled trace: same status, duration and IDs, so logs and traces agree.
+    const traced = sim.scenario.telemetry?.services.length
+      ? spansServedBy(sim, pod.metadata.name, container, from - REQUEST_EVERY_MS, run.end + 1)
+      : []
     for (let t = from; t <= run.end; t += REQUEST_EVERY_MS) {
+      const span = traced.find((s) => s.start >= t - REQUEST_EVERY_MS && s.start < t)
+      if (span) {
+        const code = span.attributes['http.response.status_code']
+        add(t, {
+          ...(span.status.code === 'STATUS_CODE_ERROR' ? { level: 'error' } : {}),
+          msg:
+            span.status.code === 'STATUS_CODE_ERROR'
+              ? (span.status.message ?? 'request failed')
+              : 'request',
+          ...(typeof span.attributes['http.request.method'] === 'string'
+            ? {
+                method: span.attributes['http.request.method'],
+                path: span.attributes['http.route'],
+              }
+            : { operation: span.name }),
+          ...(code !== undefined ? { status: code } : {}),
+          duration_ms: Math.round(span.end - span.start),
+          trace_id: span.traceId,
+          span_id: span.spanId,
+        })
+        continue
+      }
       const h = fnv1a32(`${pod.metadata.uid}/${container}/${String(t)}`)
       add(t, {
         msg: 'request',

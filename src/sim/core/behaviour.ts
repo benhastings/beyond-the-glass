@@ -40,6 +40,11 @@ interface BehaviourState extends Record<string, unknown> {
 const state = (sim: Simulator) =>
   sim.state<BehaviourState>('behaviours', () => ({ byImage: {}, byPod: {} }))
 
+/** How containers running `image` behave (no per-pod override). */
+export function imageBehaviour(sim: Simulator, image: string): ContainerBehaviour {
+  return state(sim).byImage[image] ?? {}
+}
+
 /** Every container running `image` (on any cluster) behaves like this. */
 export function setImageBehaviour(sim: Simulator, image: string, b: ContainerBehaviour): void {
   state(sim).byImage[image] = b

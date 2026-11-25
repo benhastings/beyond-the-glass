@@ -1,0 +1,91 @@
+# Telemetry (E8-01)
+
+Metrics, traces and logs come from one place: the scenario's **topology** (`telemetry:`) plus the cluster's
+**history**. Nothing random and nothing stored per sample. Everything is computed for the window asked for,
+so 6 hours of 15-second metrics for six services take well under 200 ms.
+
+## Topology
+
+```yaml
+telemetry:
+  dailyAmplitude: 0.3 # request rate swings ±30% over the day (by the scenario clock)
+  services:
+    - { name: gate, namespace: ravenpost, calls: [api], latencyMs: 8, rps: 40, operation: GET /messages }
+    - { name: api, namespace: ravenpost, calls: [ledger, queue], latencyMs: 25 }
+    - { name: ledger, namespace: ravenpost, calls: [postgres], latencyMs: 15 }
+    - { name: postgres, namespace: ravenpost, kind: db, latencyMs: 6, operation: SELECT messages }
+    - { name: queue, namespace: ravenpost, kind: queue, latencyMs: 2 }
+    - { name: scribe, namespace: ravenpost, kind: worker, calls: [postgres], rps: 5 }
+```
+
+`name` is the Kubernetes Service; `deployment` defaults to the same name. Entry services (with `rps`, or
+called by nobody) receive outside traffic; it flows down `calls`.
+
+## History
+
+`src/sim/telemetry/history.ts` is the last controller. On every reconcile it records:
+
+- every container run, and how it ended (`OOMKilled`, `Error`, `Deleted`, …)
+- step series for restarts, available replicas, ready endpoints, and each Service's injected latency,
+  errors and request rate
+
+The simulator is discrete-event, so this is exact, and it grows only with change. It's part of the
+snapshot.
+
+## The service model (`model.ts`)
+
+For every 15-second bucket, each service has:
+
+- **A request rate.** The entry rate, times the daily shape, times ±8% seeded noise. Callees inherit their
+  callers' rate.
+- **A failure share.** Its own error rate, plus `injectErrors`, plus 5% in a bucket where a pod restarted,
+  combined with its calls' failure shares. No ready endpoints means 100% failures (503).
+- **A median latency.** Its own latency, plus `injectLatency`, plus its calls' latency. Latencies are
+  log-normal (σ 0.5) around that median.
+
+## Metrics (`metrics.ts`)
+
+| Metric | Labels |
+|---|---|
+| `http_server_requests_total` | `cluster`, `namespace`, `service`, `http_response_status_code` (200, 500, 503) |
+| `http_server_request_duration_seconds_bucket` / `_sum` / `_count` | `…`, `le` (OpenTelemetry's boundaries, in seconds) |
+| `kube_pod_container_status_restarts_total` | `cluster`, `namespace`, `pod`, `container` |
+| `container_memory_working_set_bytes` | same; the peak in each scrape interval, capped at the limit |
+| `kube_pod_container_resource_limits` | same, plus `resource="memory"`, `unit="byte"` |
+| `kube_deployment_status_replicas_available` | `cluster`, `namespace`, `deployment` |
+
+Counters count from six hours before the scenario starts, so every window agrees. A run killed for memory
+climbs to its limit and is killed there. The restart counter goes up when the kubelet restarts the
+container, after its back-off.
+
+`rangeSeries(sim, start, end, step, names)` and `instantSeries(sim, t, names)` are the API that PromQL
+(E8-03) and dashboards (E8-02) build on.
+
+## Traces (`traces.ts`)
+
+- **Sampling:** one sampled request per entry service per 15-second bucket.
+- **Trace IDs:** 32 hex characters. An ID encodes its bucket and entry service, so `trace(sim, id)`
+  rebuilds any trace.
+- **Spans:**
+  - Each span is served by a pod that was running at that moment (`k8s.pod.name`).
+  - Its own time is sampled from the service's latency.
+  - Its calls run in order.
+  - A service with no ready endpoints fails the call with a 503 ("no endpoints available for service …"),
+    and the trace stops there.
+- **Export:** `toOtlp` gives OTLP JSON (`resourceSpans` → `scopeSpans` → `spans`).
+- **Exemplars:** `exemplars(sim, service, start, end)` links latency samples to traces.
+
+## Logs
+
+With a topology, a container's request log lines describe the spans that pod served. They carry the
+span's status, duration, `trace_id` and `span_id`, so a log line's trace always resolves. Without a
+topology, request lines are as before.
+
+## Faults
+
+| Fault | What changes |
+|---|---|
+| `injectLatency` | The service's latency, and its callers' (metrics, spans) |
+| `injectErrors` | A share of its requests fail with 500 (metrics, spans, logs) |
+| `setMemoryLimit`, or `memoryMi` above the limit | OOMKilled runs: memory reaches the limit, restarts go up, `kubectl` shows it, `--previous` logs end before the kill |
+| No ready endpoints (a crash, a bad selector) | 503s for every call to it, and errors up the call path |
