@@ -6,6 +6,7 @@ import { loadSimulation } from '@/sim/controllers'
 import { pipelines } from '@/sim/gitops/pipeline'
 import { ciScenario } from '@/sim/gitops/testing'
 import { PipelineView } from '../gitops/PipelineView'
+import { ArgoConsole } from '../gitops/argo/ArgoConsole'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
@@ -200,6 +201,8 @@ function Demo() {
 
         <PipelineDemo />
 
+        <ArgoDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -265,6 +268,29 @@ function PipelineDemo() {
         </label>
         {p && <PipelineView pipeline={p} now={sim.now} level={3} />}
       </div>
+    </Card>
+  )
+}
+
+/** The Argo CD console over a deploy that went wrong (E7-05): a pipeline wrote a tag nobody pushed. */
+function ArgoDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = ciScenario([
+      { at: '+1m', type: 'pipeline', project: 'shop-web', message: 'Add parcel tracking' },
+      {
+        at: '+20m',
+        type: 'pipeline',
+        project: 'shop-web',
+        message: 'Speed up lookups',
+        failure: 'bad-tag',
+      },
+    ])
+    s.advance(40 * 60_000)
+    return s
+  })
+  return (
+    <Card id="argo" title="Argo CD console">
+      <ArgoConsole sim={sim} level={3} />
     </Card>
   )
 }

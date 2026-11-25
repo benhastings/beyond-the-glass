@@ -122,7 +122,8 @@ function resourceHealth(
   return undefined
 }
 
-const worst = (hs: HealthStatus[]): HealthStatus =>
+/** The worst of several health statuses (an application's health is its worst resource's). */
+export const worst = (hs: HealthStatus[]): HealthStatus =>
   hs.reduce<HealthStatus>(
     (a, b) => (HEALTH_ORDER.indexOf(b) > HEALTH_ORDER.indexOf(a) ? b : a),
     'Healthy',
@@ -372,4 +373,51 @@ export const argoController: Controller = {
     reconcileApps(sim)
     sim.schedule(sim.now + state(sim).intervalMs, ARGO_NAME)
   },
+}
+
+export interface SyncPreviewRow {
+  kind: string
+  name: string
+  action: 'created' | 'configured' | 'unchanged' | 'pruned' | 'failed'
+  message?: string
+}
+
+/** A dry-run sync (Argo's "Dry run" option): what a sync would do, without changing anything. */
+export function syncPreview(
+  sim: Simulator,
+  name: string,
+  opts: { prune?: boolean } = {},
+): { error?: string; rows: SyncPreviewRow[] } {
+  const app = application(sim, name)
+  const cluster = app && sim.clusterByName(app.destination.cluster)
+  if (!app || !cluster) return { error: `application ${name} not found`, rows: [] }
+  const d = desiredManifests(sim, app)
+  if (d.error) return { error: d.error, rows: [] }
+  const rows: SyncPreviewRow[] = d.docs.map((doc) => {
+    const r = applyObject(sim, cluster, doc, {
+      source: name,
+      namespace: app.destination.namespace,
+      namespaceFlag: false,
+      dryRun: true,
+      verb: 'apply',
+    })
+    return r.ok
+      ? { kind: r.kind, name: r.name, action: r.action }
+      : { kind: String(doc.kind), name: nameOf(doc), action: 'failed', message: r.error }
+  })
+  const extra = tracked(cluster, app).filter(
+    (o) => !d.docs.some((doc) => doc.kind === o.kind && nameOf(doc) === o.metadata.name),
+  )
+  for (const o of extra)
+    rows.push(
+      opts.prune
+        ? { kind: o.kind, name: o.metadata.name, action: 'pruned' }
+        : {
+            kind: o.kind,
+            name: o.metadata.name,
+            action: 'unchanged',
+            message: 'ignored (requires pruning)',
+          },
+    )
+  return { rows }
 }
