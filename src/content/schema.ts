@@ -32,6 +32,12 @@ export const regionFile = z.strictObject({
   order,
   summary: z.string().min(1),
   mood: z.enum(MOODS).default('reach'),
+  /** The region page's opening, 2–4 sentences in the world's voice (E2-04). Defaults to the summary. */
+  intro: z.string().min(1).optional(),
+  /** "What you'll learn": what the learner can do after the region. */
+  outcomes: z.array(z.string().min(1)).optional(),
+  /** An extra call to action on the region page, e.g. Stormwatch's war room. `to` is an app route. */
+  link: z.strictObject({ text: z.string().min(1), to: z.string().startsWith('/') }).optional(),
 })
 
 /** `content/regions/<region>/<id>/module.yaml` */

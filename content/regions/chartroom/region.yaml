@@ -2,3 +2,9 @@ id: chartroom
 title: The Chartroom
 order: 3
 summary: kubectl fluency and triage. Check your context, read the cluster's instruments, and follow the triage flow to the cause of common failures.
+intro: >-
+  Before you sail, you read the charts. The Chartroom is where you learn to look before you touch: which cluster you're on, what the instruments say, and how to follow the triage flow to a cause.
+outcomes:
+  - Check your context before every change
+  - Find a failing pod and read why it fails
+  - Follow a triage flow from symptom to cause

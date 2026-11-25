@@ -2,3 +2,9 @@ id: helm-keep
 title: Helm Keep
 order: 2
 summary: Kubernetes fundamentals. The cluster's parts, pods and deployments, services, configuration, probes, and how the keep restores order on its own.
+intro: >-
+  The keep runs itself: tell it what you want, and it keeps making it so. Here you meet the cluster's parts and the objects you'll work with every day.
+outcomes:
+  - Name the parts of a cluster and what each does
+  - Work with pods, Deployments and Services
+  - Explain how the cluster restores what you asked for
