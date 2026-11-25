@@ -2,3 +2,9 @@ id: signalwood
 title: Signalwood
 order: 5
 summary: Prometheus, Grafana and OpenTelemetry. Read dashboards, write first queries, follow a trace to its logs, and act on alerts and SLOs.
+intro: >-
+  In Signalwood every service leaves signals: numbers, lines and threads. You learn to read them to find what's slow or broken.
+outcomes:
+  - Read a dashboard and write a first query
+  - Follow a trace to its logs
+  - Act on alerts and SLOs

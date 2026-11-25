@@ -3,3 +3,9 @@ title: The Console Room
 order: 0
 mood: console
 summary: Where you came from. See the whole journey, choose your starting trail, and connect what you know from the NOC to the cluster.
+intro: >-
+  You've watched the glass for years: dashboards, alerts, the steady glow of the NOC. Here you look at the whole journey ahead, choose where to start, and see how what you already know carries over.
+outcomes:
+  - Describe the journey and where each region fits
+  - Choose a starting trail that matches what you know
+  - Connect NOC habits to their cluster counterparts

@@ -2,3 +2,9 @@ id: mirror-lake
 title: Mirror Lake
 order: 4
 summary: GitLab CI, Argo CD and GitOps. Follow a change from commit to running pods, read sync and health, spot drift, and roll back through Git.
+intro: >-
+  Mirror Lake shows the cluster exactly what Git says, and puts it back when it drifts. Here you follow a change from commit to running pods.
+outcomes:
+  - Follow a change through a pipeline to the cluster
+  - Read sync and health in Argo CD
+  - Roll back through Git
