@@ -82,3 +82,26 @@ describe('E5-06 content lint', () => {
     expect(fleschKincaid('')).toBe(0)
   })
 })
+
+describe('E2-02 copy in components', () => {
+  acTest(
+    'E2-02.AC3',
+    'app copy is linted too: JSX text and prose strings, not class names or code',
+    async () => {
+      const { lintTsx } = await import('./rules')
+      const tsx = [
+        "import { just } from './x'",
+        '<p className="justify-center easy">Simply click here.</p>',
+        "const label = 'It is easy to miss'",
+        'const id = "just"',
+        '      Obviously this wraps',
+        '// just a comment',
+        '{/* lint-allow: banned-word (quoting) */}',
+        '<q>just retrying</q>',
+      ].join('\n')
+      expect(
+        lintTsx('x.tsx', tsx).map((f) => `${String(f.line)} ${f.message.slice(0, 10)}`),
+      ).toEqual(['2 “Simply” c', '3 “easy” can', '5 “Obviously'])
+    },
+  )
+})

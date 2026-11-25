@@ -190,3 +190,47 @@ export function lintYaml(file: string, text: string): Finding[] {
   })
   return out
 }
+
+/**
+ * Lints learner-facing copy in app components (E2-02.AC3): banned words in JSX text and in string
+ * literals that read as prose (contain a space). Class names, imports and comments are skipped.
+ */
+export function lintTsx(file: string, text: string): Finding[] {
+  const lines = text.split('\n')
+  const out: Finding[] = []
+  let inComment = false
+  lines.forEach((line, i) => {
+    let l = line
+    if (inComment) {
+      const end = l.indexOf('*/')
+      if (end < 0) return
+      l = l.slice(end + 2)
+      inComment = false
+    }
+    if (/^\s*(import|export \{|\/\/)/.test(l)) return
+    l = l.replace(/\/\*.*?\*\//g, ' ').replace(/\/\/.*$/, '')
+    if (l.includes('/*')) {
+      inComment = true
+      l = l.slice(0, l.indexOf('/*'))
+    }
+    l = l.replace(/className=("[^"]*"|\{[^}]*\})/g, ' ')
+    const prose = [
+      ...[...l.matchAll(/(['"`])((?:(?!\1).)*\s(?:(?!\1).)*)\1/g)].map((m) => m[2] ?? ''),
+      ...[...l.matchAll(/>([^<>{}]*[A-Za-z][^<>{}]*)</g)].map((m) => m[1] ?? ''),
+      // A line of plain JSX text, between tags on other lines.
+      ...(/^\s*[A-Za-z][^<>{}=;()]*$/.test(l) &&
+      !/^\s*(const|let|return|if|else|case|default|type|interface)\b/.test(l)
+        ? [l]
+        : []),
+    ].join(' ')
+    for (const m of prose.matchAll(BANNED_RE))
+      if (!allowed(lines, i, 'banned-word'))
+        out.push({
+          file,
+          line: i + 1,
+          rule: 'banned-word',
+          message: `“${m[0]}” can make a learner feel slow; say what to do instead (AGENTS.md §3)`,
+        })
+  })
+  return out
+}
