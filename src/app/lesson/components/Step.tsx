@@ -1,8 +1,11 @@
 import { useId, type ReactNode } from 'react'
+import { useCurrentStep } from '../step-context'
 
 /** One step of a lesson. The lesson player (E5-04) shows one at a time; outside it, they stack. */
 export function Step({ id, title, children }: { id: string; title?: string; children: ReactNode }) {
   const h = useId()
+  const current = useCurrentStep()
+  if (current !== undefined && current !== id) return null
   return (
     <section
       data-step={id}

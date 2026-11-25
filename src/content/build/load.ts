@@ -22,6 +22,8 @@ import { checksFile, type Check } from '../checks.ts'
 export interface BuildOptions {
   /** IDs of the scenarios lessons may reference (default: the `id` of every `src/scenarios/*.yaml`). */
   scenarioIds?: readonly string[]
+  /** IDs of the challenges `<Terminal challenge>` may name (default: every `src/challenges/*.yaml`). */
+  challengeIds?: readonly string[]
 }
 
 export interface BuildResult {
@@ -45,6 +47,7 @@ interface LessonSource {
   bodyTerms: Ref[]
   bodyScenarios: Ref[]
   bodyChecks: Ref[]
+  bodyChallenges: (Ref & { required: boolean })[]
   checks: Check[]
   checksFile: string
 }
@@ -89,6 +92,7 @@ function scanBody(body: string, firstLine: number) {
   const terms: Ref[] = []
   const scenarios: Ref[] = []
   const checks: Ref[] = []
+  const challenges: (Ref & { required: boolean })[] = []
   const lineStarts = [0]
   for (let i = 0; i < body.length; i++) if (body[i] === '\n') lineStarts.push(i + 1)
   const pos = (offset: number) => {
@@ -106,10 +110,17 @@ function scanBody(body: string, firstLine: number) {
       terms.push({ id: attrs.id, ...at, field: '<Term id>' })
     if (m[1] === 'Terminal' && attrs.scenario !== undefined)
       scenarios.push({ id: attrs.scenario, ...at, field: '<Terminal scenario>' })
+    if (m[1] === 'Terminal' && attrs.challenge !== undefined)
+      challenges.push({
+        id: attrs.challenge,
+        ...at,
+        field: '<Terminal challenge>',
+        required: /\srequired(\s|=|\/|$)/.test(m[2] ?? ''),
+      })
     if (m[1] === 'Check' && attrs.id !== undefined)
       checks.push({ id: attrs.id, ...at, field: '<Check id>' })
   }
-  return { steps, terms, scenarios, checks }
+  return { steps, terms, scenarios, checks, challenges }
 }
 
 /**
@@ -125,6 +136,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
     return readFileSync(p, 'utf8')
   }
   const scenarioIds = new Set(opts.scenarioIds ?? scenarioIdsIn(join(root, '../src/scenarios')))
+  const challengeIds = new Set(opts.challengeIds ?? scenarioIdsIn(join(root, '../src/challenges')))
 
   // Glossary
   const glossaryPath = join(root, 'glossary.yaml')
@@ -227,6 +239,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
           bodyTerms: body.terms,
           bodyScenarios: body.scenarios,
           bodyChecks: body.checks,
+          bodyChallenges: body.challenges,
           checks,
           checksFile: rel(checksPath),
         })
@@ -305,6 +318,15 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
 
   // References
   for (const l of lessons) {
+    for (const r of l.bodyChallenges)
+      if (!challengeIds.has(r.id))
+        issues.push({
+          file: l.file,
+          line: r.line,
+          column: r.column,
+          field: r.field,
+          message: `unknown challenge "${r.id}"`,
+        })
     for (const r of l.bodyChecks)
       if (!l.checks.some((c) => c.id === r.id))
         issues.push({
@@ -410,6 +432,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
             terms: [...new Set([...l.fm.terms, ...l.bodyTerms.map((t) => t.id)])],
             file: l.file,
             checks: l.checks,
+            challenges: l.bodyChallenges.map(({ id, required }) => ({ id, required })),
           }
         })
         const mod = withoutOrder(m.file)

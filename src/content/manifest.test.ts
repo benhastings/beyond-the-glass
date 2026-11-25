@@ -35,6 +35,7 @@ const fixture: Manifest = {
               steps: [{ id: 'a' }, { id: 'b', title: 'B' }],
               file: 'x.mdx',
               checks: [],
+              challenges: [],
             },
           ],
         },

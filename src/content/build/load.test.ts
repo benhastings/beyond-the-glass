@@ -7,7 +7,7 @@ import { glossaryFile, lessonFrontMatter, moduleFile, regionFile } from '../sche
 import { buildManifest, ContentError, scenarioIdsIn, type ContentIssue } from './load'
 
 const FIXTURES = join(process.cwd(), 'content/__fixtures__/valid')
-const opts = { scenarioIds: ['ravenpost'] }
+const opts = { scenarioIds: ['ravenpost'], challengeIds: ['find-the-failing-pod'] }
 const tmp: string[] = []
 afterAll(() => {
   for (const d of tmp) rmSync(d, { recursive: true, force: true })
@@ -87,8 +87,10 @@ describe('buildManifest on the fixture content', () => {
               feedback: "A node runs pods. What's inside them?",
             },
           ],
+          required: false,
         },
       ],
+      challenges: [{ id: 'find-the-failing-pod', required: false }],
     })
     expect(second).toMatchObject({
       id: 'second-steps',
