@@ -3,6 +3,7 @@ import type { Scenario } from '../core/scenario.ts'
 import { Simulator, type Controller, type SimOptions } from '../core/simulator.ts'
 import { deploymentController } from './deployment.ts'
 import { argoController } from '../gitops/argo.ts'
+import { ciController } from '../gitops/pipeline.ts'
 import { gitopsController } from './gitops.ts'
 import { kubelet } from './kubelet.ts'
 import { replicaSetController } from './replicaset.ts'
@@ -15,6 +16,7 @@ import { scheduler } from './scheduler.ts'
  */
 export function defaultControllers(): Controller[] {
   return [
+    ciController,
     argoController,
     gitopsController,
     deploymentController,

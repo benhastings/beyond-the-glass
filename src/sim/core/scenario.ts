@@ -351,6 +351,42 @@ export const scenarioSchema = z
             }),
           )
           .default([]),
+        /**
+         * CI (E7-02): per app repo, the image its pipeline builds and, optionally, the deploy repo file whose
+         * `image:` line the update-manifests job rewrites.
+         */
+        ci: z
+          .record(
+            slug,
+            z.strictObject({
+              image: z.string().regex(/^[\w.-]+(\/[\w.-]+)+$/, 'an image name without a tag'),
+              deploy: z.strictObject({ repo: slug, file: z.string() }).optional(),
+            }),
+          )
+          .default({}),
+      })
+      .superRefine((g, ctx) => {
+        for (const [project, c] of Object.entries(g.ci)) {
+          if (!Object.hasOwn(g.repos, project))
+            ctx.addIssue({
+              code: 'custom',
+              path: ['ci', project],
+              message: `no repo named ${project}`,
+            })
+          if (c.deploy && !Object.hasOwn(g.repos, c.deploy.repo))
+            ctx.addIssue({
+              code: 'custom',
+              path: ['ci', project, 'deploy', 'repo'],
+              message: `no repo named ${c.deploy.repo}`,
+            })
+        }
+        for (const [i, a] of g.applications.entries())
+          if (!Object.hasOwn(g.repos, a.source.repo))
+            ctx.addIssue({
+              code: 'custom',
+              path: ['applications', i, 'source', 'repo'],
+              message: `no repo named ${a.source.repo}`,
+            })
       })
       .optional(),
     /** How each image behaves when it runs (healthy if absent): crashes, memory use, log lines (E6-03). */

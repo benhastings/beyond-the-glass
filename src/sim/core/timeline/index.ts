@@ -1,6 +1,7 @@
 import type { TimelineEventDef } from './define.ts'
 import { deleteConfigKey } from './delete-config-key.ts'
 import { setReadinessPath, setResources, setServiceSelector } from './faults.ts'
+import { ciFailureEvent, pipelineEvent } from './pipeline.ts'
 import { setImage } from './set-image.ts'
 import { setMemoryLimit } from './set-memory-limit.ts'
 import { injectLatency, load } from './traffic.ts'
@@ -15,6 +16,8 @@ export const TIMELINE_EVENTS: readonly TimelineEventDef<never>[] = [
   setResources,
   setReadinessPath,
   setServiceSelector,
+  pipelineEvent,
+  ciFailureEvent,
 ] as unknown as readonly TimelineEventDef<never>[]
 
 export function timelineEvent(type: string): TimelineEventDef<never> | undefined {

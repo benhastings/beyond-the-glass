@@ -18,6 +18,24 @@ carry it.
   - The controller reconciles every `reconcileInterval` of sim time (3 minutes by default). Automated
     apps sync each new revision once; with self-heal they also undo drift.
 
+- **Pipelines** (`pipeline.ts`, E7-02): GitLab-style runs, `build → test → scan → package →
+  update-manifests`, with jobs `compile`, `unit-tests`, `lint`, `image-scan`, `push-image` and
+  `update-manifests`.
+  - Jobs run on the sim clock. Their durations are deterministic, hashed from the commit and job name.
+  - Each job has a sectioned runner log (prepare, sources, script, cleanup, result).
+  - A green run pushes `image:<8-character SHA>` to the registry, then rewrites the `image:` line in the
+    deploy repo file, committing as `ravenpost-ci`. Argo then picks the change up.
+  - Outcomes come only from the scenario. The `pipeline` timeline event commits to an app repo and runs
+    its pipeline. `ciFailure` makes the next run for a project fail. A run can fail in one of five ways:
+    - `test`: a failing unit test.
+    - `lint`: a lint error.
+    - `scan`: a critical advisory in the image.
+    - `push`: the registry refuses the push.
+    - `bad-tag`: the pipeline is green but writes a 7-character tag nobody pushed, so pods hit
+      `ErrImagePull`.
+  - The UI is `src/app/gitops/PipelineView.tsx`: a graph with a list (table) alternative, statuses as an
+    icon and a word, and collapsible log sections.
+
 Scenarios declare it under `gitops:`:
 
 ```yaml
@@ -30,9 +48,20 @@ gitops:
           apiVersion: apps/v1
           kind: Deployment
           ...
+  ci:
+    shop-web: # an app repo
+      image: registry.example/web
+      deploy: { repo: ravenpost-deploy, file: shop/web.yaml }
   applications:
     - name: shop
       source: { repo: ravenpost-deploy, path: shop, targetRevision: main }
       destination: { cluster: dev, namespace: shop }
       syncPolicy: { automated: { prune: true, selfHeal: true } }
+```
+
+```yaml
+timeline:
+  - { at: +1m, type: pipeline, project: shop-web, message: Add parcel tracking }
+  - { at: +20m, type: pipeline, project: shop-web, failure: test }
+  - { at: +40m, type: ciFailure, project: shop-web, failure: bad-tag } # the next run, however it starts
 ```
