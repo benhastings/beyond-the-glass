@@ -70,6 +70,18 @@ const base = {
     name: z.string(),
     only: z.boolean().default(false),
   }),
+  /** The learner merged a merge request into `repo` (E7-06): the fix went through Git. */
+  mergedRequest: z.strictObject({ type: z.literal('mergedRequest'), repo: z.string() }),
+  /** An Argo CD application's live status (E7-06): sync, health, and how its last operation ended. */
+  argoApp: z.strictObject({
+    type: z.literal('argoApp'),
+    app: z.string(),
+    sync: z.enum(['Synced', 'OutOfSync', 'Unknown']).optional(),
+    health: z
+      .enum(['Healthy', 'Progressing', 'Degraded', 'Suspended', 'Missing', 'Unknown'])
+      .optional(),
+    operation: z.enum(['Succeeded', 'Failed']).optional(),
+  }),
   mutated: z.strictObject({
     type: z.literal('mutated'),
     verb: z.string(),

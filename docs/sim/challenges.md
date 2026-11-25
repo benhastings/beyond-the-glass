@@ -27,6 +27,9 @@ at build time (`src/challenges/vite-plugin.ts`); the schema is `src/sim/challeng
   synced it from a revision that includes one of the learner's merged merge requests. `kubectl` means the learner
   changed it directly. With `only: true`, the other way must not have been used too, so "fixed through Git, not by
   hand" is `{ via: mr, only: true }`.
+- `mergedRequest { repo }`: the learner merged a merge request into `repo` (the fix went through Git).
+- `argoApp { app, sync?, health?, operation? }`: the Argo CD application's live status. It is compared now, not
+  read from Argo's last refresh. `operation` checks how its last sync ended (`Succeeded` or `Failed`).
 - `all { of }` and `any { of }` combine predicates.
 
 The engine evaluates the objectives after every command, in well under 5 ms. Its state (answers, hints used,

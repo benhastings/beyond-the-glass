@@ -41,6 +41,8 @@ export interface Application extends ApplicationSpec {
     resources: ResourceStatus[]
     operationState?: {
       phase: 'Succeeded' | 'Failed'
+      /** Argo's `initiatedBy`: the automated sync policy (a new revision or self-heal) or a person. */
+      initiatedBy: 'automated' | 'you'
       message: string
       revision: string
       startedAt: number
@@ -175,20 +177,25 @@ const nameOf = (d: Record<string, unknown>): string => {
   return typeof n === 'string' ? n : ''
 }
 
-/** Compares Git with the live cluster and updates the application's status (Argo's "refresh"). */
-export function refresh(sim: Simulator, name: string): Application | undefined {
+/** Git compared with the live cluster, without changing anything: what a refresh would set. */
+export function compareApp(
+  sim: Simulator,
+  name: string,
+):
+  | Pick<Application['status'], 'revision' | 'conditions' | 'sync' | 'health' | 'resources'>
+  | undefined {
   const app = application(sim, name)
   const cluster = app && sim.clusterByName(app.destination.cluster)
-  if (!app || !cluster) return app
+  if (!app || !cluster) return undefined
   const d = desiredManifests(sim, app)
-  app.status.revision = d.revision
-  app.status.conditions = d.error ? [d.error] : []
-  app.status.reconciledAt = sim.now
-  if (d.error) {
-    app.status.sync = 'Unknown'
-    app.status.health = 'Unknown'
-    return app
-  }
+  if (d.error)
+    return {
+      revision: d.revision,
+      conditions: [d.error],
+      sync: 'Unknown',
+      health: 'Unknown',
+      resources: app.status.resources,
+    }
   const resources: ResourceStatus[] = d.docs.map((doc) => {
     const kind = String(doc.kind)
     const r = applyObject(sim, cluster, doc, {
@@ -222,12 +229,55 @@ export function refresh(sim: Simulator, name: string): Application | undefined {
       namespace: app.destination.namespace,
       status: 'OutOfSync',
     })
-  app.status.resources = resources
-  app.status.sync = resources.every((r) => r.status === 'Synced') ? 'Synced' : 'OutOfSync'
-  app.status.health = worst(
-    resources.map((r) => r.health).filter((h): h is HealthStatus => h !== undefined),
-  )
+  return {
+    revision: d.revision,
+    conditions: [],
+    resources,
+    sync: resources.every((r) => r.status === 'Synced') ? 'Synced' : 'OutOfSync',
+    health: worst(resources.map((r) => r.health).filter((h): h is HealthStatus => h !== undefined)),
+  }
+}
+
+/** Compares Git with the live cluster and updates the application's status (Argo's "refresh"). */
+export function refresh(sim: Simulator, name: string): Application | undefined {
+  const app = application(sim, name)
+  const next = compareApp(sim, name)
+  if (!app || !next) return app
+  const before = app.status.sync
+  Object.assign(app.status, next, { reconciledAt: sim.now })
+  // Argo records each change of sync status as an event on the Application.
+  if (before !== next.sync && before !== 'Unknown')
+    appEvent(
+      sim,
+      app,
+      'Normal',
+      'ResourceUpdated',
+      `Updated sync status: ${before} -> ${next.sync}`,
+    )
   return app
+}
+
+/** An Event on the Application (namespace `argocd`), as Argo CD's controller records them. */
+export function appEvent(
+  sim: Simulator,
+  app: ApplicationSpec,
+  type: 'Normal' | 'Warning',
+  reason: string,
+  message: string,
+): void {
+  sim.clusterByName(app.destination.cluster)?.recordEvent(
+    {
+      kind: 'Application',
+      name: app.name,
+      namespace: 'argocd',
+      apiVersion: 'argoproj.io/v1alpha1',
+      uid: `application-${app.name}`,
+    },
+    type,
+    reason,
+    message,
+    { component: 'argocd-application-controller' },
+  )
 }
 
 function tracked(cluster: Cluster, app: ApplicationSpec): Resource[] {
@@ -244,16 +294,37 @@ function tracked(cluster: Cluster, app: ApplicationSpec): Resource[] {
 export function sync(
   sim: Simulator,
   name: string,
-  opts: { prune?: boolean; revision?: string } = {},
+  opts: { prune?: boolean; revision?: string; automated?: boolean } = {},
 ): Application | undefined {
   const app = application(sim, name)
   const cluster = app && sim.clusterByName(app.destination.cluster)
   if (!app || !cluster) return app
   const started = sim.now
   const d = desiredManifests(sim, app, opts.revision)
+  const initiatedBy = opts.automated ? 'automated' : 'you'
+  const rev = d.revision.slice(0, 7)
+  appEvent(
+    sim,
+    app,
+    'Normal',
+    'OperationStarted',
+    opts.automated
+      ? `Initiated automated sync to '${d.revision}'`
+      : opts.revision
+        ? `Initiated rollback to ${rev}`
+        : `you initiated sync to ${app.source.targetRevision} (${d.revision})`,
+  )
   const fail = (message: string) => {
+    appEvent(
+      sim,
+      app,
+      'Warning',
+      'OperationCompleted',
+      `Sync operation to ${d.revision} failed: ${message}`,
+    )
     app.status.operationState = {
       phase: 'Failed',
+      initiatedBy,
       message,
       revision: d.revision,
       startedAt: started,
@@ -301,8 +372,10 @@ export function sync(
   }
   sim.reconcile()
   if (errors.length) return fail(`one or more objects failed to apply: ${errors.join('; ')}`)
+  appEvent(sim, app, 'Normal', 'OperationCompleted', `Sync operation to ${d.revision} succeeded`)
   app.status.operationState = {
     phase: 'Succeeded',
+    initiatedBy,
     message: 'successfully synced (all tasks run)',
     revision: d.revision,
     startedAt: started,
@@ -336,6 +409,19 @@ export function createApplication(sim: Simulator, spec: ApplicationSpec): Applic
   return app
 }
 
+/** `argocd app set --sync-policy`: automated (with prune and self-heal) or manual (`undefined`). */
+export function setSyncPolicy(
+  sim: Simulator,
+  name: string,
+  automated: { prune?: boolean; selfHeal?: boolean } | undefined,
+): Application | undefined {
+  const app = application(sim, name)
+  if (!app) return undefined
+  if (automated) app.syncPolicy = { automated: { ...automated } }
+  else delete app.syncPolicy
+  return app
+}
+
 export function setReconcileInterval(sim: Simulator, ms: number): void {
   state(sim).intervalMs = ms
 }
@@ -346,9 +432,18 @@ export function reconcileApps(sim: Simulator): void {
     refresh(sim, app.name)
     const auto = app.syncPolicy?.automated
     if (!auto || app.status.sync !== 'OutOfSync') continue
+    const op = app.status.operationState
+    // Like Argo, automated sync doesn't retry a revision it already failed to sync.
+    if (
+      op?.phase === 'Failed' &&
+      op.initiatedBy === 'automated' &&
+      op.revision === app.status.revision
+    )
+      continue
     const lastSynced = app.status.history.at(-1)?.revision
     // Without self-heal, an automated app syncs each new revision once, and leaves drift alone after.
-    if (app.status.revision !== lastSynced || auto.selfHeal) sync(sim, app.name)
+    if (app.status.revision !== lastSynced || auto.selfHeal)
+      sync(sim, app.name, { automated: true })
   }
 }
 

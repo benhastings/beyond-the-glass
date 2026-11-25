@@ -1,6 +1,13 @@
 import { parseDuration } from '../../core/duration.ts'
 import type { Simulator } from '../../core/simulator.ts'
-import { application, applications, refresh, sync, type Application } from '../../gitops/argo.ts'
+import {
+  application,
+  applications,
+  refresh,
+  setSyncPolicy,
+  sync,
+  type Application,
+} from '../../gitops/argo.ts'
 import { apiGroup as group, resourceDiffs } from '../../gitops/tree.ts'
 import { kubectlYaml } from '../kubectl/get.ts'
 import { bool, str } from '../flags.ts'
@@ -162,6 +169,7 @@ Usage:
   argocd app rollback APPNAME [ID]
   argocd app wait APPNAME [--health] [--sync] [--timeout SECONDS]
   argocd app refresh APPNAME
+  argocd app set APPNAME --sync-policy automated|none [--self-heal] [--auto-prune]
   argocd login ${ARGOCD_HOST}
 
 Here, you're already logged in to ${ARGOCD_HOST}.`
@@ -175,6 +183,7 @@ const SUBCOMMANDS = [
   'rollback',
   'wait',
   'refresh',
+  'set',
 ] as const
 
 /** `argocd` (E7-04): the app subcommands an operator uses, over the simulated Argo CD (E7-01). */
@@ -196,6 +205,14 @@ export const argocdCommand = defineCommand({
     { name: 'health', type: 'bool', description: 'wait: until healthy' },
     { name: 'sync', type: 'bool', description: 'wait: until synced' },
     { name: 'timeout', type: 'string', description: 'wait: give up after this many seconds' },
+    {
+      name: 'sync-policy',
+      type: 'string',
+      description: 'set: automated or none',
+      values: ['automated', 'none', 'auto', 'manual'],
+    },
+    { name: 'self-heal', type: 'bool', description: 'set: undo drift on every reconcile' },
+    { name: 'auto-prune', type: 'bool', description: 'set: delete what Git no longer has' },
   ],
   help: () => HELP,
   run: (ctx, inv): Output => {
@@ -246,10 +263,26 @@ export const argocdCommand = defineCommand({
         const a = refresh(sim, name) ?? app
         if (output === 'json') return ok(JSON.stringify(apiObject(sim, a), null, 2))
         if (output === 'yaml') return ok(kubectlYaml(apiObject(sim, a)))
-        return ok(`${summary(sim, a)}\n\n${resourceTable(a)}`)
+        return ok(
+          `${summary(sim, a)}\n${a.status.operationState ? `\n${operationBlock(sim, a)}\n` : ''}\n${resourceTable(a)}`,
+        )
       }
       case 'diff':
         return diff(sim, app, str(inv.flags, 'revision'))
+      case 'set': {
+        const policy = str(inv.flags, 'sync-policy')
+        const auto = app.syncPolicy?.automated
+        if (policy === undefined && !bool(inv.flags, 'self-heal') && !bool(inv.flags, 'auto-prune'))
+          return fatal('argocd app set needs something to set, for example --sync-policy none')
+        if (policy === 'none' || policy === 'manual') setSyncPolicy(sim, name, undefined)
+        else if (policy === 'automated' || policy === 'auto' || auto)
+          setSyncPolicy(sim, name, {
+            prune: bool(inv.flags, 'auto-prune') || (auto?.prune ?? false),
+            selfHeal: bool(inv.flags, 'self-heal') || (auto?.selfHeal ?? false),
+          })
+        else return fatal('--self-heal and --auto-prune need --sync-policy automated')
+        return ok('')
+      }
       case 'history': {
         const rows = app.status.history.map(
           (h) =>
