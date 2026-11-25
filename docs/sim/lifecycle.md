@@ -122,3 +122,17 @@ replacement with a new name straight away.
 `rollout status` relies on the Progressing condition. Its `lastUpdateTime` moves only when the rollout makes
 progress. A rollout that makes no progress for `progressDeadlineSeconds` becomes `Progressing=False`,
 `ProgressDeadlineExceeded`, which `rollout status` reports as `exceeded its progress deadline`.
+
+## Sim inspector (E6-13)
+
+In a dev build (`npm run dev`), add `?inspector=1` to the URL (before or after the `#`). A panel then shows the
+most recently opened terminal's simulation. It has:
+
+- a timeline scrubber, which replays the scenario and the learner's commands to that moment with `replayTo()`,
+- the audit log,
+- the challenge's objective results,
+- the cluster state,
+- a **Copy snapshot** button.
+
+The panel is imported only behind `import.meta.env.DEV`, so production builds don't contain it
+(`tests/repo/inspector-bundle.test.ts`).

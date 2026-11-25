@@ -88,7 +88,7 @@ export function Terminal({ sim, onChange, label = 'Terminal', session }: Termina
     })
   }
 
-  const finish = (command: string, promptAt: string, out: Output) => {
+  const finish = (command: string, promptAt: string, out: Output, at?: number) => {
     if (out.effect === 'clear') {
       clearScreen(sim)
       setEntries([])
@@ -96,7 +96,7 @@ export function Terminal({ sim, onChange, label = 'Terminal', session }: Termina
       onChange?.()
       return
     }
-    const entry = record(sim, promptAt, command, out)
+    const entry = record(sim, promptAt, command, out, at)
     setEntries([...transcript(sim).entries])
     const n = lineCount(entry)
     const text = [entry.stdout, entry.stderr].filter(Boolean).join('\n')
@@ -118,13 +118,14 @@ export function Terminal({ sim, onChange, label = 'Terminal', session }: Termina
     setCandidates([])
     historyIndex.current = null
     setLine('')
+    const at = sim.now
     const out = shell.run(command)
     if (out.edit) {
       setEditing({ request: out.edit, command, prompt: promptText })
       setAnnounce(`${command}. Opened ${out.edit.title} in the editor.`)
       return
     }
-    finish(command, promptText, out)
+    finish(command, promptText, out, at)
   }
 
   const complete = () => {

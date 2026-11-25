@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Scenario } from '@/sim/core/scenario'
 import type { Simulator } from '@/sim/core/simulator'
 import { loadSimulation, restoreSimulation } from '@/sim/controllers'
 import { useProgress } from '../progress'
+import { inspect } from '../inspector/registry'
 import { Terminal } from './Terminal'
 
 /** Resumes from the saved snapshot when there is a usable one; otherwise starts the scenario fresh. */
@@ -22,6 +23,9 @@ export function ScenarioTerminal({ scenario, label }: { scenario: Scenario; labe
   const [sim] = useState(() =>
     resume(scenario, useProgress.getState().progress.scenarios[scenario.id]?.snapshot),
   )
+  useEffect(() => {
+    inspect({ sim, scenario })
+  }, [sim, scenario])
   return (
     <Terminal
       sim={sim}

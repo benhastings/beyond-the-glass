@@ -8,6 +8,7 @@ import { loadSimulation, restoreSimulation } from '@/sim/controllers'
 import type { Simulator } from '@/sim/core/simulator'
 import { useProgress } from '../progress'
 import { Button, Callout } from '../ui'
+import { inspect } from '../inspector/registry'
 import { Terminal } from './Terminal'
 
 function resume(scenario: Scenario, snapshot: unknown): Simulator {
@@ -47,6 +48,9 @@ export function ChallengeTerminal({
     attach(run, s as Session)
     return s
   }, [run])
+  useEffect(() => {
+    inspect({ sim, scenario, run })
+  }, [sim, scenario, run])
   const [evaluation, setEvaluation] = useState<Evaluation>(() => run.evaluate())
   const [hint, setHint] = useState<string>()
   const [announce, setAnnounce] = useState('')
