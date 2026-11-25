@@ -3,9 +3,13 @@ import { CodeBlock } from '../../ui/CodeBlock'
 import { Kbd } from '../../ui/Kbd'
 import { Analogy } from './Analogy'
 import { Check } from './Check'
+import { DeepDive } from './DeepDive'
+import { Depth } from './Depth'
 import { Diagram } from './Diagram'
+import { ELI5 } from './ELI5'
 import { LessonCallout } from './LessonCallout'
 import { LessonTerminal } from './LessonTerminal'
+import { Operator } from './Operator'
 import { Step } from './Step'
 import { Term } from './Term'
 
@@ -24,4 +28,8 @@ export const LESSON_COMPONENTS: Readonly<Record<string, ComponentType<any>>> = {
   Kbd,
   Terminal: LessonTerminal,
   Check,
+  Depth,
+  ELI5,
+  Operator,
+  DeepDive,
 }

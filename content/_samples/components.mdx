@@ -18,6 +18,18 @@ flowchart LR
 ```
 </Diagram>
 
+<Depth>
+  <ELI5>A pod is a box the cluster puts your program in, so it can start, stop and move it.</ELI5>
+  <Operator>
+    A pod is the unit the scheduler places: one or more containers sharing an IP and volumes,
+    restarted by the kubelet.
+  </Operator>
+  <DeepDive>
+    The kubelet runs a pod sandbox (pause container) holding the network namespace; app containers
+    join it through the CRI.
+  </DeepDive>
+</Depth>
+
 Press <Kbd>Tab</Kbd> to complete a name.
 
 <CodeBlock language="console" caption="See the pods" code="kubectl get pods -n ravenpost -o wide" />

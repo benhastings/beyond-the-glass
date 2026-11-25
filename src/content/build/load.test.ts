@@ -253,6 +253,26 @@ describe('buildManifest errors', () => {
     ])
   })
 
+  acTest(
+    'E5-05.AC2',
+    'a <Depth> without an ELI5 layer builds, with a warning naming the file and line',
+    () => {
+      const root = variant({
+        [FIRST]: (t) =>
+          t.replace(
+            "That's the first look.",
+            "That's the first look.\n\n<Depth>\n<Operator>o</Operator>\n</Depth>\n\n<Depth>\n<ELI5>e</ELI5>\n</Depth>",
+          ),
+      })
+      const { warnings } = buildManifest(root, opts)
+      expect(warnings).toHaveLength(1)
+      expect(warnings[0]).toMatch(
+        /^regions\/alpha\/basics\/first-steps\.mdx:\d+:1 <Depth> has no <ELI5> layer$/,
+      )
+      expect(buildManifest(FIXTURES, opts).warnings).toEqual([])
+    },
+  )
+
   acTest('E5-01.AC1', 'broken glossary references are reported', () => {
     const root = variant({
       'glossary.yaml': (t) =>

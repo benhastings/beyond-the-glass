@@ -83,13 +83,15 @@ acTest(
     await expect(question.getByRole('radio', { name: 'The node it runs on' })).toBeChecked()
     await expect(question.getByRole('radio', { name: 'The node it runs on' })).toBeFocused()
 
-    await page.getByRole('tab', { name: 'ELI5' }).focus()
+    // The Tabs demo (the lesson sample has its own depth tabs further down).
+    const demo = page.locator('#tabs')
+    await demo.getByRole('tab', { name: 'ELI5' }).focus()
     await page.keyboard.press('End')
-    await expect(page.getByRole('tab', { name: 'Deep dive' })).toHaveAttribute(
+    await expect(demo.getByRole('tab', { name: 'Deep dive' })).toHaveAttribute(
       'aria-selected',
       'true',
     )
-    await expect(page.getByRole('tabpanel')).toContainText('share a network namespace')
+    await expect(demo.getByRole('tabpanel')).toContainText('share a network namespace')
   },
 )
 

@@ -30,6 +30,8 @@ export interface BuildResult {
   manifest: Manifest
   /** Every file read, for the dev server to watch. */
   files: string[]
+  /** Problems worth fixing that don't stop the build, as `file:line:column message`. */
+  warnings: string[]
 }
 
 interface Ref {
@@ -129,6 +131,7 @@ function scanBody(body: string, firstLine: number) {
  */
 export function buildManifest(root: string, opts: BuildOptions = {}): BuildResult {
   const issues: ContentIssue[] = []
+  const warnings: string[] = []
   const files: string[] = []
   const rel = (p: string) => relative(root, p) || '.'
   const read = (p: string) => {
@@ -224,6 +227,12 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         if (fm.id !== name.replace(/\.mdx$/, ''))
           issues.push(ly.issue(['id'], `must match its file name "${name}"`))
         const body = scanBody(parts.body, parts.bodyLine)
+        // A <Depth> without an ELI5 layer is allowed, but newcomers then get no plain-words version (E5-05).
+        for (const d of parts.body.matchAll(/<Depth\b[^>]*>([\s\S]*?)<\/Depth>/g))
+          if (!/<ELI5\b/.test(d[1] ?? '')) {
+            const line = parts.bodyLine + (parts.body.slice(0, d.index).match(/\n/g)?.length ?? 0)
+            warnings.push(`${rel(path)}:${String(line)}:1 <Depth> has no <ELI5> layer`)
+          }
         // Knowledge checks (E5-03) live beside the lesson: <id>.checks.yaml.
         const checksPath = path.replace(/\.mdx$/, '.checks.yaml')
         let checks: Check[] = []
@@ -450,7 +459,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         modules,
       }
     })
-  return { manifest: { regions: manifestRegions, glossary }, files }
+  return { manifest: { regions: manifestRegions, glossary }, files, warnings }
 }
 
 export { ContentError, type ContentIssue }
