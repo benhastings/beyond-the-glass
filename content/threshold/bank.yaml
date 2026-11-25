@@ -1,0 +1,524 @@
+# The Threshold question bank (E4-01). Model: docs/design/placement.md; schema: src/placement/bank.ts.
+# Every scenario item needs SME review for accuracy before release.
+version: 1
+intro:
+  title: The Threshold
+  body: There are no wrong answers. This picks your starting trail, and you can change it at any time.
+  time: About 5 minutes, 12 questions.
+  privacy: Your answers stay in this browser. Nothing is sent anywhere.
+serving:
+  total: 12
+  scenariosPerDomain:
+    min: 1
+    max: 2
+items:
+  - id: foundations-shell
+    kind: experience
+    domain: foundations
+    difficulty: 1
+    stem: How often do you work on a Linux command line?
+    options:
+      - id: never
+        text: Never, or almost never
+        level: 0
+      - id: tried
+        text: I have tried it a few times
+        level: 1
+      - id: sometimes
+        text: Most weeks, for routine checks
+        level: 2
+      - id: weekly
+        text: Daily or weekly, as part of my job
+        level: 3
+    why: The command line is where most of this course happens, so it sets where you start.
+  - id: foundations-network
+    kind: experience
+    domain: foundations
+    difficulty: 1
+    stem: How often do you troubleshoot network problems such as DNS or ports?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: Once or twice, with help
+        level: 1
+      - id: sometimes
+        text: Sometimes, on my own
+        level: 2
+      - id: weekly
+        text: Weekly, it is part of my work
+        level: 3
+    why: Many cluster problems turn out to be names, ports and routes.
+  - id: foundations-port
+    kind: scenario
+    domain: foundations
+    difficulty: 1
+    stem: A web service should answer on port 8080, but nothing does. What do you check first?
+    options:
+      - id: listening
+        text: Whether a process is listening on port 8080
+      - id: reboot
+        text: Reboot the server
+      - id: dns
+        text: Change the DNS record
+      - id: not-sure
+        text: I’m not sure yet
+    correct: listening
+    why: Before changing anything, confirm something is actually listening on the port.
+  - id: foundations-dns
+    kind: scenario
+    domain: foundations
+    difficulty: 2
+    stem: One server can reach mail.example by IP address but not by name. What is the likely problem?
+    options:
+      - id: dns
+        text: Name resolution (DNS) on that server
+      - id: firewall
+        text: A firewall blocking all traffic
+      - id: disk
+        text: The disk is full
+      - id: not-sure
+        text: I’m not sure yet
+    correct: dns
+    why: If the IP works but the name doesn’t, the name lookup is what’s failing.
+  - id: foundations-logs
+    kind: scenario
+    domain: foundations
+    difficulty: 1
+    stem: A service stopped overnight. Where do you look first to find out why?
+    options:
+      - id: logs
+        text: The service’s logs from around that time
+      - id: cpu
+        text: The current CPU graph
+      - id: restart
+        text: Nowhere, restart it and move on
+      - id: not-sure
+        text: I’m not sure yet
+    correct: logs
+    why: Logs from the time it stopped usually say why. Restarting first can lose that evidence.
+  - id: foundations-exit
+    kind: scenario
+    domain: foundations
+    difficulty: 3
+    stem: A process exits with code 137. What usually caused that?
+    options:
+      - id: killed
+        text: It was killed, often for using too much memory
+      - id: success
+        text: It finished successfully
+      - id: syntax
+        text: A syntax error in its config
+      - id: not-sure
+        text: I’m not sure yet
+    correct: killed
+    why: '137 is 128 + 9: the process got SIGKILL, which the kernel sends when it runs out of memory.'
+  - id: containers-use
+    kind: experience
+    domain: containers
+    difficulty: 1
+    stem: How often do you build or run containers (for example with Docker or Podman)?
+    options:
+      - id: never
+        text: Never touched them
+        level: 0
+      - id: tried
+        text: I have run one or two
+        level: 1
+      - id: sometimes
+        text: Sometimes, for real work
+        level: 2
+      - id: weekly
+        text: Weekly, I build and run them
+        level: 3
+    why: Containers are the building blocks of everything that runs in a cluster.
+  - id: containers-images
+    kind: experience
+    domain: containers
+    difficulty: 1
+    stem: How often do you write or change container image builds (Dockerfiles)?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: I have read one
+        level: 1
+      - id: sometimes
+        text: I have changed one or two
+        level: 2
+      - id: weekly
+        text: Often, I maintain them
+        level: 3
+    why: Knowing how an image is built helps when an app runs fine in one place and not another.
+  - id: containers-image-vs-container
+    kind: scenario
+    domain: containers
+    difficulty: 1
+    stem: What is the difference between an image and a container?
+    options:
+      - id: template
+        text: An image is the template; a container is a running copy of it
+      - id: same
+        text: They are the same thing
+      - id: vm
+        text: A container is a virtual machine; an image is its disk
+      - id: not-sure
+        text: I’m not sure yet
+    correct: template
+    why: An image is packaged once; you can start many containers from it.
+  - id: containers-lost-file
+    kind: scenario
+    domain: containers
+    difficulty: 2
+    stem: You save a file inside a running container, then the container is replaced. What happens to the file?
+    options:
+      - id: gone
+        text: It is gone, unless it was on a volume
+      - id: kept
+        text: It is kept in the image
+      - id: moved
+        text: It moves to the new container
+      - id: not-sure
+        text: I’m not sure yet
+    correct: gone
+    why: A container’s own filesystem is thrown away with it. Data that must survive goes on a volume.
+  - id: containers-tag
+    kind: scenario
+    domain: containers
+    difficulty: 2
+    stem: Why is the tag `latest` risky for something you run in production?
+    options:
+      - id: changes
+        text: It can point to a different image tomorrow
+      - id: slow
+        text: It makes containers start slowly
+      - id: invalid
+        text: It is not a valid tag
+      - id: not-sure
+        text: I’m not sure yet
+    correct: changes
+    why: '`latest` moves, so two servers can run different code under the same name.'
+  - id: containers-isolation
+    kind: scenario
+    domain: containers
+    difficulty: 3
+    stem: What keeps one container from seeing another’s processes on the same host?
+    options:
+      - id: namespaces
+        text: Linux namespaces
+      - id: firewall
+        text: The host firewall
+      - id: vm
+        text: Each runs in its own virtual machine
+      - id: not-sure
+        text: I’m not sure yet
+    correct: namespaces
+    why: Containers are ordinary processes isolated by kernel namespaces, with cgroups limiting their resources.
+  - id: kubernetes-use
+    kind: experience
+    domain: kubernetes
+    difficulty: 1
+    stem: How often do you work with Kubernetes (for example with kubectl)?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: I have looked around once or twice
+        level: 1
+      - id: sometimes
+        text: Sometimes, I can find my way
+        level: 2
+      - id: weekly
+        text: Weekly, I run workloads on it
+        level: 3
+    why: This sets where your Kubernetes lessons start.
+  - id: kubernetes-incidents
+    kind: experience
+    domain: kubernetes
+    difficulty: 1
+    stem: How often have you dealt with an incident in a Kubernetes cluster?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: I watched someone else do it
+        level: 1
+      - id: sometimes
+        text: A few times
+        level: 2
+      - id: weekly
+        text: Often, I am on call for it
+        level: 3
+    why: Incident experience tells us whether to start with tours or with troubleshooting.
+  - id: kubernetes-crashloop
+    kind: scenario
+    domain: kubernetes
+    difficulty: 1
+    stem: A pod shows `CrashLoopBackOff`. What do you look at first?
+    options:
+      - id: logs
+        text: Its logs from the last time it ran, and its events
+      - id: delete
+        text: Delete the namespace
+      - id: node
+        text: Reboot the node it runs on
+      - id: not-sure
+        text: I’m not sure yet
+    correct: logs
+    why: The container keeps exiting; its previous logs and the pod’s events usually say why.
+  - id: kubernetes-pending
+    kind: scenario
+    domain: kubernetes
+    difficulty: 2
+    stem: A new pod has been `Pending` for ten minutes. What is a likely cause?
+    options:
+      - id: resources
+        text: No node has enough free CPU or memory for its requests
+      - id: image
+        text: Its image has a typo
+      - id: crash
+        text: The app inside crashes on start
+      - id: not-sure
+        text: I’m not sure yet
+    correct: resources
+    why: Pending means it hasn’t been placed on a node yet; scheduling problems such as resource requests come first.
+  - id: kubernetes-service
+    kind: scenario
+    domain: kubernetes
+    difficulty: 2
+    stem: A Service has no endpoints. What does that tell you?
+    options:
+      - id: selector
+        text: No ready pods match its selector
+      - id: dns
+        text: Cluster DNS is down
+      - id: port
+        text: Its port number is above 1024
+      - id: not-sure
+        text: I’m not sure yet
+    correct: selector
+    why: A Service sends traffic to ready pods whose labels match its selector. No endpoints means none match.
+  - id: kubernetes-rollout
+    kind: scenario
+    domain: kubernetes
+    difficulty: 3
+    stem: A new version is rolling out and its pods never become ready. What is the quickest safe step?
+    options:
+      - id: undo
+        text: Roll back to the previous version
+      - id: scale
+        text: Scale the deployment to zero
+      - id: delete
+        text: Delete the failing pods by hand
+      - id: not-sure
+        text: I’m not sure yet
+    correct: undo
+    why: Rolling back restores the working version while you find out what’s wrong with the new one.
+  - id: delivery-git
+    kind: experience
+    domain: delivery
+    difficulty: 1
+    stem: How often do you use Git (commit, branch, merge)?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: A few times
+        level: 1
+      - id: sometimes
+        text: Most weeks
+        level: 2
+      - id: weekly
+        text: Every day
+        level: 3
+    why: GitOps keeps the whole system in Git, so Git is where changes start.
+  - id: delivery-pipelines
+    kind: experience
+    domain: delivery
+    difficulty: 1
+    stem: How often do you work with CI/CD pipelines?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: I have watched one run
+        level: 1
+      - id: sometimes
+        text: I fix them sometimes
+        level: 2
+      - id: weekly
+        text: I build and maintain them
+        level: 3
+    why: Pipelines build and test every change before it reaches a cluster.
+  - id: delivery-merge-request
+    kind: scenario
+    domain: delivery
+    difficulty: 1
+    stem: What is a merge request (or pull request) for?
+    options:
+      - id: review
+        text: Asking for a change to be reviewed and merged
+      - id: backup
+        text: Backing up a branch
+      - id: deploy
+        text: Deploying straight to production
+      - id: not-sure
+        text: I’m not sure yet
+    correct: review
+    why: It proposes a change so others can review it, and the pipeline can test it, before it is merged.
+  - id: delivery-red-pipeline
+    kind: scenario
+    domain: delivery
+    difficulty: 2
+    stem: The pipeline for your change failed at the test stage. What do you do?
+    options:
+      - id: read
+        text: Read the failing test’s output and fix the change
+      - id: rerun
+        text: Re-run it until it passes
+      - id: skip
+        text: Skip the tests and merge
+      - id: not-sure
+        text: I’m not sure yet
+    correct: read
+    why: A failed test is information about the change; read it before trying again.
+  - id: delivery-gitops
+    kind: scenario
+    domain: delivery
+    difficulty: 2
+    stem: In GitOps, someone changes a setting directly in the cluster. What happens next?
+    options:
+      - id: revert
+        text: The GitOps tool puts it back to what Git says
+      - id: kept
+        text: The change is kept forever
+      - id: git
+        text: Git is updated to match
+      - id: not-sure
+        text: I’m not sure yet
+    correct: revert
+    why: Git is the source of truth; drift in the cluster is put back on the next sync.
+  - id: delivery-rollback
+    kind: scenario
+    domain: delivery
+    difficulty: 3
+    stem: With GitOps, what is the usual way to roll back a bad release?
+    options:
+      - id: revert
+        text: Revert the commit in Git and let it sync
+      - id: kubectl
+        text: Edit the live objects with kubectl
+      - id: rebuild
+        text: Rebuild the old image with a new tag
+      - id: not-sure
+        text: I’m not sure yet
+    correct: revert
+    why: Reverting in Git keeps the record and lets the normal sync do the work.
+  - id: observability-dashboards
+    kind: experience
+    domain: observability
+    difficulty: 1
+    stem: How often do you use monitoring dashboards (such as Grafana)?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: I have looked at one
+        level: 1
+      - id: sometimes
+        text: Sometimes, during incidents
+        level: 2
+      - id: weekly
+        text: Weekly, I build or tune them
+        level: 3
+    why: Dashboards are often the first place you notice something is wrong.
+  - id: observability-alerts
+    kind: experience
+    domain: observability
+    difficulty: 1
+    stem: How often do you write or tune alert rules?
+    options:
+      - id: never
+        text: Never
+        level: 0
+      - id: tried
+        text: I have read a few
+        level: 1
+      - id: sometimes
+        text: I have changed some
+        level: 2
+      - id: weekly
+        text: Often
+        level: 3
+    why: Good alerts tell you about real problems without waking you for noise.
+  - id: observability-metric-log
+    kind: scenario
+    domain: observability
+    difficulty: 1
+    stem: What is the main difference between a metric and a log line?
+    options:
+      - id: numbers
+        text: A metric is a number over time; a log line describes one event
+      - id: same
+        text: They are the same thing
+      - id: size
+        text: Logs are only for errors; metrics are for success
+      - id: not-sure
+        text: I’m not sure yet
+    correct: numbers
+    why: Metrics show trends cheaply; logs give the detail of single events.
+  - id: observability-latency
+    kind: scenario
+    domain: observability
+    difficulty: 2
+    stem: Users say the site is slow, but CPU looks normal. What do you check next?
+    options:
+      - id: latency
+        text: Request latency and errors, broken down by service
+      - id: restart
+        text: Restart every service
+      - id: disk
+        text: Add more disk space
+      - id: not-sure
+        text: I’m not sure yet
+    correct: latency
+    why: Slowness shows up in latency; breaking it down shows which service adds the delay.
+  - id: observability-trace
+    kind: scenario
+    domain: observability
+    difficulty: 2
+    stem: What does a trace show that logs alone usually don’t?
+    options:
+      - id: path
+        text: The path of one request through each service, with timings
+      - id: cpu
+        text: CPU use per node
+      - id: config
+        text: Every config change
+      - id: not-sure
+        text: I’m not sure yet
+    correct: path
+    why: A trace links the work each service did for one request, so you can see where time went.
+  - id: observability-slo
+    kind: scenario
+    domain: observability
+    difficulty: 3
+    stem: Your service has a 99.9% availability objective. Roughly how much downtime is that per 30 days?
+    options:
+      - id: 43m
+        text: About 43 minutes
+      - id: 7h
+        text: About 7 hours
+      - id: 4m
+        text: About 4 minutes
+      - id: not-sure
+        text: I’m not sure yet
+    correct: 43m
+    why: '0.1% of 30 days is about 43 minutes: that is the error budget.'

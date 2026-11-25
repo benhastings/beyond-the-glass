@@ -10,7 +10,7 @@ import { parse as parseYaml } from 'yaml'
 export interface Finding {
   file: string
   line: number
-  rule: 'banned-word' | 'eli5-grade' | 'no-objectives' | 'image-alt' | 'step-length'
+  rule: 'banned-word' | 'eli5-grade' | 'stem-grade' | 'no-objectives' | 'image-alt' | 'step-length'
   message: string
 }
 
@@ -25,6 +25,8 @@ export const BANNED = [
   'trivially',
 ] as const
 export const ELI5_MAX_GRADE = 8
+/** Placement question stems (E4-01.AC4). */
+export const STEM_MAX_GRADE = 9
 export const STEP_MAX_WORDS = 350
 
 const BANNED_RE = new RegExp(`\\b(${BANNED.join('|')})\\b`, 'gi')
@@ -169,6 +171,14 @@ export function lintYaml(file: string, text: string): Finding[] {
           rule: 'banned-word',
           message: `“${m[0]}” can make a learner feel slow; say what to do instead (AGENTS.md §3)`,
         })
+    const stem = /^\s*(?:-\s+)?stem:\s*(.+)$/.exec(line)?.[1]?.replace(/^['"]|['"]$/g, '')
+    if (stem && fleschKincaid(stem) > STEM_MAX_GRADE && !allowed(lines, i, 'stem-grade'))
+      out.push({
+        file,
+        line: i + 1,
+        rule: 'stem-grade',
+        message: `question reads at grade ${fleschKincaid(stem).toFixed(1)}; aim for ${String(STEM_MAX_GRADE)} or below`,
+      })
     const eli5 = /^\s*(?:-\s+)?eli5:\s*(.+)$/.exec(line)?.[1]
     if (eli5 && fleschKincaid(eli5) > ELI5_MAX_GRADE && !allowed(lines, i, 'eli5-grade'))
       out.push({
