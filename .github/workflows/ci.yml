@@ -28,6 +28,8 @@ jobs:
         run: npm run typecheck
       - name: Lint
         run: npm run lint
+      - name: Content style lint
+        run: npm run lint:content
       - name: Format
         run: npm run format:check
       - name: Unit tests with coverage thresholds

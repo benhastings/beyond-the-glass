@@ -1,3 +1,10 @@
 # The Field Guide glossary. Entries are added by E2-05 and the curriculum issues; lessons link to them
 # with <Term id="…"> or front-matter `terms`. Schema: src/content/schema.ts (glossaryFile).
-terms: []
+terms:
+  - id: pod
+    term: Pod
+    aliases: [pods]
+    eli5: A box the cluster runs your program in. It can start, stop and move the box for you.
+    operator: >-
+      The smallest thing Kubernetes schedules: one or more containers that share an IP address and volumes,
+      placed on a node and kept running by its kubelet. Where you'd have checked a process, you check its pod.

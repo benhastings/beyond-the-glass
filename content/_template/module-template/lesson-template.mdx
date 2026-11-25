@@ -1,0 +1,57 @@
+---
+id: lesson-template
+title: A lesson title in plain words
+order: 0
+objectives:
+  - List the pods in a namespace
+  - Tell a running pod from one that keeps restarting
+estimatedMinutes: 10
+domain: kubernetes
+level: wayfarer
+scenario: ravenpost
+terms: []
+---
+
+{/* One idea per step, under about 350 words. Start from what the learner already does on servers. */}
+
+<Step id="where-you-are" title="Where you are">
+
+<Analogy
+  then="You logged in to a server and listed its processes."
+  now="You ask the cluster for its pods, wherever they run."
+/>
+
+Each <Term id="pod">pod</Term> runs one or more containers. The cluster decides which machine runs it.
+
+<Depth>
+  <ELI5>
+    A pod is a box the cluster puts your program in. The cluster can start it, stop it and move it.
+  </ELI5>
+  <Operator>
+    A pod is what the scheduler places on a node: one or more containers sharing an IP address and
+    volumes.
+  </Operator>
+  <DeepDive>
+    The kubelet asks the container runtime for a pod sandbox, then starts each container inside it.
+  </DeepDive>
+</Depth>
+
+</Step>
+
+<Step id="look" title="Take a look">
+
+<Callout kind="habit">Check which context you're in before you change anything.</Callout>
+
+List the pods in the `ravenpost` namespace:
+
+<CodeBlock language="console" caption="List the pods" code="kubectl get pods -n ravenpost" />
+
+<Terminal scenario="ravenpost" challenge="challenge-template" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="template-what-restarts" />
+
+</Step>

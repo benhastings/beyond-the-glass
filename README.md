@@ -19,6 +19,7 @@ npm run build        # production build into dist/
 npm run preview      # serve dist/ locally
 npm run typecheck    # TypeScript in strict mode, no emit
 npm run lint         # ESLint (typescript-eslint strict, react-hooks, jsx-a11y); fails on any warning
+npm run lint:content # content style lint: banned words, ELI5 reading level, objectives, alt text, step length
 npm run format       # rewrite files with Prettier
 npm run format:check # fail if any file isn't Prettier-formatted
 npm test             # Vitest: unit (Node), dom (jsdom + Testing Library) and repo projects
