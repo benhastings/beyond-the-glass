@@ -2,3 +2,4 @@
 export * from './git.ts'
 export * from './registry.ts'
 export * from './argo.ts'
+export * from './pipeline.ts'

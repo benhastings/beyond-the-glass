@@ -200,6 +200,8 @@ describe('scenario schema', () => {
       'setResources',
       'setReadinessPath',
       'setServiceSelector',
+      'pipeline',
+      'ciFailure',
     ])
   })
 })

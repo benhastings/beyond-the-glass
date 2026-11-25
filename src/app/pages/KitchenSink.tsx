@@ -3,6 +3,9 @@ import ravenpost from '@/scenarios/ravenpost.yaml'
 import { createShell } from '@/sim/commands'
 import type { EditRequest } from '@/sim/commands/types'
 import { loadSimulation } from '@/sim/controllers'
+import { pipelines } from '@/sim/gitops/pipeline'
+import { ciScenario } from '@/sim/gitops/testing'
+import { PipelineView } from '../gitops/PipelineView'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
@@ -195,6 +198,8 @@ function Demo() {
           <ScenarioTerminal scenario={ravenpost} label="Ravenpost terminal" />
         </Card>
 
+        <PipelineDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -209,6 +214,58 @@ function Demo() {
         </Card>
       </div>
     </Page>
+  )
+}
+
+/** Four pipelines from one scenario timeline (E7-02): passed, failed tests, a bad tag, and one still running. */
+function PipelineDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = ciScenario([
+      { at: '+1m', type: 'pipeline', project: 'shop-web', message: 'Add parcel tracking' },
+      {
+        at: '+20m',
+        type: 'pipeline',
+        project: 'shop-web',
+        message: 'Tidy routes',
+        failure: 'test',
+      },
+      {
+        at: '+40m',
+        type: 'pipeline',
+        project: 'shop-web',
+        message: 'Speed up lookups',
+        failure: 'bad-tag',
+      },
+      { at: '+59m', type: 'pipeline', project: 'shop-web', message: 'Retry carrier calls' },
+    ])
+    s.advance(60 * 60_000 + 30_000)
+    return s
+  })
+  const runs = pipelines(sim)
+  const [chosen, setChosen] = useState(runs[0]?.id)
+  const p = runs.find((x) => x.id === chosen)
+  return (
+    <Card id="pipeline" title="Pipeline">
+      <div className="grid gap-4">
+        <label className="grid max-w-sm min-w-0 gap-1">
+          Pipeline
+          <select
+            className="min-h-11 w-full min-w-0 rounded-md border border-line bg-surface px-2"
+            value={chosen}
+            onChange={(e) => {
+              setChosen(Number(e.target.value))
+            }}
+          >
+            {runs.map((r) => (
+              <option key={r.id} value={r.id}>
+                #{r.id} {r.title} ({r.status})
+              </option>
+            ))}
+          </select>
+        </label>
+        {p && <PipelineView pipeline={p} now={sim.now} level={3} />}
+      </div>
+    </Card>
   )
 }
 

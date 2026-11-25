@@ -52,3 +52,42 @@ export function gitopsScenario(automated?: { prune?: boolean; selfHeal?: boolean
   const scenario = scenarioSchema.parse(input)
   return { scenario, sim: loadSimulation(scenario) }
 }
+
+/**
+ * `gitopsScenario` plus the app repo `shop-web`, whose pipeline builds registry.example/web and rewrites
+ * shop/web.yaml in the deploy repo, with an automated Argo app (tests only).
+ */
+export function ciScenario(timeline: ScenarioInput['timeline'] = []) {
+  const base = miniScenarioInput()
+  const input: ScenarioInput = {
+    ...base,
+    timeline,
+    gitops: {
+      repos: {
+        'shop-web': { files: { 'package.json': '{ "name": "shop-web" }\n', 'CHANGELOG.md': '' } },
+        'ravenpost-deploy': {
+          files: {
+            'shop/web.yaml': webManifest('registry.example/web:1.0'),
+            'shop/config.yaml': configManifest,
+          },
+        },
+      },
+      ci: {
+        'shop-web': {
+          image: 'registry.example/web',
+          deploy: { repo: 'ravenpost-deploy', file: 'shop/web.yaml' },
+        },
+      },
+      applications: [
+        {
+          name: 'shop',
+          source: { repo: 'ravenpost-deploy', path: 'shop' },
+          destination: { cluster: 'dev', namespace: 'shop' },
+          syncPolicy: { automated: { prune: true, selfHeal: true } },
+        },
+      ],
+    },
+  }
+  const scenario = scenarioSchema.parse(input)
+  return { scenario, sim: loadSimulation(scenario) }
+}
