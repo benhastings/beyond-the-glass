@@ -24,6 +24,7 @@ npm run format:check # fail if any file isn't Prettier-formatted
 npm test             # Vitest: unit (Node), dom (jsdom + Testing Library) and repo projects
 npm run test:coverage # the same with v8 coverage; fails below 90% lines in src/sim, src/placement, src/progress or 70% overall
 npm run test:e2e     # Playwright in Chromium against vite preview, with axe
+npm run diagrams     # render lesson <Diagram>s (Mermaid) to SVG in content/diagrams/; commit the result
 ```
 
 `src/sim`, `src/placement`, `src/progress` and `src/content` are framework-free: `npm run lint` fails on

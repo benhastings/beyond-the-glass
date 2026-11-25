@@ -6,6 +6,8 @@ const KINDS = {
   warn: { label: 'Heads up', icon: '▲', className: 'border-warn' },
   success: { label: 'Done', icon: '✓', className: 'border-ok' },
   eli5: { label: 'In plain words', icon: '✦', className: 'border-accent' },
+  /** A good operator habit to keep (lessons, E5-02). */
+  habit: { label: 'Good habit', icon: '◆', className: 'border-ok' },
 } as const
 
 export type CalloutKind = keyof typeof KINDS

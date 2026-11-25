@@ -7,6 +7,8 @@ import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
 import { CHALLENGES } from '@/challenges'
+import LessonSample from '../../../content/_samples/components.mdx'
+import { MdxContent } from '../lesson/LessonBody'
 import { Page } from '../shell/Page'
 import type { Mood } from '../display/display'
 import {
@@ -186,6 +188,10 @@ function Demo() {
 
         <Card id="terminal" title="Terminal">
           <ScenarioTerminal scenario={ravenpost} label="Ravenpost terminal" />
+        </Card>
+
+        <Card id="lesson" title="Lesson components">
+          <MdxContent Body={LessonSample} />
         </Card>
 
         <Card id="challenge" title="Challenge">

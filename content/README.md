@@ -22,3 +22,20 @@ content/
 - Folders and files whose names start with `_` are ignored (drafts and templates).
 
 A problem fails `npm run build` (and the dev server) with `file:line:column field: message`.
+
+## Lesson components (E5-02)
+
+Lessons can use these without importing them (registry: `src/app/lesson/components/index.ts`):
+
+| Component | Use |
+|---|---|
+| `<Step id title>` | One step of the lesson |
+| `<Analogy then="…" now="…">` | What the learner did on servers, and what the cluster does instead |
+| `<Callout kind="info\|warn\|habit\|eli5">` | An aside with a visible label |
+| `<Term id>` | A Field Guide link; its plain-words definition is the link's description |
+| `<Diagram alt="…">` around a ```` ```mermaid ```` block | Rendered to SVG ahead of time. `alt` is required (the build fails without it). After adding or changing one, run `npm run diagrams` and commit `content/diagrams/` |
+| `<CodeBlock language caption code>`, `<Kbd>` | Code and keys |
+| `<Terminal scenario challenge?>` | A simulator terminal, with the challenge's checklist when one is given |
+| `<Check id>` | A knowledge check (E5-03) |
+
+`content/_samples/components.mdx` shows each one, and appears on `#/kitchen-sink`.

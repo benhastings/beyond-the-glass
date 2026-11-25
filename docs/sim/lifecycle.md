@@ -135,4 +135,4 @@ most recently opened terminal's simulation. It has:
 - a **Copy snapshot** button.
 
 The panel is imported only behind `import.meta.env.DEV`, so production builds don't contain it
-(`tests/repo/inspector-bundle.test.ts`).
+(`tests/repo/production-bundle.test.ts`).

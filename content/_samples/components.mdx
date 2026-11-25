@@ -1,0 +1,25 @@
+{/* Every lesson component, for #/kitchen-sink and the E5-02 checks. Files starting with _ aren't course content. */}
+
+<Step id="sample" title="A sample step">
+
+<Analogy
+  then="You restarted a service with systemctl when it fell over."
+  now="The kubelet restarts the container for you, and counts each restart."
+/>
+
+<Callout kind="habit">Check which context you're in before you change anything.</Callout>
+
+<Diagram alt="A Service sends requests to the three pods that match its selector">
+```mermaid
+flowchart LR
+  svc[Service ravenpost-api] --> p1[pod 1]
+  svc --> p2[pod 2]
+  svc --> p3[pod 3]
+```
+</Diagram>
+
+Press <Kbd>Tab</Kbd> to complete a name.
+
+<CodeBlock language="console" caption="See the pods" code="kubectl get pods -n ravenpost -o wide" />
+
+</Step>
