@@ -4,6 +4,7 @@ import {
   actions,
   debouncedStore,
   emptyProgress,
+  mergeProgress,
   progressV1,
   PROGRESS_KEY,
   recoverStoredProgress,
@@ -31,6 +32,8 @@ export interface ProgressState {
   changedElsewhere: boolean
   dismissChangedElsewhere: () => void
   setResumeAt: (path: string) => void
+  /** Brings in exported progress (E2-06), merged with what's here so nothing is lost. */
+  importProgress: (incoming: Progress) => void
   /** Set when stored progress couldn't be read as-is; the RecoveryDialog shows it once (E3-02). */
   recovery: Recovery | undefined
   dismissStorageFailure: () => void
@@ -112,6 +115,9 @@ export function createProgressStore({
           changedElsewhere: false,
           dismissChangedElsewhere: () => {
             set({ changedElsewhere: false })
+          },
+          importProgress: (incoming) => {
+            apply((p, t) => mergeProgress(p, incoming, t))
           },
           setResumeAt: (path) => {
             apply((p, t) => actions.setResumeAt(p, path, t))
