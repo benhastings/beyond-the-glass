@@ -131,6 +131,7 @@ const deployment = z.strictObject({
       revisionHistoryLimit: z.number().int().nonnegative().optional(),
       progressDeadlineSeconds: z.number().int().positive().optional(),
       minReadySeconds: z.number().int().nonnegative().optional(),
+      paused: z.boolean().optional(),
     })
     .refine(
       (s) =>
@@ -149,6 +150,10 @@ const service = z.strictObject({
     type: z.enum(['ClusterIP', 'NodePort', 'LoadBalancer']).default('ClusterIP'),
     selector: labels.optional(),
     clusterIP: z.string().optional(),
+    // Filled in by the API server; accepted so `kubectl edit` and re-applied exports validate.
+    clusterIPs: z.array(z.string()).optional(),
+    sessionAffinity: z.enum(['None', 'ClientIP']).optional(),
+    internalTrafficPolicy: z.enum(['Cluster', 'Local']).optional(),
     ports: z
       .array(
         z.strictObject({
@@ -206,6 +211,17 @@ const namespace = z.strictObject({
 })
 
 const manifest = z.discriminatedUnion('kind', [deployment, service, configMap, secret, namespace])
+
+/** One Kubernetes object as `kubectl apply` reads it (E6-08); strict, so unknown fields are reported. */
+export const manifestSchema = manifest
+/** The apiVersion each kind the simulator knows is served at. */
+export const MANIFEST_API_VERSIONS: Readonly<Record<string, string>> = {
+  Deployment: 'apps/v1',
+  Service: 'v1',
+  ConfigMap: 'v1',
+  Secret: 'v1',
+  Namespace: 'v1',
+}
 
 const containerStateInput = z.strictObject({
   waiting: z.strictObject({ reason: z.string(), message: z.string().optional() }).optional(),
@@ -299,6 +315,21 @@ export const scenarioSchema = z
     images: z.record(z.string(), behaviourSchema).default({}),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */
     objectives: z.array(slug).default([]),
+    /**
+     * Files in the learner's home folder (E6-08), by path relative to it: `manifests/api.yaml`. Read-only;
+     * `ls`, `cat` and `cd` browse them and `kubectl apply -f` reads them.
+     */
+    files: z
+      .record(
+        z
+          .string()
+          .regex(
+            /^(?!\/)(?!.*\/\/)(?!.*(^|\/)\.\.?(\/|$))[\w.-]+(\/[\w.-]+)*$/,
+            'a relative path like manifests/api.yaml',
+          ),
+        z.string(),
+      )
+      .default({}),
   })
   .superRefine((s, ctx) => {
     const clusterNames = new Set(s.clusters.map((c) => c.name))

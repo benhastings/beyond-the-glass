@@ -174,7 +174,7 @@ describe('Shell: errors and suggestions', () => {
           /works on a real cluster, but this simulator doesn't run it yet\. Try `kubectl get pods`/,
         )
       }
-      for (const prog of ['ssh', 'docker', 'systemctl', 'curl', 'ls', 'vim']) {
+      for (const prog of ['ssh', 'docker', 'systemctl', 'curl', 'nano', 'vim']) {
         const out = run(`${prog} anything`)
         expect(out.exitCode).toBe(127)
         expect(out.stderr).not.toMatch(/command not found/)

@@ -18,12 +18,9 @@ export const NOT_HERE: Readonly<Record<string, string>> = {
   ping: 'This terminal can’t send network traffic. Pod IPs are listed by `kubectl get pods -o wide`.',
   traceroute:
     'This terminal can’t send network traffic. To follow a request between services, use the trace viewer.',
-  vi: 'There’s no editor in this terminal.',
-  vim: 'There’s no editor in this terminal.',
-  nano: 'There’s no editor in this terminal.',
+  vi: 'To change an object in the cluster, `kubectl edit <type> <name>` opens it in an editor here.',
+  vim: 'To change an object in the cluster, `kubectl edit <type> <name>` opens it in an editor here.',
+  nano: 'To change an object in the cluster, `kubectl edit <type> <name>` opens it in an editor here.',
   helm: 'Charts in this world are rendered from Git by Argo CD, so this terminal has no helm command.',
-  ls: 'There are no files to list in this terminal yet.',
-  cat: 'There are no files to read in this terminal yet.',
-  cd: 'There are no folders to move between in this terminal yet.',
   echo: 'This terminal runs kubectl and a few helpers; type `help` to see them.',
 }

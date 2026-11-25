@@ -128,3 +128,17 @@ fault leaves.
 `Simulator.load(scenario)` always builds the same state for the same seed. `sim.snapshot()` is plain JSON (the
 clock, the RNG state, every object and the pending wakeups); `Simulator.restore(scenario, snapshot)` continues
 exactly where it stopped. Inside `src/sim`, ESLint rejects `Math.random()`, `Date.now()` and `new Date()`.
+
+## Files (E6-08)
+
+`files:` maps paths relative to the learner's home folder (`/home/operator`) to their contents. They are
+read-only; `ls`, `cat`, `cd` browse them and `kubectl apply -f` / `kubectl diff -f` read them. Use them for
+the manifests a lesson asks the learner to inspect, fix (in the cluster with `kubectl edit`) or apply.
+
+```yaml
+files:
+  manifests/notifier.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    ...
+```

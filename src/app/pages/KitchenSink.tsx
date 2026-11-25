@@ -1,4 +1,9 @@
 import { useState } from 'react'
+import ravenpost from '@/scenarios/ravenpost.yaml'
+import { createShell } from '@/sim/commands'
+import type { EditRequest } from '@/sim/commands/types'
+import { loadSimulation } from '@/sim/controllers'
+import { InlineEditor } from '../terminal/InlineEditor'
 import { Page } from '../shell/Page'
 import type { Mood } from '../display/display'
 import {
@@ -173,7 +178,43 @@ function Demo() {
             />
           </div>
         </Card>
+
+        <EditorDemo />
       </div>
     </Page>
+  )
+}
+
+/** `kubectl edit` against a live Ravenpost simulation, for the editor's keyboard and axe checks (E6-08). */
+function EditorDemo() {
+  const [shell] = useState(() => createShell(loadSimulation(ravenpost)))
+  const [request, setRequest] = useState<EditRequest>()
+  const [result, setResult] = useState('')
+  return (
+    <Card id="editor" title="Terminal editor">
+      <div className="grid gap-3">
+        {request ? (
+          <InlineEditor
+            request={request}
+            onDone={(out) => {
+              setRequest(undefined)
+              setResult([out.stdout, out.stderr].filter(Boolean).join('\n'))
+            }}
+          />
+        ) : (
+          <Button
+            onClick={() => {
+              setResult('')
+              setRequest(shell.run('kubectl edit configmap ravenpost-config -n ravenpost').edit)
+            }}
+          >
+            Run kubectl edit configmap ravenpost-config
+          </Button>
+        )}
+        <output aria-label="Command output" className="font-mono text-sm">
+          {result}
+        </output>
+      </div>
+    </Card>
   )
 }

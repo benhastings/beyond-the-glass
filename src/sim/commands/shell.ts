@@ -134,10 +134,7 @@ export class Shell {
     )
     if (def) return this.invoke(def, rest, GLOBAL_FLAGS)
     if (verb === 'help') return ok(this.kubectlHelp())
-    if (
-      Object.hasOwn(UNSUPPORTED_KUBECTL, verb) ||
-      (PLANNED_KUBECTL as readonly string[]).includes(verb)
-    )
+    if (Object.hasOwn(UNSUPPORTED_KUBECTL, verb) || PLANNED_KUBECTL.includes(verb))
       return fail(unsupportedMessage(verb))
     const close = suggest(verb, [
       ...this.kubectlVerbs(),
@@ -183,6 +180,14 @@ export class Shell {
           partial,
           candidates: starts(pipeAt >= 0 ? [...PIPE_COMMANDS] : this.topLevelNames()),
         }
+      if (pipeAt < 0 && words[0] !== 'kubectl') {
+        // Builtins with their own completion (ls, cat, cd: file names).
+        const def = this.commands.find((c) => c.path.length === 1 && c.path[0] === words[0])
+        return {
+          partial,
+          candidates: starts(def?.complete?.(this.ctx, words.slice(1), partial) ?? []),
+        }
+      }
       if (words[0] !== 'kubectl' || pipeAt >= 0) return { partial, candidates: [] }
       const args = words.slice(1)
       const prev = args.at(-1)

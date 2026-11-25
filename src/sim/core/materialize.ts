@@ -218,7 +218,7 @@ function makeNode(
   }
 }
 
-function normalizeTemplate(t: DeploymentManifest['spec']['template']): PodTemplateSpec {
+export function normalizeTemplate(t: DeploymentManifest['spec']['template']): PodTemplateSpec {
   return {
     metadata: {
       labels: { ...t.metadata.labels },
