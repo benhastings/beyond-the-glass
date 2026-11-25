@@ -51,7 +51,7 @@ export function Shell() {
     <PageContext value={context}>
       <div className="flex min-h-screen flex-col bg-ground text-ink">
         <SkipLink target={main} />
-        <header className="flex min-h-16 flex-wrap items-center gap-x-6 gap-y-2 border-b border-ink/20 px-6 py-3">
+        <header className="print:hidden flex min-h-16 flex-wrap items-center gap-x-6 gap-y-2 border-b border-ink/20 px-6 py-3">
           <Link to="/" className={`${linkClass} text-lg font-bold`}>
             {SITE_NAME}
           </Link>
@@ -80,7 +80,7 @@ export function Shell() {
             <Inspector />
           </Suspense>
         )}
-        <footer className="border-t border-ink/20 px-6 py-4 text-sm">
+        <footer className="print:hidden border-t border-ink/20 px-6 py-4 text-sm">
           <p>
             Your progress stays in this browser. Nothing is sent anywhere.{' '}
             <Link to="/lead" className={linkClass}>
