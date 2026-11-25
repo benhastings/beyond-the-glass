@@ -1,8 +1,8 @@
 $ kubectl get events --sort-by=.lastTimestamp -n <ns>
 LAST SEEN   TYPE      REASON              OBJECT                      MESSAGE
-<age>       Normal    ScalingReplicaSet   deployment/web              Scaled up replica set web-<hash> from 0 to 1
-<age>       Normal    Scheduled           pod/web-<hash>-<id>    Successfully assigned <ns>/web-<hash>-<id> to <node>
-<age>       Normal    SuccessfulCreate    replicaset/web-<hash>   Created pod: web-<hash>-<id>
+<age>        Normal    Scheduled           pod/web-<hash>-<id>    Successfully assigned <ns>/web-<hash>-<id> to <node>
+<age>        Normal    SuccessfulCreate    replicaset/web-<hash>   Created pod: web-<hash>-<id>
+<age>        Normal    ScalingReplicaSet   deployment/web              Scaled up replica set web-<hash> from 0 to 1
 <age>         Normal    Pulling             pod/web-<hash>-<id>    Pulling image "registry.example/ravenpost/web:missing"
 <age>         Warning   Failed              pod/web-<hash>-<id>    Failed to pull image "registry.example/ravenpost/web:missing": failed to pull and unpack image "registry.example/ravenpost/web:missing": failed to resolve reference "registry.example/ravenpost/web:missing": failed to do request: Head "https://registry.example/v2/ravenpost/web/manifests/missing": dial tcp: lookup registry.example on <ip>:53: no such host
 <age>         Warning   Failed              pod/web-<hash>-<id>    Error: ErrImagePull
