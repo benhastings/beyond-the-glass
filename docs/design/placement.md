@@ -81,9 +81,9 @@ module in the learner's path:
 
 | Learner's level vs the module's level | Status |
 |---|---|
-| learner < module | **recommended** |
-| learner = module | **review**: worth a quick pass |
-| learner > module | **test-out available**: a module check can mark it done |
+| learner ≤ module | **recommended**: new to them |
+| learner = module + 1 | **review**: worth a quick pass |
+| learner ≥ module + 2 | **test-out available**: a module check can mark it done |
 
 The starting module is the first **recommended** module in journey order. Each region's default depth layer
 follows the learner's level in its domain: ELI5 for Wayfarer, Operator for Deckhand and Navigator, and Deep
@@ -107,3 +107,18 @@ A "Skip the Threshold and start from the very beginning" option sets every domai
 A subject-matter expert reviews every scenario item for accuracy before it ships (E4-01.AC2). They check
 that the correct answer is what an experienced operator would actually do first, and that the `why`
 sentence is true.
+
+## Personas
+
+The engine's tests (`src/placement/engine.test.ts`) take the quiz as four people. Each one gets the levels
+below, and starts on the module shown, in a fixture course with modules at every level.
+
+| Persona | Answers | Levels (foundations, containers, kubernetes, delivery, observability) | Starts on |
+|---|---|---|---|
+| New to all of it | "never" everywhere, "I'm not sure yet" to every scenario | 0, 0, 0, 0, 0 | the first Linux and operations module |
+| NOC veteran | weekly on the command line, some monitoring, new to Kubernetes; right on what they know, not sure on the rest | 3, 1, 0, 0, 2 | the next containers module |
+| Container developer | weekly containers and Git; one Kubernetes scenario wrong | 2, 3, 1, 3, 1 | the deeper Linux and operations module |
+| Platform engineer | weekly everywhere, every scenario right | 3, 3, 3, 3, 3 | the first module worth a review |
+
+Where self-report and scenarios disagree (the NOC veteran's delivery, the container developer's
+Kubernetes), the lower level is used and that domain is flagged "confirm in module check".
