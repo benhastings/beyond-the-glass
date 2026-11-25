@@ -16,7 +16,7 @@ Pod Template:
     Image:         nginx:1.27-alpine
     Port:          80/TCP (http)
     Host Port:     0/TCP (http)
-    Readiness:     http-get http://:http/ready delay=<age> timeout=<age> period=<age> successThreshold=1 failureThreshold=1
+    Readiness:     http-get http://:http/ready delay=<age> timeout=<age> period=<age> #success=1 #failure=1
     Environment:   <none>
     Mounts:        <none>
   Volumes:         <none>

@@ -9,9 +9,11 @@ acTest(
   'the recovery dialog is accessible, offers the old data, and appears once per incident',
   async ({ page }) => {
     // Unreadable progress, planted before the app loads (and only on the first load).
+    // (An init script, so the app's own first save can't overwrite it.)
+    await page.addInitScript(
+      `if (!sessionStorage.getItem('planted')) { sessionStorage.setItem('planted', '1'); localStorage.setItem('${KEY}', '{not json at all') }`,
+    )
     await page.goto('./')
-    await page.evaluate(`localStorage.setItem('${KEY}', '{not json at all')`)
-    await page.reload()
 
     const dialog = page.getByRole('dialog', { name: 'Your saved progress couldn’t be read' })
     await expect(dialog).toBeVisible()
