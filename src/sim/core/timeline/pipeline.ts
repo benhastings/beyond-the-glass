@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { commit, repo } from '../../gitops/git.ts'
-import { armFailure, CI_FAILURES, startPipeline } from '../../gitops/pipeline.ts'
+import { armFailure, startPipeline } from '../../gitops/pipeline.ts'
+import { CI_FAILURES } from '../../gitops/policies.ts'
 import { defineTimelineEvent } from './define.ts'
 
 /**

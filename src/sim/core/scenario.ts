@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { POLICIES } from '../gitops/policies.ts'
 import { behaviourSchema } from './behaviour.ts'
 import { isDuration } from './duration.ts'
 import type { RedactedValue } from './resources.ts'
@@ -359,8 +360,13 @@ export const scenarioSchema = z
           .record(
             slug,
             z.strictObject({
-              image: z.string().regex(/^[\w.-]+(\/[\w.-]+)+$/, 'an image name without a tag'),
+              image: z
+                .string()
+                .regex(/^[\w.-]+(\/[\w.-]+)+$/, 'an image name without a tag')
+                .optional(),
               deploy: z.strictObject({ repo: slug, file: z.string() }).optional(),
+              /** Deploy repos (no image): what the merge request pipeline's policy-check enforces (E7-03). */
+              policies: z.array(z.enum(POLICIES)).default([]),
             }),
           )
           .default({}),
@@ -372,6 +378,12 @@ export const scenarioSchema = z
               code: 'custom',
               path: ['ci', project],
               message: `no repo named ${project}`,
+            })
+          if (c.deploy && !c.image)
+            ctx.addIssue({
+              code: 'custom',
+              path: ['ci', project, 'deploy'],
+              message: 'only a project with an image can update a deploy repo',
             })
           if (c.deploy && !Object.hasOwn(g.repos, c.deploy.repo))
             ctx.addIssue({

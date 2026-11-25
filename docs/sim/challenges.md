@@ -23,6 +23,10 @@ at build time (`src/challenges/vite-plugin.ts`); the schema is `src/sim/challeng
 - `answered { question, matcher }`: the latest answer `equals` text, `matches` a regex, or names a `resource`.
   For `resource`, a unique prefix such as `ravenpost-notifier` also counts.
 - `mutated { verb, kind?, name? }`: the learner made that change (from the audit log; for example `rollout-undo`).
+- `changedVia { via: mr | kubectl, kind, name, only? }`: how an object was changed (E7-03). `mr` means Argo CD
+  synced it from a revision that includes one of the learner's merged merge requests. `kubectl` means the learner
+  changed it directly. With `only: true`, the other way must not have been used too, so "fixed through Git, not by
+  hand" is `{ via: mr, only: true }`.
 - `all { of }` and `any { of }` combine predicates.
 
 The engine evaluates the objectives after every command, in well under 5 ms. Its state (answers, hints used,

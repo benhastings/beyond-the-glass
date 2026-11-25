@@ -57,7 +57,7 @@ A lesson is one MDX file with front matter (`id`, `title`, `objectives`, `estima
    `src/challenges/index.ts`.
 2. Write the `brief` as the task, and `objectives` as checks the learner can see ticking off. Use
    `ranCommand` for "did they look", `answered` for "did they find it", and `resourceState` or `mutated` for
-   "did they fix it".
+   "did they fix it". Use `changedVia` when it matters whether the fix went through a merge request or kubectl.
 3. Write three `hints` in order: a nudge (where to look), a pointer (which command), and the exact command.
    Hints never block completion.
 4. Add `forbidden` patterns for commands that would do harm, with a message saying why.

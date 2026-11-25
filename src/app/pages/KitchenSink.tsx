@@ -4,9 +4,10 @@ import { createShell } from '@/sim/commands'
 import type { EditRequest } from '@/sim/commands/types'
 import { loadSimulation } from '@/sim/controllers'
 import { pipelines } from '@/sim/gitops/pipeline'
-import { ciScenario } from '@/sim/gitops/testing'
+import { ciScenario, mrScenario } from '@/sim/gitops/testing'
 import { PipelineView } from '../gitops/PipelineView'
 import { ArgoConsole } from '../gitops/argo/ArgoConsole'
+import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
@@ -203,6 +204,8 @@ function Demo() {
 
         <ArgoDemo />
 
+        <MergeRequestDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -291,6 +294,26 @@ function ArgoDemo() {
   return (
     <Card id="argo" title="Argo CD console">
       <ArgoConsole sim={sim} level={3} />
+    </Card>
+  )
+}
+
+/** The merge request flow (E7-03) on a deploy repo whose pipeline requires pinned tags and memory limits. */
+function MergeRequestDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = mrScenario()
+    s.advance(180_000)
+    return s
+  })
+  return (
+    <Card id="merge-request" title="Merge request">
+      <MergeRequestFlow
+        sim={sim}
+        repo="ravenpost-deploy"
+        app="shop"
+        level={3}
+        task={<p>Move the web Deployment to registry.example/web:1.1, through a merge request.</p>}
+      />
     </Card>
   )
 }

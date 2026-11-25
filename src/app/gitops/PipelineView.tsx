@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import { STAGES, type Job, type JobStatus, type Pipeline } from '@/sim/gitops/pipeline'
+import type { Job, JobStatus, Pipeline } from '@/sim/gitops/pipeline'
 import { Button } from '../ui/Button'
 import { StatusPill, type Status } from '../ui/StatusPill'
 import { Tabs } from '../ui/Tabs'
@@ -46,10 +46,10 @@ export function PipelineView({
   pipeline: Pipeline
   now: number
   /** The title's heading level; stages and the log are one level below. */
-  level?: 2 | 3
+  level?: 2 | 3 | 4
 }) {
-  const H = `h${String(level)}` as 'h2' | 'h3'
-  const Sub = `h${String(level + 1)}` as 'h3' | 'h4'
+  const H = `h${String(level)}` as 'h2' | 'h3' | 'h4'
+  const Sub = `h${String(level + 1)}` as 'h3' | 'h4' | 'h5'
   const [open, setOpen] = useState<number>()
   const id = useId()
   const job = p.jobs.find((j) => j.id === open)
@@ -103,7 +103,7 @@ export function PipelineView({
             label: 'Graph',
             content: (
               <ol aria-label="Stages" className="flex w-0 min-w-full gap-4 overflow-x-auto pb-2">
-                {STAGES.map((s) => (
+                {p.stages.map((s) => (
                   <li key={s} className="grid min-w-44 content-start gap-2">
                     <Sub className="font-bold capitalize">{stageTitle(s)}</Sub>
                     <ul className="grid gap-2">
@@ -208,7 +208,7 @@ export function JobLog({
   id: string
   job: Job
   now: number
-  heading?: 'h3' | 'h4'
+  heading?: 'h3' | 'h4' | 'h5'
 }) {
   return (
     <section

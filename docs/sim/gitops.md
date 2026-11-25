@@ -85,3 +85,33 @@ colours or marks. It reads `src/sim/gitops/tree.ts`:
   - For pods, the logs: the same lines `kubectl logs` prints, from the same function.
 
 `argocd app diff` and the console's Diff tab share `resourceDiffs`.
+
+## Merge requests (E7-03)
+
+`src/sim/gitops/mr.ts` runs the flow; `src/app/gitops/MergeRequestFlow.tsx` is its UI.
+
+- `proposeChange` commits to a new branch (`you/<file>`) and opens a merge request. `pushToMergeRequest`
+  adds a fix to the same branch.
+- If the repo has a `ci:` entry with no `image` (a deploy repo), each push runs a validation pipeline,
+  `lint → validate → policy`, on the files the branch changed:
+  - **`yaml-lint`** reports the parser's error.
+  - **`schema`** checks for an `apiVersion`, a `kind`, a `metadata.name`, and an image on every container.
+  - **`policy-check`** applies the repo's `policies`: `no-latest-tag` and `memory-limits`. Each message
+    says what to change and why.
+- A scenario can also make the next run fail on purpose: a `ciFailure` event with `failure: lint` (a
+  missing `---`) or `failure: policy` (a change freeze).
+- `mergeBlocker` explains why a merge request can't merge yet ("Pipelines must succeed").
+  `mergeMergeRequest` merges it. Argo CD picks the merge up on its next reconcile.
+- The UI has a guided editor, a unified diff, the pipeline view, and "Wait for the pipeline" and "Watch
+  Argo CD" buttons, which advance simulated time.
+  - The diff has `+`/`-` markers and line numbers. Each changed line is read out as "added line 19:
+    memory: 512Mi", and a polite summary counts the changes.
+  - Every step works from the keyboard.
+
+```yaml
+gitops:
+  ci:
+    ravenpost-deploy:
+      policies: [no-latest-tag, memory-limits]
+```
+

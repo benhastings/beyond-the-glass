@@ -3,6 +3,8 @@ import { fnv1a32 } from '../core/rng.ts'
 import type { Controller, Simulator } from '../core/simulator.ts'
 import { commit, repo, resolve, shortSha } from './git.ts'
 import { pushImage } from './registry.ts'
+import type { CiFailure, Policy } from './policies.ts'
+import { VALIDATE_JOBS, validationScript } from './validate.ts'
 
 /**
  * GitLab CI pipelines (E7-02): build → test → scan → package → update-manifests. Jobs run on the sim clock
@@ -11,12 +13,12 @@ import { pushImage } from './registry.ts'
  * Argo CD (E7-01) picks it up.
  */
 export const STAGES = ['build', 'test', 'scan', 'package', 'update-manifests'] as const
-export type Stage = (typeof STAGES)[number]
+/** A deploy repo's merge request pipeline (E7-03): lint → validate → policy. */
+export const VALIDATE_STAGES = ['lint', 'validate', 'policy'] as const
+export type Stage = (typeof STAGES)[number] | (typeof VALIDATE_STAGES)[number]
 export type JobStatus = 'created' | 'running' | 'success' | 'failed' | 'skipped'
 export type PipelineStatus = 'running' | 'success' | 'failed'
-/** What goes wrong, if anything: a failing test or lint, a vulnerable image, a refused push, or a wrong tag written to the manifest (the pipeline passes; the deploy doesn't). */
-export const CI_FAILURES = ['test', 'lint', 'scan', 'push', 'bad-tag'] as const
-export type CiFailure = (typeof CI_FAILURES)[number]
+export { CI_FAILURES, type CiFailure } from './policies.ts'
 
 export interface LogSection {
   id: string
@@ -38,12 +40,17 @@ export interface Job {
 
 export interface Pipeline {
   id: number
+  /** `build` for an app repo (it has an image); `validate` for a deploy repo's merge requests. */
+  kind: 'build' | 'validate'
+  stages: Stage[]
   project: string
   ref: string
   sha: string
   /** The commit's first line. */
   title: string
   mr?: number
+  /** Where the branch started (the target branch's head): what `validate` compares with. */
+  base?: string
   status: PipelineStatus
   createdAt: number
   finishedAt?: number
@@ -57,8 +64,9 @@ export interface Pipeline {
 }
 
 export interface CiProject {
-  image: string
+  image?: string
   deploy?: { repo: string; file: string }
+  policies?: Policy[]
 }
 
 interface CiState extends Record<string, unknown> {
@@ -70,7 +78,7 @@ interface CiState extends Record<string, unknown> {
 
 export const CI_NAME = 'gitlab-ci'
 export const CI_AUTHOR = 'ravenpost-ci'
-const JOBS: { name: string; stage: Stage; min: number; max: number }[] = [
+const JOBS: readonly { name: string; stage: Stage; min: number; max: number }[] = [
   { name: 'compile', stage: 'build', min: 45, max: 90 },
   { name: 'unit-tests', stage: 'test', min: 60, max: 120 },
   { name: 'lint', stage: 'test', min: 20, max: 40 },
@@ -85,6 +93,7 @@ const FAILS: Record<CiFailure, string> = {
   scan: 'image-scan',
   push: 'push-image',
   'bad-tag': '',
+  policy: '',
 }
 
 const state = (sim: Simulator) =>
@@ -111,7 +120,7 @@ export function armFailure(sim: Simulator, project: string, failure: CiFailure):
 export function startPipeline(
   sim: Simulator,
   project: string,
-  opts: { ref?: string; mr?: number; failure?: CiFailure } = {},
+  opts: { ref?: string; mr?: number; failure?: CiFailure; base?: string } = {},
 ): Pipeline {
   const st = state(sim)
   const r = repo(sim, project)
@@ -120,17 +129,23 @@ export function startPipeline(
   if (!r || !c) throw new Error(`no commit for ${project}@${ref}`)
   const failure = opts.failure ?? st.armed[project]
   Reflect.deleteProperty(st.armed, project)
+  const kind = ciProject(sim, project)?.image ? 'build' : 'validate'
+  const jobs = kind === 'build' ? JOBS : VALIDATE_JOBS
+  const base = opts.base ?? resolve(r, r.defaultBranch)?.sha
   const p: Pipeline = {
     id: st.nextPipeline++,
+    kind,
+    stages: kind === 'build' ? [...STAGES] : [...VALIDATE_STAGES],
     project,
     ref,
     sha: c.sha,
     title: c.message.split('\n')[0] ?? '',
     ...(opts.mr !== undefined ? { mr: opts.mr } : {}),
+    ...(base ? { base } : {}),
     status: 'running',
     createdAt: sim.now,
     ...(failure ? { failure } : {}),
-    jobs: JOBS.map((j) => ({
+    jobs: jobs.map((j) => ({
       id: st.nextJob++,
       name: j.name,
       stage: j.stage,
@@ -140,7 +155,7 @@ export function startPipeline(
     })),
   }
   st.pipelines.push(p)
-  startStage(sim, p, 'build')
+  startStage(sim, p, p.stages[0] ?? 'build')
   return p
 }
 
@@ -156,8 +171,11 @@ function startStage(sim: Simulator, p: Pipeline, stage: Stage): void {
 function finishJob(sim: Simulator, p: Pipeline, j: Job): void {
   const cfg = ciProject(sim, p.project)
   const tag = shortSha(p.sha)
-  let ok = FAILS[p.failure ?? 'bad-tag'] !== j.name
-  if (ok && j.name === 'push-image' && cfg) {
+  let ok =
+    p.kind === 'validate'
+      ? validationScript(sim, p, j.name, cfg).ok
+      : FAILS[p.failure ?? 'bad-tag'] !== j.name
+  if (ok && j.name === 'push-image' && cfg?.image) {
     pushImage(sim, cfg.image, tag, p.sha)
     p.image = `${cfg.image}:${tag}`
   }
@@ -167,7 +185,7 @@ function finishJob(sim: Simulator, p: Pipeline, j: Job): void {
   j.sections = logFor(sim, p, j, j.status)
   const stageJobs = p.jobs.filter((x) => x.stage === j.stage)
   if (stageJobs.some((x) => x.status === 'running')) return
-  const next = STAGES[STAGES.indexOf(j.stage) + 1]
+  const next = p.stages[p.stages.indexOf(j.stage) + 1]
   if (stageJobs.some((x) => x.status === 'failed')) {
     for (const x of p.jobs) if (x.status === 'created') x.status = 'skipped'
     p.status = 'failed'
@@ -183,7 +201,7 @@ function finishJob(sim: Simulator, p: Pipeline, j: Job): void {
 const writtenTag = (p: Pipeline) => (p.failure === 'bad-tag' ? p.sha.slice(0, 7) : shortSha(p.sha))
 
 function updateManifests(sim: Simulator, p: Pipeline, cfg: CiProject | undefined): boolean {
-  if (!cfg?.deploy) return true
+  if (!cfg?.deploy || !cfg.image) return true
   const d = repo(sim, cfg.deploy.repo)
   const head = d && resolve(d, d.defaultBranch)
   const text = head?.files[cfg.deploy.file]
@@ -246,139 +264,142 @@ function logFor(sim: Simulator, p: Pipeline, j: Job, status: JobStatus): LogSect
       Math.max(1000, j.durationMs - 6000),
     )
   if (status === 'running') return [...sections, script(['$ ' + firstCommand(j.name, cfg, p)])]
-  switch (j.name) {
-    case 'compile':
-      sections.push(
-        script([
-          `$ npm ci`,
-          `added 412 packages, and audited 413 packages in 9s`,
-          `$ npm run build`,
-          `> ${p.project}@1.0.0 build`,
-          `> tsc -p . && vite build`,
-          `✓ 214 modules transformed.`,
-          `$ docker build -t ${image} .`,
-          `Successfully built ${fnv1a32(image).toString(16).padStart(8, '0')}`,
-          `Successfully tagged ${image}`,
-        ]),
-      )
-      break
-    case 'unit-tests':
-      sections.push(
-        script(
-          failed
-            ? [
-                `$ npm test`,
-                ` FAIL  src/routes/parcels.test.ts > GET /parcels/:id > returns 404 for an unknown parcel`,
-                `AssertionError: expected 500 to be 404 // Object.is equality`,
-                ``,
-                `- Expected`,
-                `+ Received`,
-                ``,
-                `- 404`,
-                `+ 500`,
-                ``,
-                ` ❯ src/routes/parcels.test.ts:42:27`,
-                ``,
-                ` Test Files  1 failed | 23 passed (24)`,
-                `      Tests  1 failed | 186 passed (187)`,
-              ]
-            : [
-                `$ npm test`,
-                ` ✓ src/routes/parcels.test.ts (12 tests)`,
-                ` ✓ src/routes/tracking.test.ts (31 tests)`,
-                ``,
-                ` Test Files  24 passed (24)`,
-                `      Tests  187 passed (187)`,
-              ],
-        ),
-      )
-      break
-    case 'lint':
-      sections.push(
-        script(
-          failed
-            ? [
-                `$ npm run lint`,
-                `/builds/ravenpost/${p.project}/src/routes/parcels.ts`,
-                `  57:9  error  'carrier' is assigned a value but never used  no-unused-vars`,
-                ``,
-                `✖ 1 problem (1 error, 0 warnings)`,
-              ]
-            : [
-                `$ npm run lint`,
-                `$ npx prettier --check .`,
-                `All matched files use Prettier code style!`,
-              ],
-        ),
-      )
-      break
-    case 'image-scan':
-      sections.push(
-        script([
-          `$ scan-image --severity HIGH,CRITICAL --exit-code 1 ${image}`,
-          `${image} (debian 12.7)`,
-          failed ? `Total: 1 (HIGH: 0, CRITICAL: 1)` : `Total: 0 (HIGH: 0, CRITICAL: 0)`,
-          ...(failed
-            ? [
-                ``,
-                `LIBRARY   ADVISORY        SEVERITY  INSTALLED  FIXED`,
-                `libssl3   RPSA-2026-0142  CRITICAL  3.0.13-1   3.0.15-1`,
-                ``,
-                `Rebuild on a patched base image (FROM ravenpost/base:12.8) to pick up the fix.`,
-              ]
-            : []),
-        ]),
-      )
-      break
-    case 'push-image':
-      sections.push(
-        script(
-          failed
-            ? [
-                `$ docker push ${image}`,
-                `The push refers to repository [${cfg?.image ?? image}]`,
-                `5f70bf18a086: Preparing`,
-                `denied: requested access to the resource is denied`,
-              ]
-            : [
-                `$ docker push ${image}`,
-                `The push refers to repository [${cfg?.image ?? image}]`,
-                `5f70bf18a086: Pushed`,
-                `${shortSha(p.sha)}: digest: sha256:${fnv1a32(image).toString(16).padStart(8, '0')}… size 1784`,
-              ],
-        ),
-      )
-      break
-    default: {
-      const deploy = cfg?.deploy
-      const tagLine =
-        p.failure === 'bad-tag'
-          ? `$ export TAG=$(echo "$CI_COMMIT_SHA" | cut -c1-7)`
-          : `$ export TAG="$CI_COMMIT_SHORT_SHA"`
-      sections.push(
-        script(
-          deploy
-            ? failed
+  if (p.kind === 'validate') sections.push(script(validationScript(sim, p, j.name, cfg).lines))
+  else
+    switch (j.name) {
+      case 'compile':
+        sections.push(
+          script([
+            `$ npm ci`,
+            `added 412 packages, and audited 413 packages in 9s`,
+            `$ npm run build`,
+            `> ${p.project}@1.0.0 build`,
+            `> tsc -p . && vite build`,
+            `✓ 214 modules transformed.`,
+            `$ docker build -t ${image} .`,
+            `Successfully built ${fnv1a32(image).toString(16).padStart(8, '0')}`,
+            `Successfully tagged ${image}`,
+          ]),
+        )
+        break
+      case 'unit-tests':
+        sections.push(
+          script(
+            failed
               ? [
-                  tagLine,
-                  `$ git clone https://git.ravenpost.example/ravenpost/${deploy.repo}.git deploy`,
-                  `$ grep -q "image: ${cfg.image}:" deploy/${deploy.file}`,
-                  `ERROR: deploy/${deploy.file} has no "image: ${cfg.image}:…" line to update`,
+                  `$ npm test`,
+                  ` FAIL  src/routes/parcels.test.ts > GET /parcels/:id > returns 404 for an unknown parcel`,
+                  `AssertionError: expected 500 to be 404 // Object.is equality`,
+                  ``,
+                  `- Expected`,
+                  `+ Received`,
+                  ``,
+                  `- 404`,
+                  `+ 500`,
+                  ``,
+                  ` ❯ src/routes/parcels.test.ts:42:27`,
+                  ``,
+                  ` Test Files  1 failed | 23 passed (24)`,
+                  `      Tests  1 failed | 186 passed (187)`,
                 ]
               : [
-                  tagLine,
-                  `$ git clone https://git.ravenpost.example/ravenpost/${deploy.repo}.git deploy`,
-                  `$ sed -i "s|image: ${cfg.image}:.*|image: ${cfg.image}:$TAG|" deploy/${deploy.file}`,
-                  `$ git -C deploy commit -am "Deploy ${p.project} $TAG"`,
-                  `[main ${(p.deployCommit ?? '').slice(0, 7)}] Deploy ${p.project} ${writtenTag(p)}`,
-                  ` 1 file changed, 1 insertion(+), 1 deletion(-)`,
-                  `$ git -C deploy push origin main`,
+                  `$ npm test`,
+                  ` ✓ src/routes/parcels.test.ts (12 tests)`,
+                  ` ✓ src/routes/tracking.test.ts (31 tests)`,
+                  ``,
+                  ` Test Files  24 passed (24)`,
+                  `      Tests  187 passed (187)`,
+                ],
+          ),
+        )
+        break
+      case 'lint':
+        sections.push(
+          script(
+            failed
+              ? [
+                  `$ npm run lint`,
+                  `/builds/ravenpost/${p.project}/src/routes/parcels.ts`,
+                  `  57:9  error  'carrier' is assigned a value but never used  no-unused-vars`,
+                  ``,
+                  `✖ 1 problem (1 error, 0 warnings)`,
                 ]
-            : [`No deploy repository is configured for ${p.project}; nothing to update.`],
-        ),
-      )
+              : [
+                  `$ npm run lint`,
+                  `$ npx prettier --check .`,
+                  `All matched files use Prettier code style!`,
+                ],
+          ),
+        )
+        break
+      case 'image-scan':
+        sections.push(
+          script([
+            `$ scan-image --severity HIGH,CRITICAL --exit-code 1 ${image}`,
+            `${image} (debian 12.7)`,
+            failed ? `Total: 1 (HIGH: 0, CRITICAL: 1)` : `Total: 0 (HIGH: 0, CRITICAL: 0)`,
+            ...(failed
+              ? [
+                  ``,
+                  `LIBRARY   ADVISORY        SEVERITY  INSTALLED  FIXED`,
+                  `libssl3   RPSA-2026-0142  CRITICAL  3.0.13-1   3.0.15-1`,
+                  ``,
+                  `Rebuild on a patched base image (FROM ravenpost/base:12.8) to pick up the fix.`,
+                ]
+              : []),
+          ]),
+        )
+        break
+      case 'push-image':
+        sections.push(
+          script(
+            failed
+              ? [
+                  `$ docker push ${image}`,
+                  `The push refers to repository [${cfg?.image ?? image}]`,
+                  `5f70bf18a086: Preparing`,
+                  `denied: requested access to the resource is denied`,
+                ]
+              : [
+                  `$ docker push ${image}`,
+                  `The push refers to repository [${cfg?.image ?? image}]`,
+                  `5f70bf18a086: Pushed`,
+                  `${shortSha(p.sha)}: digest: sha256:${fnv1a32(image).toString(16).padStart(8, '0')}… size 1784`,
+                ],
+          ),
+        )
+        break
+      default: {
+        const deploy = cfg?.deploy
+        const img = cfg?.image ?? ''
+        const tagLine =
+          p.failure === 'bad-tag'
+            ? `$ export TAG=$(echo "$CI_COMMIT_SHA" | cut -c1-7)`
+            : `$ export TAG="$CI_COMMIT_SHORT_SHA"`
+        sections.push(
+          script(
+            deploy
+              ? failed
+                ? [
+                    tagLine,
+                    `$ git clone https://git.ravenpost.example/ravenpost/${deploy.repo}.git deploy`,
+                    `$ grep -q "image: ${img}:" deploy/${deploy.file}`,
+                    `ERROR: deploy/${deploy.file} has no "image: ${img}:…" line to update`,
+                  ]
+                : [
+                    tagLine,
+                    `$ git clone https://git.ravenpost.example/ravenpost/${deploy.repo}.git deploy`,
+                    `$ sed -i "s|image: ${img}:.*|image: ${img}:$TAG|" deploy/${deploy.file}`,
+                    `$ git -C deploy commit -am "Deploy ${p.project} $TAG"`,
+                    `[main ${(p.deployCommit ?? '').slice(0, 7)}] Deploy ${p.project} ${writtenTag(p)}`,
+                    ` 1 file changed, 1 insertion(+), 1 deletion(-)`,
+                    `$ git -C deploy push origin main`,
+                  ]
+              : [`No deploy repository is configured for ${p.project}; nothing to update.`],
+          ),
+        )
+      }
     }
-  }
   sections.push(
     sec(
       'cleanup_file_variables',
