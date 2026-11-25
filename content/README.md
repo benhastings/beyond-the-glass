@@ -56,3 +56,20 @@ Checks live beside the lesson in `<lesson>.checks.yaml` (`checks:` list; schema:
 
 Feedback is announced politely, there's no limit on tries, and results are saved in progress.
 `content/_samples/components.checks.yaml` has one of each.
+
+## Finishing a lesson (E5-04)
+
+The lesson player shows one `<Step>` at a time, with a step list and Previous/Next. Next is always enabled.
+**Finish lesson** completes the lesson only once its required work is done:
+
+- checks with `required: true` in the `.checks.yaml` must be passed;
+- `<Terminal challenge="…" required />` challenges must be complete.
+
+Everything else is optional. `/lesson/<id>` resumes at the learner's saved step; `/lesson/<id>/<n>` opens step `n`.
+
+## Depth layers (E5-05)
+
+`<Depth>` holds up to three layers, `<ELI5>`, `<Operator>` and `<DeepDive>`, shown as tabs. A layer can be
+left out, but the build warns when there's no `<ELI5>`. The tab it opens on is the learner's last choice in
+that domain, and otherwise depends on their placement level: wayfarer gets ELI5, deckhand and navigator get
+Operator, and pathfinder gets Deep dive. Before the Threshold it opens on Operator.

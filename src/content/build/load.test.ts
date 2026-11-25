@@ -7,7 +7,7 @@ import { glossaryFile, lessonFrontMatter, moduleFile, regionFile } from '../sche
 import { buildManifest, ContentError, scenarioIdsIn, type ContentIssue } from './load'
 
 const FIXTURES = join(process.cwd(), 'content/__fixtures__/valid')
-const opts = { scenarioIds: ['ravenpost'] }
+const opts = { scenarioIds: ['ravenpost'], challengeIds: ['find-the-failing-pod'] }
 const tmp: string[] = []
 afterAll(() => {
   for (const d of tmp) rmSync(d, { recursive: true, force: true })
@@ -87,8 +87,10 @@ describe('buildManifest on the fixture content', () => {
               feedback: "A node runs pods. What's inside them?",
             },
           ],
+          required: false,
         },
       ],
+      challenges: [{ id: 'find-the-failing-pod', required: false }],
     })
     expect(second).toMatchObject({
       id: 'second-steps',
@@ -250,6 +252,26 @@ describe('buildManifest errors', () => {
       `check ID "what-runs-containers" is already used in ${CHECKS}`,
     ])
   })
+
+  acTest(
+    'E5-05.AC2',
+    'a <Depth> without an ELI5 layer builds, with a warning naming the file and line',
+    () => {
+      const root = variant({
+        [FIRST]: (t) =>
+          t.replace(
+            "That's the first look.",
+            "That's the first look.\n\n<Depth>\n<Operator>o</Operator>\n</Depth>\n\n<Depth>\n<ELI5>e</ELI5>\n</Depth>",
+          ),
+      })
+      const { warnings } = buildManifest(root, opts)
+      expect(warnings).toHaveLength(1)
+      expect(warnings[0]).toMatch(
+        /^regions\/alpha\/basics\/first-steps\.mdx:\d+:1 <Depth> has no <ELI5> layer$/,
+      )
+      expect(buildManifest(FIXTURES, opts).warnings).toEqual([])
+    },
+  )
 
   acTest('E5-01.AC1', 'broken glossary references are reported', () => {
     const root = variant({

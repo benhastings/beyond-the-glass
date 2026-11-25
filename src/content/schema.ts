@@ -100,6 +100,8 @@ export interface LessonEntry extends Omit<LessonFrontMatter, 'order'> {
   file: string
   /** Knowledge checks from `<id>.checks.yaml` (E5-03). */
   checks: Check[]
+  /** Challenges in `<Terminal challenge>`; `required` ones must be completed to finish the lesson (E5-04). */
+  challenges: { id: string; required: boolean }[]
 }
 
 export interface ModuleEntry extends Omit<ModuleFile, 'order'> {

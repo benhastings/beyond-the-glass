@@ -72,6 +72,8 @@ export const settingsSchema = z.strictObject({
   reduceMotion: preference.default('system'),
   highContrast: preference.default('system'),
   textSize: z.union([z.literal(100), z.literal(115), z.literal(130)]).default(100),
+  /** The depth layer last chosen in each domain's lessons (E5-05); the placement level decides until then. */
+  depthByDomain: z.record(contentId, depth).optional(),
   /** When settings last changed: the later copy wins when progress is merged (E3-03). */
   updatedAt: timestamp.optional(),
 })
