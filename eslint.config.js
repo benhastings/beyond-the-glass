@@ -54,7 +54,7 @@ export default tseslint.config(
   },
   { files: ['**/*.tsx'], ...jsxA11y.flatConfigs.strict },
   {
-    files: ['*.config.{js,ts}', 'tests/**', 'e2e/**', 'scripts/**'],
+    files: ['*.config.{js,ts}', 'tests/**', 'e2e/**', 'scripts/**', 'tools/**'],
     languageOptions: { globals: { ...globals.node } },
   },
   {

@@ -1,5 +1,5 @@
 $ kubectl get nodes --show-labels
-NAME                      STATUS    ROLES           AGE       VERSION   LABELS
-ravenpost-control-plane   Ready     control-plane   12d       v1.34.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ravenpost-control-plane,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=
-ravenpost-worker          Ready     <none>          12d       v1.34.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ravenpost-worker,kubernetes.io/os=linux
-ravenpost-worker2         Ready     <none>          12d       v1.34.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ravenpost-worker2,kubernetes.io/os=linux
+NAME                      STATUS   ROLES           AGE   VERSION   LABELS
+ravenpost-control-plane   Ready    control-plane   12d   v1.34.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ravenpost-control-plane,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=
+ravenpost-worker          Ready    <none>          12d   v1.34.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ravenpost-worker,kubernetes.io/os=linux
+ravenpost-worker2         Ready    <none>          12d   v1.34.0   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ravenpost-worker2,kubernetes.io/os=linux

@@ -1,9 +1,9 @@
 $ kubectl get deploy,svc -n ravenpost
-NAME                                 READY     UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/ravenpost-api        3/3       3            3           9d
-deployment.apps/ravenpost-notifier   0/1       1            0           9d
-deployment.apps/ravenpost-web        2/2       2            2           9d
-deployment.apps/ravenpost-worker     2/2       2            2           9d
+NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ravenpost-api        3/3     3            3           9d
+deployment.apps/ravenpost-notifier   0/1     1            0           9d
+deployment.apps/ravenpost-web        2/2     2            2           9d
+deployment.apps/ravenpost-worker     2/2     2            2           9d
 
 NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 service/ravenpost-api        ClusterIP   10.96.186.171   <none>        8080/TCP   9d

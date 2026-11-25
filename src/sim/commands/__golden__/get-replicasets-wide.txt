@@ -1,6 +1,6 @@
 $ kubectl get replicasets -n ravenpost -o wide
-NAME                            DESIRED   CURRENT   READY     AGE       CONTAINERS   IMAGES                                      SELECTOR
-ravenpost-api-576b7f4d5d        3         3         3         9d        api          registry.example/ravenpost/api:1.14.0       app=ravenpost-api,pod-template-hash=576b7f4d5d
-ravenpost-notifier-79c79b9687   1         1         0         9d        notifier     registry.example/ravenpost/notifier:0.9.2   app=ravenpost-notifier,pod-template-hash=79c79b9687
-ravenpost-web-74d9fdfcd5        2         2         2         9d        web          registry.example/ravenpost/web:2.3.1        app=ravenpost-web,pod-template-hash=74d9fdfcd5
-ravenpost-worker-794f477b59     2         2         2         9d        worker       registry.example/ravenpost/worker:1.14.0    app=ravenpost-worker,pod-template-hash=794f477b59
+NAME                            DESIRED   CURRENT   READY   AGE   CONTAINERS   IMAGES                                      SELECTOR
+ravenpost-api-576b7f4d5d        3         3         3       9d    api          registry.example/ravenpost/api:1.14.0       app=ravenpost-api,pod-template-hash=576b7f4d5d
+ravenpost-notifier-79c79b9687   1         1         0       9d    notifier     registry.example/ravenpost/notifier:0.9.2   app=ravenpost-notifier,pod-template-hash=79c79b9687
+ravenpost-web-74d9fdfcd5        2         2         2       9d    web          registry.example/ravenpost/web:2.3.1        app=ravenpost-web,pod-template-hash=74d9fdfcd5
+ravenpost-worker-794f477b59     2         2         2       9d    worker       registry.example/ravenpost/worker:1.14.0    app=ravenpost-worker,pod-template-hash=794f477b59

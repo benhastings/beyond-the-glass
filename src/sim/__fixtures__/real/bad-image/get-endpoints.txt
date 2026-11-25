@@ -1,0 +1,3 @@
+$ kubectl get endpoints -n <ns>
+NAME   ENDPOINTS   AGE
+web                <age>

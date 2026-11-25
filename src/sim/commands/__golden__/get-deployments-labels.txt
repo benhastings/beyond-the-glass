@@ -1,6 +1,6 @@
 $ kubectl get deployments -n ravenpost --show-labels
-NAME                 READY     UP-TO-DATE   AVAILABLE   AGE       LABELS
-ravenpost-api        3/3       3            3           9d        app=ravenpost-api,app.kubernetes.io/part-of=ravenpost
-ravenpost-notifier   0/1       1            0           9d        app=ravenpost-notifier,app.kubernetes.io/part-of=ravenpost
-ravenpost-web        2/2       2            2           9d        app=ravenpost-web,app.kubernetes.io/part-of=ravenpost
-ravenpost-worker     2/2       2            2           9d        app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+ravenpost-api        3/3     3            3           9d    app=ravenpost-api,app.kubernetes.io/part-of=ravenpost
+ravenpost-notifier   0/1     1            0           9d    app=ravenpost-notifier,app.kubernetes.io/part-of=ravenpost
+ravenpost-web        2/2     2            2           9d    app=ravenpost-web,app.kubernetes.io/part-of=ravenpost
+ravenpost-worker     2/2     2            2           9d    app=ravenpost-worker,app.kubernetes.io/part-of=ravenpost

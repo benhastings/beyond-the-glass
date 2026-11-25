@@ -1,6 +1,6 @@
 $ kubectl get replicasets -n ravenpost
-NAME                            DESIRED   CURRENT   READY     AGE
-ravenpost-api-576b7f4d5d        3         3         3         9d
-ravenpost-notifier-79c79b9687   1         1         0         9d
-ravenpost-web-74d9fdfcd5        2         2         2         9d
-ravenpost-worker-794f477b59     2         2         2         9d
+NAME                            DESIRED   CURRENT   READY   AGE
+ravenpost-api-576b7f4d5d        3         3         3       9d
+ravenpost-notifier-79c79b9687   1         1         0       9d
+ravenpost-web-74d9fdfcd5        2         2         2       9d
+ravenpost-worker-794f477b59     2         2         2       9d

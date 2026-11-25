@@ -1,0 +1,3 @@
+$ kubectl logs <pod> -n <ns>
+--- stderr ---
+Error from server (BadRequest): container "web" in pod "web-<hash>-<id>" is waiting to start: CreateContainerConfigError

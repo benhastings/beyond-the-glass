@@ -1,0 +1,150 @@
+$ kubectl get pod <pod> -o yaml -n <ns>
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "<time>"
+  generateName: web-<hash>-
+  generation: 1
+  labels:
+    app: web
+    pod-template-hash: <hash>
+  name: web-<hash>-<id>
+  namespace: <ns>
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: web-<hash>
+    uid: <uid>
+  resourceVersion: "<rv>"
+  uid: <uid>
+spec:
+  containers:
+  - command:
+    - sh
+    - -c
+    - 'echo starting web; echo "fatal: cannot reach mail relay" >&2; sleep 1; exit
+      1'
+    image: busybox:1.36
+    imagePullPolicy: IfNotPresent
+    name: web
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-<id>
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: <node>
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-<id>
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "<time>"
+    observedGeneration: 1
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "<time>"
+    observedGeneration: 1
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "<time>"
+    message: 'containers with unready status: [web]'
+    observedGeneration: 1
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "<time>"
+    message: 'containers with unready status: [web]'
+    observedGeneration: 1
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "<time>"
+    observedGeneration: 1
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://<id>
+    image: docker.io/library/busybox:1.36
+    imageID: docker.io/library/busybox@sha256:<digest>
+    lastState:
+      terminated:
+        containerID: containerd://<id>
+        exitCode: 1
+        finishedAt: "<time>"
+        reason: Error
+        startedAt: "<time>"
+    name: web
+    ready: false
+    resources: {}
+    restartCount: 4
+    started: false
+    state:
+      waiting:
+        message: back-off <age> restarting failed container=web pod=web-<hash>-g4pl6_<ns>(<uid>)
+        reason: CrashLoopBackOff
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 10
+        uid: 0
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-<id>
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: <ip>
+  hostIPs:
+  - ip: <ip>
+  observedGeneration: 1
+  phase: Running
+  podIP: <ip>
+  podIPs:
+  - ip: <ip>
+  qosClass: BestEffort
+  startTime: "<time>"

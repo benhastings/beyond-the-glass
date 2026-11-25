@@ -31,16 +31,16 @@ describe('kubectl config', () => {
     const sh = createShell(Simulator.load(threeClusters()))
     expect(sh.run('kubectl config get-contexts').stdout).toBe(
       [
-        // Columns are at least 10 wide, like every kubectl table.
-        'CURRENT   NAME      CLUSTER   AUTHINFO      NAMESPACE',
-        '*         dev       dev       dev-admin     shop',
-        '          stage     stage     stage-admin   ',
-        '          prod      prod      prod-admin    shop',
+        // Columns are their widest cell plus 3, and at least 6 wide, like every kubectl table.
+        'CURRENT   NAME    CLUSTER   AUTHINFO      NAMESPACE',
+        '*         dev     dev       dev-admin     shop',
+        '          stage   stage     stage-admin   ',
+        '          prod    prod      prod-admin    shop',
       ].join('\n'),
     )
     sh.run('kubectl config use-context prod')
     expect(sh.run('kubectl config get-contexts --no-headers').stdout.split('\n')[2]).toMatch(
-      /^\* {9}prod/,
+      /^\* {5}prod/,
     )
     expect(sh.run('kubectl config get-contexts stage').stdout.split('\n')).toHaveLength(2)
     expect(sh.run('kubectl config get-contexts -o name').stdout).toBe('dev\nstage\nprod')

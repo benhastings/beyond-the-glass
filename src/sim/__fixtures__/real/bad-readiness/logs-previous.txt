@@ -1,0 +1,3 @@
+$ kubectl logs <pod> --previous -n <ns>
+--- stderr ---
+Error from server (BadRequest): previous terminated container "web" in pod "web-<hash>-<id>" not found

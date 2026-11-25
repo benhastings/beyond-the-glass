@@ -1,5 +1,5 @@
 $ kubectl get nodes
-NAME                      STATUS    ROLES           AGE       VERSION
-ravenpost-control-plane   Ready     control-plane   12d       v1.34.0
-ravenpost-worker          Ready     <none>          12d       v1.34.0
-ravenpost-worker2         Ready     <none>          12d       v1.34.0
+NAME                      STATUS   ROLES           AGE   VERSION
+ravenpost-control-plane   Ready    control-plane   12d   v1.34.0
+ravenpost-worker          Ready    <none>          12d   v1.34.0
+ravenpost-worker2         Ready    <none>          12d   v1.34.0

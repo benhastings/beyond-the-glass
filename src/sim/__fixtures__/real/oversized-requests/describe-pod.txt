@@ -1,0 +1,42 @@
+$ kubectl describe pod <pod> -n <ns>
+Name:             web-<hash>-<id>
+Namespace:        <ns>
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           app=web
+                  pod-template-hash=<hash>
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    ReplicaSet/web-<hash>
+Containers:
+  web:
+    Image:      nginx:1.27-alpine
+    Port:       <none>
+    Host Port:  <none>
+    Requests:
+      cpu:        64
+      memory:     512Gi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-<id> (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  kube-api-access-<id>:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for <age>
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for <age>
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  <age>  default-scheduler  0/1 nodes are available: 1 Insufficient cpu, 1 Insufficient memory. no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
