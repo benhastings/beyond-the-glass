@@ -1,0 +1,19 @@
+$ argocd app get shop
+Name:           argocd/shop
+Project:        default
+Server:         https://dev.example:6443
+Namespace:      shop
+URL:            https://argocd.ravenpost.example/applications/shop
+Source:
+- Repo:         https://git.ravenpost.example/ravenpost/ravenpost-deploy.git
+  Target:       main
+  Path:         shop
+SyncWindow:     Sync Allowed
+Sync Policy:    Manual
+Sync Status:    OutOfSync from main (1bffd96)
+Health Status:  Healthy
+
+GROUP  KIND        NAMESPACE  NAME        STATUS     HEALTH   HOOK  MESSAGE
+       ConfigMap   shop       web-config  Synced                    
+apps   Deployment  shop       web         OutOfSync  Healthy        
+--- exit 0 ---

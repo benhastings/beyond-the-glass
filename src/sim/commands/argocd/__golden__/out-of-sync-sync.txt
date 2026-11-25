@@ -1,0 +1,30 @@
+$ argocd app sync shop
+TIMESTAMP                  GROUP  KIND        NAMESPACE  NAME        STATUS  HEALTH       HOOK  MESSAGE
+2026-03-14T02:11:00+00:00         ConfigMap   shop       web-config  Synced                     
+2026-03-14T02:11:00+00:00  apps   Deployment  shop       web         Synced  Progressing        
+
+Name:           argocd/shop
+Project:        default
+Server:         https://dev.example:6443
+Namespace:      shop
+URL:            https://argocd.ravenpost.example/applications/shop
+Source:
+- Repo:         https://git.ravenpost.example/ravenpost/ravenpost-deploy.git
+  Target:       main
+  Path:         shop
+SyncWindow:     Sync Allowed
+Sync Policy:    Manual
+Sync Status:    Synced to main (7ee27ca)
+Health Status:  Progressing
+Operation:      Sync
+Sync Revision:  7ee27ca0e36f42c17f1a18baab06b3f3ce0076ac
+Phase:          Succeeded
+Start:          2026-03-14T02:11:00+00:00
+Finished:       2026-03-14T02:11:00+00:00
+Duration:       0s
+Message:        successfully synced (all tasks run)
+
+GROUP  KIND        NAMESPACE  NAME        STATUS  HEALTH       HOOK  MESSAGE
+       ConfigMap   shop       web-config  Synced                     
+apps   Deployment  shop       web         Synced  Progressing        Waiting for rollout to finish: 0 out of 3 new replicas have been updated...
+--- exit 0 ---

@@ -1,0 +1,11 @@
+$ argocd app diff shop
+===== apps/Deployment shop/web ======
+13c13
+<   replicas: 2
+---
+>   replicas: 3
+29c29
+<       - image: registry.example/web:1.0
+---
+>       - image: registry.example/web:1.1
+--- exit 1 ---

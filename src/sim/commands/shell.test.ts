@@ -384,7 +384,7 @@ describe('command registry', () => {
     () => {
       const dir = join(process.cwd(), 'src/sim/commands')
       const registry = readFileSync(join(dir, 'registry.ts'), 'utf8')
-      const files = ['builtins', 'kubectl'].flatMap((sub) =>
+      const files = ['builtins', 'kubectl', 'argocd'].flatMap((sub) =>
         readdirSync(join(dir, sub))
           .filter((f) => f.endsWith('.ts') && !f.endsWith('.test.ts'))
           .filter((f) =>

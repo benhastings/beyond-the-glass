@@ -68,3 +68,40 @@ export function unifiedHunks(before: string, after: string, context = CONTEXT): 
   }
   return out.join('\n')
 }
+
+/**
+ * The classic `diff` output (`57c57`, `<`, `---`, `>`), which `argocd app diff` prints: one block per run of
+ * changes, with no context lines.
+ */
+export function normalDiff(before: string, after: string): string {
+  const all = ops(lines(before), lines(after))
+  const out: string[] = []
+  let k = 0
+  while (k < all.length) {
+    if (all[k]?.kind === ' ') {
+      k++
+      continue
+    }
+    const run: Op[] = []
+    while (k < all.length && all[k]?.kind !== ' ') run.push(all[k++] as Op)
+    const del = run.filter((o) => o.kind === '-')
+    const add = run.filter((o) => o.kind === '+')
+    const range = (from: number, n: number) =>
+      n <= 1 ? String(from + 1) : `${String(from + 1)},${String(from + n)}`
+    const aFrom = del[0]?.a ?? run[0]?.a ?? 0
+    const bFrom = add[0]?.b ?? run[0]?.b ?? 0
+    const head =
+      del.length && add.length
+        ? `${range(aFrom, del.length)}c${range(bFrom, add.length)}`
+        : del.length
+          ? `${range(aFrom, del.length)}d${String(bFrom)}`
+          : `${String(aFrom)}a${range(bFrom, add.length)}`
+    out.push(
+      head,
+      ...del.map((o) => `< ${o.line}`),
+      ...(del.length && add.length ? ['---'] : []),
+      ...add.map((o) => `> ${o.line}`),
+    )
+  }
+  return out.join('\n')
+}

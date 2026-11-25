@@ -1,3 +1,4 @@
+import { argocdCommand } from './argocd/argocd.ts'
 import { answerCommand } from './builtins/answer.ts'
 import { catCommand } from './builtins/cat.ts'
 import { cdCommand } from './builtins/cd.ts'
@@ -34,6 +35,7 @@ export const COMMANDS: readonly CommandDef[] = [
   helpCommandFor(() => COMMANDS),
   hintCommand,
   answerCommand,
+  argocdCommand,
   clearCommand,
   historyCommand,
   whoamiCommand,
