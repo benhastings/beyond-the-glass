@@ -1,0 +1,5 @@
+id: module-template
+title: A module title
+order: 0
+summary: One sentence on what this group of lessons covers.
+domain: kubernetes

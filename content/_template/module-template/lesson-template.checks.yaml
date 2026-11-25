@@ -1,0 +1,19 @@
+# Knowledge checks for lesson-template.mdx. IDs are unique across the course. Types: single, multiple,
+# ordering, matching, spot-the-bug (content/README.md). `required: true` means the lesson can't be
+# finished until it's passed.
+checks:
+  - id: template-what-restarts
+    type: single
+    required: true
+    prompt: A pod's container keeps exiting. What starts it again?
+    explanation: The kubelet on the node restarts it, and waits longer each time (that wait is CrashLoopBackOff).
+    options:
+      - id: kubelet
+        text: The kubelet on its node
+        correct: true
+      - id: scheduler
+        text: The scheduler
+        feedback: The scheduler picks a node for a new pod. It doesn't restart containers.
+      - id: operator
+        text: The operator on watch
+        feedback: Not any more. The cluster restarts it for you, and counts the restarts.
