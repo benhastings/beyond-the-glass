@@ -129,3 +129,15 @@ cancels the line, Alt+O moves to the last output. History and scrollback are kep
 the saved progress snapshot restores them. On touch screens a row of buttons stands in for Tab, ↑, ↓ and
 Ctrl+C. Screen readers get one polite announcement per command: the output when it's at most 3 lines,
 otherwise a line count. The scrollback itself (`role="log"`) isn't live, so a long table is never read out.
+
+## argocd (E7-04)
+
+| Command | Status | Notes |
+|---|---|---|
+| `argocd app list [-o wide\|name\|yaml\|json]` | Supported | Every application, with sync, health and policy |
+| `argocd app get APP [-o yaml\|json]`, `argocd app refresh APP` | Supported | The summary block, conditions and the resource table |
+| `argocd app diff APP [--revision REV]` | Supported | `===== group/Kind ns/name ======` headers and classic `diff` output; exit 1 when there are differences |
+| `argocd app sync APP [--prune]` | Supported | Applies Git's manifests; a failed operation exits 20 with the API server's message |
+| `argocd app history APP`, `argocd app rollback APP [ID]` | Supported | Rollback is refused while auto-sync is on, as in Argo CD |
+| `argocd app wait APP [--health] [--sync] [--timeout S]` | Supported | Waits in simulated time; stops early on Degraded |
+| `argocd login` | Simulated | Already logged in to argocd.ravenpost.example |

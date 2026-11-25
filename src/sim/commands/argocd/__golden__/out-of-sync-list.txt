@@ -1,0 +1,4 @@
+$ argocd app list
+NAME         CLUSTER                   NAMESPACE  PROJECT  STATUS     HEALTH   SYNCPOLICY  CONDITIONS  REPO                                                          PATH  TARGET
+argocd/shop  https://dev.example:6443  shop       default  OutOfSync  Healthy  <none>      <none>      https://git.ravenpost.example/ravenpost/ravenpost-deploy.git  shop  main
+--- exit 0 ---

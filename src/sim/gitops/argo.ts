@@ -129,17 +129,19 @@ const worst = (hs: HealthStatus[]): HealthStatus =>
   )
 
 /** The manifests an application's source points at, as objects, with Argo's tracking label added. */
-function desired(
+/** The objects an application's source describes, with Argo's tracking label (what `diff` compares). */
+export function desiredManifests(
   sim: Simulator,
   app: ApplicationSpec,
+  revision = app.source.targetRevision,
 ): { docs: Record<string, unknown>[]; revision: string; error?: string } {
   const r = repo(sim, app.source.repo)
-  const c = r && resolve(r, app.source.targetRevision)
+  const c = r && resolve(r, revision)
   if (!r || !c)
     return {
       docs: [],
       revision: '',
-      error: `unable to resolve '${app.source.targetRevision}' to a commit SHA in ${app.source.repo}`,
+      error: `unable to resolve '${revision}' to a commit SHA in ${app.source.repo}`,
     }
   const dir = app.source.path.replace(/^\.?\/?/, '').replace(/\/$/, '')
   const files = Object.entries(c.files)
@@ -177,7 +179,7 @@ export function refresh(sim: Simulator, name: string): Application | undefined {
   const app = application(sim, name)
   const cluster = app && sim.clusterByName(app.destination.cluster)
   if (!app || !cluster) return app
-  const d = desired(sim, app)
+  const d = desiredManifests(sim, app)
   app.status.revision = d.revision
   app.status.conditions = d.error ? [d.error] : []
   app.status.reconciledAt = sim.now
@@ -237,16 +239,17 @@ function tracked(cluster: Cluster, app: ApplicationSpec): Resource[] {
 }
 
 /** Syncs an application: applies Git's manifests (and prunes, if asked), then records the operation. */
+/** `revision` syncs an older commit instead of the target (Argo's rollback). */
 export function sync(
   sim: Simulator,
   name: string,
-  opts: { prune?: boolean } = {},
+  opts: { prune?: boolean; revision?: string } = {},
 ): Application | undefined {
   const app = application(sim, name)
   const cluster = app && sim.clusterByName(app.destination.cluster)
   if (!app || !cluster) return app
   const started = sim.now
-  const d = desired(sim, app)
+  const d = desiredManifests(sim, app, opts.revision)
   const fail = (message: string) => {
     app.status.operationState = {
       phase: 'Failed',

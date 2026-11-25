@@ -1,0 +1,46 @@
+$ argocd app get shop -o yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shop
+  namespace: argocd
+spec:
+  destination:
+    namespace: shop
+    server: https://dev.example:6443
+  project: default
+  source:
+    path: shop
+    repoURL: https://git.ravenpost.example/ravenpost/ravenpost-deploy.git
+    targetRevision: main
+status:
+  health:
+    status: Healthy
+  history:
+  - deployedAt: "2026-03-14T02:10:00+00:00"
+    id: 0
+    revision: 4ff09a5c48fd5a67984e884ac236ff759b186d50
+  operationState:
+    message: successfully synced (all tasks run)
+    phase: Succeeded
+    syncResult:
+      revision: 4ff09a5c48fd5a67984e884ac236ff759b186d50
+  reconciledAt: "2026-03-14T02:11:00+00:00"
+  resources:
+  - kind: ConfigMap
+    name: web-config
+    namespace: shop
+    status: Synced
+    version: v1
+  - group: apps
+    health:
+      status: Healthy
+    kind: Deployment
+    name: web
+    namespace: shop
+    status: OutOfSync
+    version: v1
+  sync:
+    revision: 1bffd96197651a7e2603e10b5f3fdc60af4e2d55
+    status: OutOfSync
+--- exit 0 ---

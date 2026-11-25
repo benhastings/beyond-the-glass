@@ -1,0 +1,6 @@
+$ argocd app history shop
+SOURCE  https://git.ravenpost.example/ravenpost/ravenpost-deploy.git
+ID  DATE                           REVISION
+0   2026-03-14 02:10:00 +0000 UTC  main (4ff09a5)
+1   2026-03-14 02:11:00 +0000 UTC  main (9ae2fc5)
+--- exit 0 ---
