@@ -56,7 +56,7 @@ export function Page({
       <h1
         ref={h1}
         tabIndex={-1}
-        className={`text-3xl font-bold outline-none focus-visible:outline-2 ${accentHeading ? 'text-region-accent' : ''}`}
+        className={`text-3xl font-bold outline-none ${accentHeading ? 'text-region-accent' : ''}`}
       >
         {heading ?? title}
       </h1>

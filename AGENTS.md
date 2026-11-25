@@ -17,6 +17,7 @@ This file is for coding agents (and humans) picking up issues in this repo. Read
 5. **Determinism.** Never use `Math.random()` or `Date.now()` inside the simulator or telemetry. Use the sim RNG and `SimClock`.
 6. **No runtime network calls** to anything other than the app's own origin. Self-host fonts and assets. No analytics, CDNs or embeds.
 7. **Path-independent build.** The same `dist/` runs on GitHub Pages (`/beyond-the-glass/`) and in the container (`/`). Use relative asset URLs and hash routes only; never hard-code the base path.
+8. **Browsers.** End-to-end tests run in **Chromium only** (decided 2026-11-24). Don't add Firefox, WebKit or other browser projects; where a criterion says "all three browsers", Chromium satisfies it.
 
 ## 3. Guardrails (non-negotiable)
 - **Public repo, public site.** Never add real hostnames, IP addresses, system names, agency names, people's names, ticket numbers, screenshots of real tools, or anything from the operator's actual environment. Use the fictional **Ravenpost** system and `*.example` domains. The `content-guard` CI check enforces this, and it also checks a private denylist you can't see. If it fails on your PR, remove the content; don't try to work around the pattern.

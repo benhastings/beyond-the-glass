@@ -10,7 +10,7 @@ Every pull request and every push to `main` runs these workflows:
 | Workflow | Job (the check's name) | What it runs |
 |---|---|---|
 | `.github/workflows/ci.yml` | `verify` | `npm ci`, typecheck, lint, Prettier, unit tests with coverage thresholds, build, then a bundle-size table in the job summary and the `dist` artifact |
-| `.github/workflows/ci.yml` | `e2e` | Playwright with axe in Chromium, Firefox and WebKit against `dist/` served like GitHub Pages; traces and screenshots uploaded on failure |
+| `.github/workflows/ci.yml` | `e2e` | Playwright with axe in Chromium against `dist/` served like GitHub Pages; traces and screenshots uploaded on failure |
 | `.github/workflows/ci.yml` | `container` | the container image: built, run with `--read-only --cap-drop=ALL --security-opt=no-new-privileges`, the e2e suite and `tests/container` against it (size, user, headers, Trivy), and the multi-arch release build with SBOM and provenance, not pushed |
 | `.github/workflows/ci.yml` | `k8s` | `deploy/k8s` applied to a kind cluster: Ready pods and a Service that serves the app |
 | `.github/workflows/ci.yml` | `content-guard` | `scripts/content-guard.mjs`: the private denylist, franchise IP, IPv4 addresses and internal hostnames ([below](#content-guard)) |

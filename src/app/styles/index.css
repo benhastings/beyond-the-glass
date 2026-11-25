@@ -4,6 +4,12 @@
 @import './display.css';
 
 @layer base {
+  /* One focus ring for every interactive element, in the mood's focus colour (art-direction.md#shape-and-focus).
+     Components may restyle it, never remove it. */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
   body {
     font-size: var(--text-base);
     line-height: var(--leading-body);

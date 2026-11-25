@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router'
 import ConsoleRoom from './pages/ConsoleRoom'
 import Guide from './pages/Guide'
@@ -13,6 +14,9 @@ import ThresholdResults from './pages/ThresholdResults'
 import { ErrorScreen, RootErrorScreen } from './shell/ErrorScreen'
 import { NotFound } from './shell/NotFound'
 import { Shell } from './shell/Shell'
+
+// Developer page (E1-03): its own chunk, so learners never download it.
+const KitchenSink = lazy(() => import('./pages/KitchenSink'))
 
 /**
  * Every page, one line each. A page is one file in ./pages that renders a <Page title>.
@@ -30,6 +34,7 @@ export const PAGES: RouteObject[] = [
   { path: 'settings', Component: Settings },
   { path: 'lead', Component: Lead },
   { path: 'stormwatch', Component: Stormwatch },
+  { path: 'kitchen-sink', Component: KitchenSink },
   { path: '*', Component: NotFound },
 ]
 

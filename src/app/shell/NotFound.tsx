@@ -10,7 +10,7 @@ export function NotFound() {
         typo.
       </p>
       <p className="mt-4">
-        <Link to="/" className="underline focus-visible:outline-2">
+        <Link to="/" className="underline">
           Back to the Console Room
         </Link>
       </p>

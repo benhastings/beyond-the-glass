@@ -21,14 +21,14 @@ export function ErrorScreen() {
       <div className="mt-6 flex flex-wrap gap-4">
         <button
           type="button"
-          className="rounded border border-current px-4 py-2 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="rounded border border-current px-4 py-2"
           onClick={() => {
             window.location.reload()
           }}
         >
           Try again
         </button>
-        <Link to="/" className="rounded px-4 py-2 underline focus-visible:outline-2">
+        <Link to="/" className="rounded px-4 py-2 underline">
           Go to the Console Room
         </Link>
       </div>

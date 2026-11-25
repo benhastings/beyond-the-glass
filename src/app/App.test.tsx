@@ -167,6 +167,7 @@ describe('App shell', () => {
       '/settings',
       '/lead',
       '/stormwatch',
+      '/kitchen-sink',
       '/*',
     ])
   })

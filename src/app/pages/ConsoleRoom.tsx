@@ -8,7 +8,7 @@ export default function ConsoleRoom() {
     <Page title={SITE_NAME} mood="console">
       <p className="mt-4 max-w-prose">For years you watched the glass. Now step through it.</p>
       <p className="mt-6">
-        <Link to="/threshold" className="underline focus-visible:outline-2">
+        <Link to="/threshold" className="underline">
           Step up to the Threshold
         </Link>
       </p>

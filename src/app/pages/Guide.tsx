@@ -13,7 +13,7 @@ export default function Guide() {
         <ul className="mt-6 space-y-2">
           {glossary.map((t) => (
             <li key={t.id}>
-              <Link to={`/guide/${t.id}`} className="underline focus-visible:outline-2">
+              <Link to={`/guide/${t.id}`} className="underline">
                 {t.term}
               </Link>
             </li>

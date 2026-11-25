@@ -10,7 +10,7 @@ export default function JourneyMap() {
       <ol className="mt-6 space-y-4">
         {regions.map((r) => (
           <li key={r.id}>
-            <Link to={`/region/${r.id}`} className="font-bold underline focus-visible:outline-2">
+            <Link to={`/region/${r.id}`} className="font-bold underline">
               {r.title}
             </Link>
             <p className="max-w-prose">{r.summary}</p>
