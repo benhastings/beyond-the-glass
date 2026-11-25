@@ -29,3 +29,15 @@ export const load = defineTimelineEvent({
     sim.setTraffic(cluster.name, p.namespace, p.service, { rps: p.rps })
   },
 })
+
+/** A share of a Service's requests start failing with 500s, picked up by the telemetry generator (E8-01). */
+export const injectErrors = defineTimelineEvent({
+  type: 'injectErrors',
+  description: "Makes a share of a Service's requests fail",
+  schema: z.strictObject({ ...target, rate: z.number().min(0).max(1) }),
+  check: (p, resources) =>
+    requireResource(resources, 'Service', p.namespace, p.service, ['service']),
+  apply: (sim, cluster, p) => {
+    sim.setTraffic(cluster.name, p.namespace, p.service, { errorRate: p.rate })
+  },
+})

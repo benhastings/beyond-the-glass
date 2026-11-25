@@ -203,6 +203,7 @@ describe('scenario schema', () => {
       'pipeline',
       'ciFailure',
       'gitCommit',
+      'injectErrors',
     ])
   })
 })

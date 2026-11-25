@@ -5,7 +5,7 @@ import { gitCommit } from './git-commit.ts'
 import { ciFailureEvent, pipelineEvent } from './pipeline.ts'
 import { setImage } from './set-image.ts'
 import { setMemoryLimit } from './set-memory-limit.ts'
-import { injectLatency, load } from './traffic.ts'
+import { injectErrors, injectLatency, load } from './traffic.ts'
 
 /** Every timeline event type. To add one: a new file in this folder, plus one line here. */
 export const TIMELINE_EVENTS: readonly TimelineEventDef<never>[] = [
@@ -20,6 +20,7 @@ export const TIMELINE_EVENTS: readonly TimelineEventDef<never>[] = [
   pipelineEvent,
   ciFailureEvent,
   gitCommit,
+  injectErrors,
 ] as unknown as readonly TimelineEventDef<never>[]
 
 export function timelineEvent(type: string): TimelineEventDef<never> | undefined {

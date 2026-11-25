@@ -4,6 +4,7 @@ import { Simulator, type Controller, type SimOptions } from '../core/simulator.t
 import { deploymentController } from './deployment.ts'
 import { argoController } from '../gitops/argo.ts'
 import { ciController } from '../gitops/pipeline.ts'
+import { historyController } from '../telemetry/history.ts'
 import { gitopsController } from './gitops.ts'
 import { kubelet } from './kubelet.ts'
 import { replicaSetController } from './replicaset.ts'
@@ -23,6 +24,8 @@ export function defaultControllers(): Controller[] {
     replicaSetController,
     scheduler,
     kubelet,
+    // Last, so it records what this reconcile settled on (E8-01).
+    historyController,
   ]
 }
 
