@@ -1,0 +1,79 @@
+---
+id: your-first-look
+title: Your first look at the cluster
+order: 0
+objectives:
+  - List the pods in a namespace with kubectl
+  - List the pods in every namespace at once
+  - Find the pod that isn't running, and say which it is
+estimatedMinutes: 15
+domain: kubernetes
+level: wayfarer
+scenario: ravenpost
+terms: [pod, namespace]
+---
+
+<Step id="where-you-are" title="Where you are">
+
+<Analogy
+  then="You opened the monitoring console and scanned the host list for anything red."
+  now="You ask the cluster for its pods, and read the STATUS column."
+/>
+
+Ravenpost, the mail service you'll look after, runs in a Kubernetes cluster. Each part of it runs in
+
+<Term id="pod">pods</Term>, and Ravenpost's pods are grouped in a
+<Term id="namespace">namespace</Term> called `ravenpost`.
+
+You talk to the cluster with `kubectl`. It asks the cluster's API and prints the answer as a table.
+
+</Step>
+
+<Step id="ask" title="Ask the cluster">
+
+<Depth>
+  <ELI5>
+    A namespace is a folder for a team's things. `kubectl get pods -n ravenpost` lists the pods in
+    the ravenpost folder. Add `-A` to look in every folder at once.
+  </ELI5>
+  <Operator>
+    `kubectl get pods -n ravenpost` lists the pods in one namespace; `-A` (all namespaces) lists
+    every pod in the cluster, with a NAMESPACE column. READY shows ready containers out of the
+    total, and STATUS shows where each pod is in its life.
+  </Operator>
+  <DeepDive>
+    kubectl sends `GET /api/v1/namespaces/ravenpost/pods` (or `/api/v1/pods` for `-A`) and prints
+    the server's table view. STATUS is a summary: the pod's phase, or the reason a container is
+    waiting or terminated (CrashLoopBackOff, ImagePullBackOff, OOMKilled).
+  </DeepDive>
+</Depth>
+
+<CodeBlock
+  language="console"
+  caption="List Ravenpost's pods"
+  code="kubectl get pods -n ravenpost"
+/>
+
+<Callout kind="habit">
+  Before you look, know where you're looking: the prompt shows the cluster and namespace you're
+  pointed at.
+</Callout>
+
+</Step>
+
+<Step id="find-it" title="Find the one that isn't running">
+
+Mail isn't going out. List the pods in the `ravenpost` namespace and find the one that isn't Running.
+When you know which it is, answer with `answer failing-pod <name>` (the start of the name is enough).
+
+<Terminal scenario="ravenpost" challenge="find-the-failing-pod" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="first-look-status" />
+
+Next time, you'll find out _why_ that pod keeps restarting.
+
+</Step>

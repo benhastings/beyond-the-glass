@@ -4,6 +4,7 @@ import { describe, expect } from 'vitest'
 import { acTest } from '@/test/ac'
 import { CHALLENGES } from '@/challenges'
 import ravenpost from '@/scenarios/ravenpost.yaml'
+import { progressV1 } from '@/progress'
 import { useProgress } from '../progress'
 import { ChallengeTerminal } from './ChallengeTerminal'
 
@@ -38,6 +39,8 @@ describe('E6-10 challenge terminal', () => {
         status: 'completed',
         hintsUsed: 2,
       })
+      // Everything it saved reads back: progress still passes its schema (it's validated on every load).
+      expect(progressV1.safeParse(useProgress.getState().progress).success).toBe(true)
     },
   )
 })

@@ -35,7 +35,8 @@ export function ChallengeTerminal({
 }) {
   const saveScenario = useProgress((s) => s.saveScenario)
   const updateChallenge = useProgress((s) => s.updateChallenge)
-  const key = `${scenario.id}--${challenge.id}`
+  // A valid content ID ("ravenpost/find-the-failing-pod"), so the saved progress always validates on load.
+  const key = `${scenario.id}/${challenge.id}`
   const [sim] = useState(() =>
     resume(scenario, useProgress.getState().progress.scenarios[key]?.snapshot),
   )

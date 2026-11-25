@@ -1,0 +1,16 @@
+checks:
+  - id: first-look-status
+    type: single
+    required: true
+    prompt: A pod's STATUS says CrashLoopBackOff. What is happening?
+    explanation: The container keeps exiting, and the kubelet waits longer before each restart. Its logs and events say why it exits.
+    options:
+      - id: restarting
+        text: Its container keeps exiting, and Kubernetes keeps restarting it
+        correct: true
+      - id: pulling
+        text: Its image is still downloading
+        feedback: A pod still pulling its image shows ContainerCreating or, if the pull fails, ImagePullBackOff.
+      - id: healthy
+        text: It is running normally
+        feedback: A healthy pod shows Running, with READY at 1/1.
