@@ -53,7 +53,7 @@ acTest(
 
     // Into the region and the lesson.
     await chartroom.click()
-    await page.getByRole('link', { name: 'A first look' }).click()
+    await page.getByRole('link', { name: 'A first look', exact: true }).click()
     await expect(page.getByRole('heading', { level: 1, name: LESSON })).toBeVisible()
     await page.getByRole('link', { name: 'Next step →' }).click()
     await page.getByRole('link', { name: 'Next step →' }).click()

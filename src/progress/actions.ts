@@ -29,6 +29,20 @@ export function setResumeAt(p: Progress, path: string, now: string): Progress {
   return touch({ ...p, resumeAt: { path, at: now } }, now)
 }
 
+/** Marks a module tested out (E4-05): it counts toward completion, shown apart from completed ones. */
+export function testOutModule(p: Progress, moduleKey: string, now: string): Progress {
+  if (p.testedOut?.[moduleKey]) return p
+  return touch({ ...p, testedOut: { ...p.testedOut, [moduleKey]: now } }, now)
+}
+
+/**
+ * Retaking the Threshold (E4-05) clears its answers, placement, overrides and chosen start, so it can
+ * recompute recommendations. Lessons, checks, challenges and scenarios are never touched.
+ */
+export function retakeThreshold(p: Progress, now: string): Progress {
+  return touch({ ...p, threshold: { answers: {}, overrides: {} } }, now)
+}
+
 export function setDisplayName(p: Progress, name: string | undefined, now: string): Progress {
   const trimmed = name?.trim()
   const rest = omit(p, 'displayName')

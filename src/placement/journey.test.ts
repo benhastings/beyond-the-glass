@@ -182,6 +182,20 @@ describe('journey statuses', () => {
     expect(statuses(done(p, 'b1-0', 'b1-1'))[0]).toBe('a:recommended:a1=recommended,a2=not-started')
   })
 
+  it('a tested-out module counts as done, apart from completed ones', () => {
+    const p: Progress = {
+      ...fresh(),
+      testedOut: { 'a/a1': '2026-01-02T00:00:00Z', 'a/a2': '2026-01-02T00:00:00Z' },
+    }
+    const [a] = journey(M, p).regions
+    expect(a?.modules.map((m) => [m.status, m.testedOut])).toEqual([
+      ['optional', true],
+      ['optional', true],
+    ])
+    expect(a).toMatchObject({ status: 'complete', modulesDone: 2 })
+    expect(statuses(p)[1]).toBe('b:recommended:b1=recommended')
+  })
+
   it('labels name the region, its status and its module count', () => {
     const [a, , c] = journey(M, fresh()).regions
     expect(a && regionLabel(a)).toBe('A, recommended next, 0 of 2 modules')

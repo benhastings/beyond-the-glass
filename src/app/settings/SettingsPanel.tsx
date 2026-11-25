@@ -1,4 +1,5 @@
 import { useId, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { encodeProgress, exportFile, exportFileName, importText, TEXT_SIZES } from '@/progress'
 import { useProgress } from '../progress'
 import { Button } from '../ui/Button'
@@ -32,6 +33,8 @@ export function SettingsPanel() {
   const update = useProgress((s) => s.updateSettings)
   const importProgress = useProgress((s) => s.importProgress)
   const reset = useProgress((s) => s.reset)
+  const retake = useProgress((s) => s.retakeThreshold)
+  const navigate = useNavigate()
   const [code, setCode] = useState('')
   const [copied, setCopied] = useState('')
   const [incoming, setIncoming] = useState('')
@@ -89,6 +92,26 @@ export function SettingsPanel() {
             update({ textSize: Number(v) as typeof settings.textSize })
           }}
         />
+      </section>
+
+      <section aria-labelledby={`${id}-start`} className="grid gap-3">
+        <h2 id={`${id}-start`} className="text-xl font-bold">
+          Your starting trail
+        </h2>
+        <p>
+          Retake the Threshold to choose your starting levels again. Your lessons, checks and
+          challenges stay exactly as they are; only the recommendations change.
+        </p>
+        <div>
+          <Button
+            onClick={() => {
+              retake()
+              void navigate('/threshold')
+            }}
+          >
+            Retake the Threshold
+          </Button>
+        </div>
       </section>
 
       <section aria-labelledby={`${id}-pack`} className="grid gap-4">

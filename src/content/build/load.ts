@@ -19,7 +19,7 @@ import {
   type StepEntry,
 } from '../schema.ts'
 import { ContentError, YamlSource, type ContentIssue } from './yaml-source.ts'
-import { checksFile, type Check } from '../checks.ts'
+import { checksFile, testOutFile, type Check, type TestOutCheck } from '../checks.ts'
 
 export interface BuildOptions {
   /** IDs of the scenarios lessons may reference (default: the `id` of every `src/scenarios/*.yaml`). */
@@ -170,7 +170,12 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
   const regions: {
     file: RegionFile
     yaml: YamlSource
-    modules: { file: ModuleFile; yaml: YamlSource; lessons: LessonSource[] }[]
+    modules: {
+      file: ModuleFile
+      yaml: YamlSource
+      lessons: LessonSource[]
+      testOut?: { checks: TestOutCheck[]; yaml: YamlSource }
+    }[]
   }[] = []
   const regionsDir = join(root, 'regions')
   for (const regionDir of isDir(regionsDir)
@@ -267,7 +272,15 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
           checksFile: rel(checksPath),
         })
       }
-      modules.push({ file: mod, yaml: my, lessons })
+      // A module may have a test-out (E4-05).
+      const testOutPath = join(moduleDir, 'test-out.yaml')
+      let testOut: { checks: TestOutCheck[]; yaml: YamlSource } | undefined
+      if (existsSync(testOutPath)) {
+        const ty = new YamlSource(read(testOutPath), rel(testOutPath))
+        const parsed = ty.parse(testOutFile, issues)
+        if (parsed) testOut = { checks: parsed.checks, yaml: ty }
+      }
+      modules.push({ file: mod, yaml: my, lessons, ...(testOut ? { testOut } : {}) })
     }
     regions.push({ file: region, yaml: ry, modules })
   }
@@ -338,6 +351,27 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         })
       else checkOwner.set(c.id, l.checksFile)
     }
+
+  // Test-out questions point at the lesson steps that teach them.
+  for (const r of regions)
+    for (const m of r.modules)
+      m.testOut?.checks.forEach((c, i) => {
+        const l = m.lessons.find((x) => x.fm.id === c.review.lesson)
+        if (!l)
+          issues.push(
+            m.testOut?.yaml.issue(
+              ['checks', i, 'review', 'lesson'],
+              `"${c.review.lesson}" is not a lesson in this module`,
+            ) as ContentIssue,
+          )
+        else if (!l.steps.some((s) => s.id === c.review.step))
+          issues.push(
+            m.testOut?.yaml.issue(
+              ['checks', i, 'review', 'step'],
+              `no step "${c.review.step}" in ${c.review.lesson}`,
+            ) as ContentIssue,
+          )
+      })
 
   // References
   for (const l of lessons) {
@@ -462,6 +496,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         return {
           ...mod,
           regionId: r.file.id,
+          ...(m.testOut ? { testOut: m.testOut.checks } : {}),
           estimatedMinutes: ls.reduce((n, l) => n + l.estimatedMinutes, 0),
           lessons: ls,
         }

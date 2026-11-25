@@ -23,6 +23,8 @@ export interface ModuleJourney {
   status: JourneyStatus
   lessons: number
   lessonsDone: number
+  /** The learner passed the module's test-out (E4-05): it counts as done. */
+  testedOut: boolean
   /** Why the placement suggests it (or doesn't). */
   reason?: string
 }
@@ -71,8 +73,10 @@ export function journey(
       const planned = plan.modules.find((x) => x.regionId === r.id && x.moduleId === m.id)
       const done = m.lessons.filter((l) => lessonDone(l.id)).length
       const started = m.lessons.some((l) => lessonStarted(l.id))
+      const testedOut = p.testedOut?.[`${r.id}/${m.id}`] !== undefined
       let status: JourneyStatus
       if (m.lessons.length > 0 && done === m.lessons.length) status = 'complete'
+      else if (testedOut) status = 'optional'
       else if (started) status = 'in-progress'
       else if (placed && planned?.status === 'test-out') status = 'optional'
       else status = 'not-started'
@@ -82,6 +86,7 @@ export function journey(
         status,
         lessons: m.lessons.length,
         lessonsDone: done,
+        testedOut,
         ...(placed && planned ? { reason: planned.reason } : {}),
       }
     })
@@ -120,7 +125,8 @@ export function journey(
   return {
     plan,
     regions: regions.map(({ region, modules }) => {
-      const modulesDone = modules.filter((m) => m.status === 'complete').length
+      // Tested-out modules count toward the region, as the course promises (E4-05).
+      const modulesDone = modules.filter((m) => m.status === 'complete' || m.testedOut).length
       let status: JourneyStatus
       if (
         modules.length > 0 &&

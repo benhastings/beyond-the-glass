@@ -114,3 +114,46 @@ describe('E3-04 resume point', () => {
     expect(a.setResumeAt(p1, '/lesson/first-look/2', '2026-01-01T00:02:00.000Z')).toBe(p1)
   })
 })
+
+describe('E4-05 retake and test-out', () => {
+  it('[E4-05.AC1] retaking the Threshold never deletes lesson, check, challenge or scenario progress', () => {
+    let p = emptyProgress('2026-01-01T00:00:00.000Z')
+    p = a.recordThresholdAnswer(p, 'kubernetes-use', 'weekly', '2026-01-01T00:01:00.000Z')
+    p = a.completeThreshold(p, { kubernetes: 'navigator' }, '2026-01-01T00:02:00.000Z')
+    p = a.overrideLevel(p, 'containers', 'pathfinder', '2026-01-01T00:02:00.000Z')
+    p = a.chooseStartRegion(p, 'harbor', '2026-01-01T00:02:00.000Z')
+    p = a.completeLesson(p, 'your-first-look', '2026-01-01T00:03:00.000Z')
+    p = a.recordCheckAttempt(p, 'first-look-status', 'restarting', true, '2026-01-01T00:03:00.000Z')
+    p = a.updateChallenge(
+      p,
+      'find-the-failing-pod',
+      { status: 'completed' },
+      '2026-01-01T00:03:00.000Z',
+    )
+    p = a.saveScenario(
+      p,
+      'ravenpost/find-the-failing-pod',
+      { snapshot: { x: 1 } },
+      '2026-01-01T00:03:00.000Z',
+    )
+    p = a.testOutModule(p, 'harbor/images', '2026-01-01T00:04:00.000Z')
+    const r = a.retakeThreshold(p, '2026-01-02T00:00:00.000Z')
+    expect(r.threshold).toEqual({ answers: {}, overrides: {} })
+    expect(r.lessons).toEqual(p.lessons)
+    expect(r.checks).toEqual(p.checks)
+    expect(r.challenges).toEqual(p.challenges)
+    expect(r.scenarios).toEqual(p.scenarios)
+    expect(r.testedOut).toEqual(p.testedOut)
+    expect(r.updatedAt).toBe('2026-01-02T00:00:00.000Z')
+  })
+
+  it('records a module as tested out once', () => {
+    const p = a.testOutModule(
+      emptyProgress('2026-01-01T00:00:00.000Z'),
+      'chartroom/first-look',
+      '2026-01-01T00:05:00.000Z',
+    )
+    expect(p.testedOut).toEqual({ 'chartroom/first-look': '2026-01-01T00:05:00.000Z' })
+    expect(a.testOutModule(p, 'chartroom/first-look', '2026-01-02T00:00:00.000Z')).toBe(p)
+  })
+})

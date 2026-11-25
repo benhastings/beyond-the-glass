@@ -32,6 +32,8 @@ export interface ProgressState {
   changedElsewhere: boolean
   dismissChangedElsewhere: () => void
   setResumeAt: (path: string) => void
+  testOutModule: (moduleKey: string) => void
+  retakeThreshold: () => void
   /** Brings in exported progress (E2-06), merged with what's here so nothing is lost. */
   importProgress: (incoming: Progress) => void
   /** Set when stored progress couldn't be read as-is; the RecoveryDialog shows it once (E3-02). */
@@ -115,6 +117,12 @@ export function createProgressStore({
           changedElsewhere: false,
           dismissChangedElsewhere: () => {
             set({ changedElsewhere: false })
+          },
+          testOutModule: (key) => {
+            apply((p, t) => actions.testOutModule(p, key, t))
+          },
+          retakeThreshold: () => {
+            apply((p, t) => actions.retakeThreshold(p, t))
           },
           importProgress: (incoming) => {
             apply((p, t) => mergeProgress(p, incoming, t))

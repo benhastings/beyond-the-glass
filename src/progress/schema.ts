@@ -88,6 +88,8 @@ export const progressV1 = z.strictObject({
   checks: z.record(contentId, checkProgressSchema).default({}),
   challenges: z.record(contentId, challengeProgressSchema).default({}),
   scenarios: z.record(contentId, scenarioProgressSchema).default({}),
+  /** Modules the learner tested out of (E4-05), by `region/module`, with when. */
+  testedOut: z.record(contentId, timestamp).optional(),
   /** Where the learner last was in a lesson (route and step), for "Continue" (E3-04). */
   resumeAt: z.strictObject({ path: z.string().startsWith('/').max(200), at: timestamp }).optional(),
   settings: settingsSchema.default({
