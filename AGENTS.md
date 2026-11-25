@@ -17,6 +17,7 @@ This file is for coding agents (and humans) picking up issues in this repo. Read
 5. **Determinism.** Never use `Math.random()` or `Date.now()` inside the simulator or telemetry. Use the sim RNG and `SimClock`.
 6. **No runtime network calls** to anything other than the app's own origin. Self-host fonts and assets. No analytics, CDNs or embeds.
 7. **Path-independent build.** The same `dist/` runs on GitHub Pages (`/beyond-the-glass/`) and in the container (`/`). Use relative asset URLs and hash routes only; never hard-code the base path.
+8. **Browsers.** End-to-end tests run in **Chromium only** (decided 2026-11-24). Don't add Firefox, WebKit or other browser projects; where a criterion says "all three browsers", Chromium satisfies it.
 
 ## 3. Guardrails (non-negotiable)
 - **Public repo, public site.** Never add real hostnames, IP addresses, system names, agency names, people's names, ticket numbers, screenshots of real tools, or anything from the operator's actual environment. Use the fictional **Ravenpost** system and `*.example` domains. The `content-guard` CI check enforces this, and it also checks a private denylist you can't see. If it fails on your PR, remove the content; don't try to work around the pattern.
@@ -30,7 +31,6 @@ A PR is mergeable only when all of the following are true:
 
 - [ ] All acceptance criteria in the linked issue are met, and `python3 scripts/ac-trace.py --issue <ID>` passes (each automated criterion has a passing test tagged `[<ID>.ACn]`, each manual one has evidence in `docs/evidence/<ID>.md`)
 - [ ] `npm run typecheck`, `npm run lint`, `npm test` and `npm run test:e2e` pass locally and in CI
-- [ ] End-to-end tests run in **Chromium only** (decided 2026-11-24). Don't add Firefox, WebKit or other browser projects; where a criterion says "all three browsers", Chromium satisfies it
 - [ ] New logic has unit tests; framework-free packages stay at ≥ 90% line coverage
 - [ ] User-facing changes have a Playwright test covering the main path, and axe reports zero violations
 - [ ] Keyboard-only operation verified; focus order and visible focus checked

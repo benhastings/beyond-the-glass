@@ -48,6 +48,16 @@ acTest(
     await page.getByRole('button', { name: 'Open a dialog' }).click()
     const dialog = page.getByRole('dialog', { name: 'Leave the scenario?' })
     await expect(dialog).toBeVisible()
+    // A real modal: Tab never reaches the page behind it (after the last control, focus may move to
+    // the browser's own UI, which is the native behaviour).
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press('Tab')
+      expect(
+        await page.evaluate<boolean>(
+          `(() => { const a = document.activeElement; return !a || a === document.body || document.querySelector('dialog[open]').contains(a) })()`,
+        ),
+      ).toBe(true)
+    }
     await expectNoA11yViolations(page)
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
