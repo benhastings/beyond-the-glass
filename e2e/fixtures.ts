@@ -67,3 +67,17 @@ export const test = base.extend<{ thirdPartyGuard: undefined; allowedConsoleErro
 })
 
 export { expect }
+
+/** Stored progress with the given settings, planted before the app loads. */
+export async function withSettings(page: Page, settings: Record<string, unknown>) {
+  const at = '2026-11-24T10:00:00.000Z'
+  const progress = {
+    schemaVersion: 1,
+    createdAt: at,
+    updatedAt: at,
+    settings: { reduceMotion: 'system', highContrast: 'system', textSize: 100, ...settings },
+  }
+  await page.addInitScript(
+    `localStorage.setItem('btg:progress', ${JSON.stringify(JSON.stringify({ state: { progress }, version: 1 }))})`,
+  )
+}

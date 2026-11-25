@@ -120,3 +120,12 @@ adjacent letters), up to 2.
 The terminal prompt shows the current context and namespace (`promptState`). A context whose name or
 cluster contains `prod` or `production` as a word is shown as a warning, with an icon and the word
 "(production)". When the context or namespace changes, a polite live region announces it.
+
+## Terminal (E6-09)
+
+`src/app/terminal/Terminal.tsx`. Keys: Enter runs, ↑/↓ recall history, Tab completes (and lists the
+candidates when there's more than one; with nothing typed, Tab moves focus on), Ctrl+L clears, Ctrl+C
+cancels the line, Alt+O moves to the last output. History and scrollback are kept in the simulation's state, so
+the saved progress snapshot restores them. On touch screens a row of buttons stands in for Tab, ↑, ↓ and
+Ctrl+C. Screen readers get one polite announcement per command: the output when it's at most 3 lines,
+otherwise a line count. The scrollback itself (`role="log"`) isn't live, so a long table is never read out.

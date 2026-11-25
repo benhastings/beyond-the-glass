@@ -4,6 +4,7 @@ import { createShell } from '@/sim/commands'
 import type { EditRequest } from '@/sim/commands/types'
 import { loadSimulation } from '@/sim/controllers'
 import { InlineEditor } from '../terminal/InlineEditor'
+import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { Page } from '../shell/Page'
 import type { Mood } from '../display/display'
 import {
@@ -180,6 +181,10 @@ function Demo() {
         </Card>
 
         <EditorDemo />
+
+        <Card id="terminal" title="Terminal">
+          <ScenarioTerminal scenario={ravenpost} label="Ravenpost terminal" />
+        </Card>
       </div>
     </Page>
   )

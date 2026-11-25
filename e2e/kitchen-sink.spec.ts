@@ -1,5 +1,5 @@
 import { acTest } from './ac.ts'
-import { expect, expectNoA11yViolations } from './fixtures.ts'
+import { expect, expectNoA11yViolations, withSettings } from './fixtures.ts'
 
 const MOODS = [
   ['Console Room', 'console'],
@@ -184,5 +184,56 @@ acTest(
     await page.keyboard.press('Escape')
     await expect(page.getByLabel('Command output')).toHaveText('Edit cancelled, no changes made.')
     await expect(run).toBeVisible()
+  },
+)
+
+acTest(
+  'E6-09.AC3',
+  'the terminal’s history and scrollback come back after a reload',
+  async ({ page }) => {
+    await page.goto('./#/kitchen-sink')
+    const input = page.getByRole('textbox', { name: 'Command' })
+    await input.fill('kubectl get pods -n ravenpost')
+    await input.press('Enter')
+    await input.fill('pwd')
+    await input.press('Enter')
+    const log = page.getByRole('log', { name: 'Ravenpost terminal output' })
+    await expect(log.getByRole('heading', { level: 3 })).toHaveCount(2)
+    await page.reload()
+    await expect(log.getByRole('heading', { level: 3 })).toHaveCount(2)
+    await expect(log).toContainText('ravenpost-notifier')
+    await input.focus()
+    await input.press('ArrowUp')
+    await expect(input).toHaveValue('pwd')
+    await input.press('ArrowUp')
+    await expect(input).toHaveValue('kubectl get pods -n ravenpost')
+  },
+)
+
+acTest(
+  'E6-09.AC4',
+  'at 130% text the terminal scrolls within itself and the page never scrolls sideways',
+  async ({ page }) => {
+    await withSettings(page, { textSize: 130 })
+    await page.setViewportSize({ width: 375, height: 800 })
+    await page.goto('./#/kitchen-sink')
+    expect(await page.evaluate<string>('document.documentElement.style.fontSize')).toBe('130%')
+    const input = page.getByRole('textbox', { name: 'Command' })
+    await input.fill('kubectl get pods -A -o wide')
+    await input.press('Enter')
+    const out = page.getByLabel(/^Output of kubectl get pods -A -o wide/)
+    await expect(out).toBeVisible()
+    // The wide table is wider than the screen, so the output scrolls, not the page.
+    expect(
+      await out.evaluate(
+        (el: { scrollWidth: number; clientWidth: number }) => el.scrollWidth > el.clientWidth,
+      ),
+    ).toBe(true)
+    expect(
+      await page.evaluate<boolean>('document.documentElement.scrollWidth <= window.innerWidth'),
+    ).toBe(true)
+    // The touch helper row is there on a phone-sized screen.
+    await expect(page.getByRole('group', { name: 'Terminal keys' })).toBeVisible()
+    await expectNoA11yViolations(page)
   },
 )

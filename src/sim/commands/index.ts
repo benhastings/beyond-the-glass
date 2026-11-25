@@ -27,3 +27,4 @@ export { tabwrite, humanDuration } from './format.ts'
 export function createShell(sim: Simulator, session?: Session): Shell {
   return new Shell(sim, { commands: COMMANDS, ...(session ? { session } : {}) })
 }
+export { transcript, record, clearScreen, type TranscriptEntry } from './transcript.ts'
