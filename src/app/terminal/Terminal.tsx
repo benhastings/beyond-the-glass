@@ -8,7 +8,7 @@ import {
   transcript,
   type TranscriptEntry,
 } from '@/sim/commands'
-import type { EditRequest, Output } from '@/sim/commands/types'
+import type { EditRequest, Output, Session } from '@/sim/commands/types'
 import type { Simulator } from '@/sim/core/simulator'
 import { Button } from '../ui'
 import { cx, focusRing } from '../ui/styles'
@@ -23,6 +23,8 @@ export interface TerminalProps {
   /** Called after every command, so the caller can save a snapshot. */
   onChange?: () => void
   label?: string
+  /** Extra session hooks, e.g. a challenge's `hint` and `answer` (E6-10). */
+  session?: Omit<Session, 'history'>
 }
 
 const lineCount = (e: TranscriptEntry) =>
@@ -55,9 +57,12 @@ const commonPrefix = (xs: string[]) =>
  * a line count and how to read it (Alt+O). History (↑/↓), Tab completion (listing candidates when
  * ambiguous), Ctrl+L and Ctrl+C work as in bash. History and scrollback live in the simulation's state.
  */
-export function Terminal({ sim, onChange, label = 'Terminal' }: TerminalProps) {
+export function Terminal({ sim, onChange, label = 'Terminal', session }: TerminalProps) {
   const t = transcript(sim)
-  const shell = useMemo(() => createShell(sim, { history: t.history }), [sim, t.history])
+  const shell = useMemo(
+    () => createShell(sim, { ...session, history: t.history }),
+    [sim, t.history, session],
+  )
   const [entries, setEntries] = useState<TranscriptEntry[]>(() => [...t.entries])
   const [line, setLine] = useState('')
   const [announce, setAnnounce] = useState('')

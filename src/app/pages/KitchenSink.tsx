@@ -5,6 +5,8 @@ import type { EditRequest } from '@/sim/commands/types'
 import { loadSimulation } from '@/sim/controllers'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
+import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
+import { CHALLENGES } from '@/challenges'
 import { Page } from '../shell/Page'
 import type { Mood } from '../display/display'
 import {
@@ -184,6 +186,15 @@ function Demo() {
 
         <Card id="terminal" title="Terminal">
           <ScenarioTerminal scenario={ravenpost} label="Ravenpost terminal" />
+        </Card>
+
+        <Card id="challenge" title="Challenge">
+          {CHALLENGES['find-the-failing-pod'] && (
+            <ChallengeTerminal
+              challenge={CHALLENGES['find-the-failing-pod']}
+              scenario={ravenpost}
+            />
+          )}
         </Card>
       </div>
     </Page>
