@@ -8,6 +8,8 @@ import { ciScenario, mrScenario } from '@/sim/gitops/testing'
 import { PipelineView } from '../gitops/PipelineView'
 import { ArgoConsole } from '../gitops/argo/ArgoConsole'
 import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
+import { PromqlExplorer } from '../o11y/PromqlExplorer'
+import { telemetryScenario } from '@/sim/telemetry/testing'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
@@ -206,6 +208,8 @@ function Demo() {
 
         <MergeRequestDemo />
 
+        <PromqlDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -314,6 +318,22 @@ function MergeRequestDemo() {
         level={3}
         task={<p>Move the web Deployment to registry.example/web:1.1, through a merge request.</p>}
       />
+    </Card>
+  )
+}
+
+/** The PromQL explorer (E8-03) over six services, an hour in, with ledger slowed down at 40 minutes. */
+function PromqlDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = telemetryScenario([
+      { at: '+40m', type: 'injectLatency', namespace: 'ravenpost', service: 'ledger', ms: 400 },
+    ])
+    s.advance(3_600_000)
+    return s
+  })
+  return (
+    <Card id="promql" title="PromQL explorer">
+      <PromqlExplorer sim={sim} level={3} />
     </Card>
   )
 }
