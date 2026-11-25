@@ -27,8 +27,10 @@ describe('App shell', () => {
 
   it('renders the Console Room at the hash root', async () => {
     render(<App />)
+    // The first render waits for the content manifest, which is built on first import (the Console Room
+    // reads it), so this one waits longer than the default second.
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Beyond the Glass' }),
+      await screen.findByRole('heading', { level: 1, name: 'Beyond the Glass' }, { timeout: 5000 }),
     ).toBeInTheDocument()
     await waitFor(() => {
       expect(document.title).toBe('Beyond the Glass')
