@@ -5,7 +5,13 @@ import { hintCommand } from './builtins/hint.ts'
 import { historyCommand } from './builtins/history.ts'
 import { whoamiCommand } from './builtins/whoami.ts'
 import { kubectlConfig } from './kubectl/config.ts'
+import { kubectlDelete } from './kubectl/delete.ts'
 import { kubectlDescribe } from './kubectl/describe.ts'
+import { kubectlAnnotate } from './kubectl/annotate.ts'
+import { kubectlLabel } from './kubectl/label.ts'
+import { kubectlRollout } from './kubectl/rollout.ts'
+import { kubectlScale } from './kubectl/scale.ts'
+import { kubectlSet } from './kubectl/set.ts'
 import { kubectlEvents } from './kubectl/events.ts'
 import { kubectlLogs } from './kubectl/logs.ts'
 import { kubectlTop } from './kubectl/top.ts'
@@ -28,5 +34,11 @@ export const COMMANDS: readonly CommandDef[] = [
   kubectlLogs,
   kubectlEvents,
   kubectlTop,
+  kubectlRollout,
+  kubectlScale,
+  kubectlDelete,
+  kubectlSet,
+  kubectlLabel,
+  kubectlAnnotate,
   kubectlConfig,
 ]

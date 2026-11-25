@@ -96,3 +96,29 @@ that ran for 10 minutes before exiting starts again from 10 s. `RESTARTS` counts
 
 Repeated events fold into one with a count and a new last timestamp, as the event recorder does. A named
 `targetPort` resolves through the pods' container ports.
+
+## Changes, the audit log and GitOps (E6-07)
+
+Every command that changes a cluster (`scale`, `delete`, `set image`, `rollout undo|restart|pause|resume`,
+`label`, `annotate`) records an entry with `recordMutation` (`src/sim/core/audit.ts`):
+
+- when it happened (sim time),
+- who made it (`learner`, or `argocd` for a self-heal),
+- the verb, the object, the command line and verb-specific details.
+
+The challenge engine reads `auditLog(sim)` to check how a task was done, and the log is kept in snapshots.
+Read-only commands and commands that fail record nothing.
+
+`manageNamespace(sim, { cluster, namespace, app, selfHeal, intervalMs })` (`src/sim/controllers/gitops.ts`)
+is the hook E7-06 builds Argo CD on:
+
+- It treats the namespace's current Deployments, Services, ConfigMaps and Secrets as Git's desired state.
+- Every sync tick (default 3 minutes) with `selfHeal` on, objects that have drifted or been deleted are put back, and each is recorded as an `argocd` `sync` entry.
+- The learner's changes succeed when made, and the next tick reverts them, as on a real GitOps-managed cluster.
+
+Deleting one of a Deployment's pods shows the other half of the same lesson: its ReplicaSet creates a
+replacement with a new name straight away.
+
+`rollout status` relies on the Progressing condition. Its `lastUpdateTime` moves only when the rollout makes
+progress. A rollout that makes no progress for `progressDeadlineSeconds` becomes `Progressing=False`,
+`ProgressDeadlineExceeded`, which `rollout status` reports as `exceeded its progress deadline`.
