@@ -3,10 +3,12 @@
 // lint-allow escape hatch: src/content/lint/rules.ts. Usage: npm run lint:content [-- DIR…]
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { lintMdx, lintYaml } from '../src/content/lint/rules.ts'
+import { lintMdx, lintTsx, lintYaml } from '../src/content/lint/rules.ts'
 
 const ROOT = join(import.meta.dirname, '..')
-const dirs = process.argv.slice(2).length ? process.argv.slice(2) : ['content', 'src/challenges']
+const dirs = process.argv.slice(2).length
+  ? process.argv.slice(2)
+  : ['content', 'src/challenges', 'src/app']
 const walk = (dir) =>
   readdirSync(dir).flatMap((n) => {
     const p = join(dir, n)
@@ -21,6 +23,7 @@ for (const d of dirs)
     const text = readFileSync(p, 'utf8')
     if (p.endsWith('.mdx')) findings.push(...lintMdx(rel, text))
     else if (/\.ya?ml$/.test(p)) findings.push(...lintYaml(rel, text))
+    else if (p.endsWith('.tsx') && !p.endsWith('.test.tsx')) findings.push(...lintTsx(rel, text))
     else continue
     files++
   }
