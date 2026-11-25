@@ -9,6 +9,7 @@ import {
   resolve,
   type Commit,
   type MergeRequest,
+  revert,
   type Repo,
 } from './git.ts'
 import { ciProject, pipelines, startPipeline, type Pipeline } from './pipeline.ts'
@@ -79,6 +80,32 @@ export function proposeChange(
     branch,
     r.defaultBranch,
     c.title ?? c.message.split('\n')[0] ?? branch,
+    LEARNER,
+  )
+  const pipeline = runPipeline(sim, mr)
+  return { mr, ...(pipeline ? { pipeline } : {}) }
+}
+
+/** Reverts a commit (default: the default branch's newest) on a new branch, through a merge request. */
+export function proposeRevert(
+  sim: Simulator,
+  repoName: string,
+  sha?: string,
+): { mr: MergeRequest; pipeline?: Pipeline } {
+  const r = repo(sim, repoName)
+  const target = r && (sha ? r.commits[sha] : resolve(r, r.defaultBranch))
+  if (!r || !target) throw new Error(`nothing to revert in ${repoName}`)
+  let branch = `${LEARNER}/revert-${target.sha.slice(0, 8)}`
+  for (let n = 2; Object.hasOwn(r.branches, branch); n++)
+    branch = `${LEARNER}/revert-${target.sha.slice(0, 8)}-${String(n)}`
+  createBranch(sim, repoName, branch, r.defaultBranch)
+  const c = revert(sim, repoName, branch, target.sha)
+  const mr = openMergeRequest(
+    sim,
+    repoName,
+    branch,
+    r.defaultBranch,
+    c.message.split('\n')[0] ?? branch,
     LEARNER,
   )
   const pipeline = runPipeline(sim, mr)

@@ -115,3 +115,40 @@ gitops:
       policies: [no-latest-tag, memory-limits]
 ```
 
+## Argo CD events
+
+Argo CD records its own events on the Application, in the `argocd` namespace. You can see them in the
+console (the Application node's Events tab) and with `kubectl get events -n argocd`:
+
+- `ResourceUpdated`: "Updated sync status: Synced -> OutOfSync", and back.
+- `OperationStarted`: "Initiated automated sync to '<sha>'", or a manual sync or rollback.
+- `OperationCompleted`: "Sync operation to <sha> succeeded" or "… failed: <message>".
+
+So when self-heal undoes a `kubectl scale`, the learner can see it happen. Automated sync doesn't retry a
+revision it failed to sync, as in Argo CD.
+
+## Scenario fragments (E7-06)
+
+`src/sim/gitops/fragments/` holds reusable GitOps situations. Each needs a world with a deploy repo and an
+Argo CD application. `composeFragments(input, [{ fragment, params }])` adds them to a scenario input:
+
+| Fragment | Sync policy | What happens | Solved when |
+|---|---|---|---|
+| `drift-self-heal` | automated, self-heal | A hand-made `kubectl scale` is put back on the next reconcile | The replicas are changed through a merge request |
+| `manual-sync` | manual | A colleague's merged release waits in Git (`gitCommit`) | Synced, running the new image |
+| `sync-failed` | automated, no self-heal | A selector change can't apply: the sync fails with "field is immutable" | The learner read the operation and merged a revert; Synced and Healthy |
+| `bad-release` | automated, self-heal | A release with a tag that doesn't exist: ErrImagePull, then Degraded | Healthy on the old image, through either expert path (below) |
+
+For `bad-release`, the two expert paths trade off differently:
+
+- **`git revert` through a merge request:** keeps Git true, but takes a pipeline.
+- **`argocd app set --sync-policy none` and then `argocd app rollback`:** faster, but leaves Git asking for
+  the bad release until it's reverted.
+
+Each fragment's params name the target (`app`, `repo`, `file`, `namespace`, `deployment`, `image`, `tag`)
+and when the trouble starts (`at`).
+
+Fragments compose. Two fragments that need different sync policies on the same app are refused, with an
+error naming both. Expert paths are data (`run`, `mr`, `revertMr`, `wait`) that `playExpertPath` replays,
+so the capstone (E10) can reuse them.
+

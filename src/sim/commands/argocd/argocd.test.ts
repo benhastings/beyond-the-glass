@@ -152,6 +152,18 @@ describe('E7-04 argocd CLI: golden output', () => {
       kind: 'Application',
       spec: { destination: { namespace: 'shop' } },
     })
+    // app set: auto-sync off, on with self-heal, and the errors.
+    expect(sh.run('argocd app set shop')).toMatchObject({
+      exitCode: 20,
+      stderr: expect.stringMatching(/needs something to set/) as unknown,
+    })
+    expect(sh.run('argocd app set shop --self-heal').stderr).toMatch(/need --sync-policy automated/)
+    expect(sh.run('argocd app set shop --sync-policy automated --self-heal').exitCode).toBe(0)
+    expect(sh.run('argocd app get shop').stdout).toMatch(/^Sync Policy: +Automated$/m)
+    expect(sh.run('argocd app set shop --auto-prune').exitCode).toBe(0)
+    expect(sh.run('argocd app get shop').stdout).toMatch(/^Sync Policy: +Automated \(Prune\)$/m)
+    expect(sh.run('argocd app set shop --sync-policy none').exitCode).toBe(0)
+    expect(sh.run('argocd app get shop').stdout).toMatch(/^Sync Policy: +Manual$/m)
     expect(sh.complete('argocd app g').candidates).toEqual(['get'])
     expect(sh.complete('argocd app get s').candidates).toEqual(['shop'])
     // Automated apps refuse rollback; wait gives up on a degraded app.

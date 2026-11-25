@@ -84,6 +84,9 @@ the type's own fields. References are checked against the cluster's manifests.
 | `setResources` | `namespace`, `deployment`, `container`, `requests`, `limits` | Changes requests/limits: too-large requests leave pods Pending; a memory limit below the app's use gets them OOMKilled |
 | `setReadinessPath` | `namespace`, `deployment`, `container`, `path` | Points the readiness probe at another path: a path the app doesn't serve gets 404 and the pod is never Ready |
 | `setServiceSelector` | `namespace`, `service`, `selector` | Replaces a Service's selector: one that matches no pods leaves it with no endpoints |
+| `pipeline` | `project`, `message?`, `author?`, `files?`, `failure?` | Commits to an app repo and runs its CI pipeline (E7-02) |
+| `ciFailure` | `project`, `failure` | The project's next pipeline fails this way: `test`, `lint`, `scan`, `push`, `bad-tag`, `policy` (E7-02, E7-03) |
+| `gitCommit` | `repo`, `message`, `branch?`, `author?`, `replace?` (`file`, `from`, `to`), `changes?` | A colleague pushes a commit: edits by text replacement, or whole files (E7-06) |
 
 `setImage` also takes an optional `behaviour` for the new image: the usual way to break something with a
 deploy (a crash on start, a tag that doesn't exist).

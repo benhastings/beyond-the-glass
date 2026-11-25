@@ -260,6 +260,18 @@ export function nodeDetails(
   const app = application(sim, appName)
   const cluster = app && sim.clusterByName(app.destination.cluster)
   if (!app || !cluster) return undefined
+  const eventsFor = (kind: string, namespace: string, name: string): EventRow[] =>
+    cluster
+      .list('Event', { namespace })
+      .filter((e) => e.involvedObject.kind === kind && e.involvedObject.name === name)
+      .map((e) => ({
+        type: e.type,
+        reason: e.reason,
+        at: Date.parse(e.lastTimestamp) - sim.clock.epochMs,
+        count: e.count,
+        message: e.message,
+      }))
+      .sort((a, b) => a.at - b.at)
   if (node.kind === 'Application')
     return {
       live: kubectlYaml({
@@ -272,7 +284,8 @@ export function nodeDetails(
           ...(app.syncPolicy ? { syncPolicy: app.syncPolicy } : {}),
         },
       }),
-      events: [],
+      // Argo's own record: sync status changes, and each sync it started and finished.
+      events: eventsFor('Application', 'argocd', app.name),
     }
   if (node.kind === 'Endpoints') {
     const svc = cluster.get('Service', node.namespace, node.name)
@@ -280,17 +293,7 @@ export function nodeDetails(
   }
   const live = cluster.get(node.kind as Kind, node.namespace, node.name)
   const d = resourceDiffs(sim, app).diffs.find((x) => x.kind === node.kind && x.name === node.name)
-  const events = cluster
-    .list('Event', { namespace: node.namespace })
-    .filter((e) => e.involvedObject.kind === node.kind && e.involvedObject.name === node.name)
-    .map((e) => ({
-      type: e.type,
-      reason: e.reason,
-      at: Date.parse(e.lastTimestamp) - sim.clock.epochMs,
-      count: e.count,
-      message: e.message,
-    }))
-    .sort((a, b) => a.at - b.at)
+  const events = eventsFor(node.kind, node.namespace, node.name)
   const pod = live?.kind === 'Pod' ? live : undefined
   const logs = pod && containerLogs(sim, pod, pod.spec.containers[0]?.name ?? '')
   return {

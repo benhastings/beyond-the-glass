@@ -202,6 +202,7 @@ describe('scenario schema', () => {
       'setServiceSelector',
       'pipeline',
       'ciFailure',
+      'gitCommit',
     ])
   })
 })

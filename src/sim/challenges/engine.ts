@@ -1,7 +1,7 @@
 import { auditLog } from '../core/audit.ts'
 import type { Resource } from '../core/resources.ts'
 import { readPath } from '../core/path.ts'
-import { application } from '../gitops/argo.ts'
+import { application, compareApp } from '../gitops/argo.ts'
 import { mergeRequests, repo } from '../gitops/git.ts'
 import { ancestors, LEARNER } from '../gitops/mr.ts'
 import type { Simulator } from '../core/simulator.ts'
@@ -127,6 +127,20 @@ export class ChallengeRun {
           )
         })
         return p.via === 'mr' ? byMr && !(p.only && byKubectl) : byKubectl && !(p.only && byMr)
+      }
+      case 'mergedRequest':
+        return mergeRequests(this.sim, p.repo).some(
+          (m) => m.state === 'merged' && m.author === LEARNER,
+        )
+      case 'argoApp': {
+        const now = compareApp(this.sim, p.app)
+        const op = application(this.sim, p.app)?.status.operationState
+        return (
+          now !== undefined &&
+          (p.sync === undefined || now.sync === p.sync) &&
+          (p.health === undefined || now.health === p.health) &&
+          (p.operation === undefined || op?.phase === p.operation)
+        )
       }
       case 'mutated':
         return auditLog(this.sim).some(

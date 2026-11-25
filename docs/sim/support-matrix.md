@@ -135,9 +135,10 @@ otherwise a line count. The scrollback itself (`role="log"`) isn't live, so a lo
 | Command | Status | Notes |
 |---|---|---|
 | `argocd app list [-o wide\|name\|yaml\|json]` | Supported | Every application, with sync, health and policy |
-| `argocd app get APP [-o yaml\|json]`, `argocd app refresh APP` | Supported | The summary block, conditions and the resource table |
+| `argocd app get APP [-o yaml\|json]`, `argocd app refresh APP` | Supported | The summary block, conditions, the last operation and the resource table |
 | `argocd app diff APP [--revision REV]` | Supported | `===== group/Kind ns/name ======` headers and classic `diff` output; exit 1 when there are differences |
 | `argocd app sync APP [--prune]` | Supported | Applies Git's manifests; a failed operation exits 20 with the API server's message |
 | `argocd app history APP`, `argocd app rollback APP [ID]` | Supported | Rollback is refused while auto-sync is on, as in Argo CD |
 | `argocd app wait APP [--health] [--sync] [--timeout S]` | Supported | Waits in simulated time; stops early on Degraded |
+| `argocd app set APP --sync-policy automated\|none [--self-heal] [--auto-prune]` | Supported | Turns auto-sync on or off (rollback needs it off) |
 | `argocd login` | Simulated | Already logged in to argocd.ravenpost.example |

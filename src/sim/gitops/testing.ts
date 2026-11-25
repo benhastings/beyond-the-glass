@@ -23,11 +23,10 @@ spec:
 export const configManifest =
   'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: web-config\ndata:\n  GREETING: hello\n  MODE: calm\n'
 
-/** The mini cluster with a deploy repo and an Argo application `shop` for it (tests only). */
-export function gitopsScenario(automated?: { prune?: boolean; selfHeal?: boolean }) {
-  const base = miniScenarioInput()
-  const input: ScenarioInput = {
-    ...base,
+/** The mini cluster with a deploy repo and an Argo application `shop` for it, as input (tests only). */
+export function gitopsInput(automated?: { prune?: boolean; selfHeal?: boolean }): ScenarioInput {
+  return {
+    ...miniScenarioInput(),
     gitops: {
       reconcileInterval: '+3m',
       repos: {
@@ -49,7 +48,11 @@ export function gitopsScenario(automated?: { prune?: boolean; selfHeal?: boolean
       ],
     },
   }
-  const scenario = scenarioSchema.parse(input)
+}
+
+/** `gitopsInput`, parsed and loaded (tests only). */
+export function gitopsScenario(automated?: { prune?: boolean; selfHeal?: boolean }) {
+  const scenario = scenarioSchema.parse(gitopsInput(automated))
   return { scenario, sim: loadSimulation(scenario) }
 }
 
