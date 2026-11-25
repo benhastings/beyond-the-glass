@@ -185,7 +185,7 @@ test.describe('E1-02 theming and display preferences', () => {
 
   test('high contrast and reduced motion settings reach the page', async ({ page }) => {
     await withSettings(page, { highContrast: 'on', reduceMotion: 'on' })
-    await page.goto('./#/map')
+    await page.goto('./#/map?view=list')
     await expect(page.getByRole('heading', { level: 1, name: 'Map of the Reach' })).toBeVisible()
     expect(await page.evaluate<string>('document.documentElement.dataset.contrast')).toBe('more')
     expect(await page.evaluate<string>('document.documentElement.dataset.motion')).toBe('reduce')

@@ -44,6 +44,8 @@ test.describe('E2-01 app shell', () => {
         ['Step up to the Threshold', 'The Threshold'],
         ['Skip the Threshold and start from the very beginning', 'Your trail'],
         ['View the map', 'Map of the Reach'],
+        // The map is one Tab stop (arrow keys move between regions); the list view has a link per region.
+        ['List view', ''],
         ['Stormwatch', 'Stormwatch'],
         ['Enter the war room', 'Stormwatch'],
         ['Field Guide', 'Field Guide'],
@@ -55,6 +57,7 @@ test.describe('E2-01 app shell', () => {
       for (const [link, title] of journey) {
         await tabTo(page, link)
         await page.keyboard.press('Enter')
+        if (!title) continue
         await expectPage(page, title)
         await expectNoA11yViolations(page)
       }
@@ -65,9 +68,9 @@ test.describe('E2-01 app shell', () => {
     'E2-01.AC2',
     'back and forward restore the view and the scroll position',
     async ({ page }) => {
-      // Short enough that the map scrolls.
+      // Short enough that the map's list view scrolls.
       await page.setViewportSize({ width: 800, height: 320 })
-      await page.goto('./#/map')
+      await page.goto('./#/map?view=list')
       await expect(page.getByRole('heading', { level: 1, name: 'Map of the Reach' })).toBeVisible()
       await page.evaluate('window.scrollTo(0, document.documentElement.scrollHeight)')
       const scrolled = await scrollY(page)
