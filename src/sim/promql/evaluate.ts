@@ -27,14 +27,40 @@ export type Value =
 
 export const LOOKBACK_MS = 5 * 60_000
 
-const signature = (l: Labels, drop: readonly string[] = ['__name__'], keep?: readonly string[]) =>
-  JSON.stringify(
-    Object.entries(l)
-      .filter(([k]) => (keep ? keep.includes(k) : !drop.includes(k)))
-      .sort(([a], [b]) => (a < b ? -1 : 1)),
-  )
-const withoutName = (l: Labels): Labels =>
-  Object.fromEntries(Object.entries(l).filter(([k]) => k !== '__name__'))
+// Label sets keep their identity from step to step, so signatures and name-stripped copies are cached
+// per object: a range query asks for the same ones hundreds of times.
+const signatures = new WeakMap<Labels, Map<string, string>>()
+function signature(
+  l: Labels,
+  drop: readonly string[] = ['__name__'],
+  keep?: readonly string[],
+): string {
+  const spec = keep ? `+${keep.join(',')}` : `-${drop.join(',')}`
+  let m = signatures.get(l)
+  if (!m) {
+    m = new Map()
+    signatures.set(l, m)
+  }
+  let sig = m.get(spec)
+  if (sig === undefined) {
+    sig = JSON.stringify(
+      Object.entries(l)
+        .filter(([k]) => (keep ? keep.includes(k) : !drop.includes(k)))
+        .sort(([a], [b]) => (a < b ? -1 : 1)),
+    )
+    m.set(spec, sig)
+  }
+  return sig
+}
+const stripped = new WeakMap<Labels, Labels>()
+function withoutName(l: Labels): Labels {
+  let out = stripped.get(l)
+  if (!out) {
+    out = Object.fromEntries(Object.entries(l).filter(([k]) => k !== '__name__'))
+    stripped.set(l, out)
+  }
+  return out
+}
 
 function matches(l: Labels, name: string | undefined, ms: readonly Matcher[]): boolean {
   if (name !== undefined && l.__name__ !== name) return false
@@ -51,6 +77,18 @@ function matches(l: Labels, name: string | undefined, ms: readonly Matcher[]): b
         return !new RegExp(`^(?:${m.value})$`).test(v)
     }
   })
+}
+
+/** The index of the first point after `t` (points are in time order). */
+function after(points: readonly [number, number][], t: number): number {
+  let lo = 0
+  let hi = points.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if ((points[mid] as [number, number])[0] <= t) lo = mid + 1
+    else hi = mid
+  }
+  return lo
 }
 
 /** The furthest back any selector looks, beyond the query's own start. */
@@ -98,16 +136,19 @@ function names(e: Expr): string[] | undefined {
 
 /** Prometheus' extrapolated rate/increase over the samples in (rangeStart, rangeEnd]. */
 export function extrapolatedRate(
-  points: [number, number][],
+  points: readonly [number, number][],
   rangeStart: number,
   rangeEnd: number,
   isRate: boolean,
+  lo = 0,
+  hi = points.length,
 ): number | undefined {
-  if (points.length < 2) return undefined
-  const first = points[0] as [number, number]
-  const last = points.at(-1) as [number, number]
+  const n = hi - lo
+  if (n < 2) return undefined
+  const first = points[lo] as [number, number]
+  const last = points[hi - 1] as [number, number]
   let result = last[1] - first[1]
-  for (let j = 1; j < points.length; j++) {
+  for (let j = lo + 1; j < hi; j++) {
     const prev = (points[j - 1] as [number, number])[1]
     if ((points[j] as [number, number])[1] < prev) result += prev
   }
@@ -115,7 +156,7 @@ export function extrapolatedRate(
   if (sampled <= 0) return undefined
   let toStart = (first[0] - rangeStart) / 1000
   const toEnd = (rangeEnd - last[0]) / 1000
-  const avgGap = sampled / (points.length - 1)
+  const avgGap = sampled / (n - 1)
   if (result > 0 && first[1] >= 0) {
     const toZero = sampled * (first[1] / result)
     if (toZero < toStart) toStart = toZero
@@ -176,8 +217,21 @@ const ARITH: Record<string, (a: number, b: number) => number> = {
 
 class Evaluator {
   private readonly data: RawSeries[]
+  /** Each selector's matching series, found once rather than at every step. */
+  private readonly selected = new Map<Expr, RawSeries[]>()
+  /** One label object per aggregation group, kept across steps (so signatures stay cached). */
+  private readonly groupLabels = new Map<Expr, Map<string, Labels>>()
   constructor(data: RawSeries[]) {
     this.data = data
+  }
+
+  private select(e: Extract<Expr, { type: 'selector' }>): RawSeries[] {
+    let s = this.selected.get(e)
+    if (!s) {
+      s = this.data.filter((x) => matches(x.labels, e.name, e.matchers))
+      this.selected.set(e, s)
+    }
+    return s
   }
 
   at(e: Expr, t: number): Value {
@@ -199,7 +253,7 @@ class Evaluator {
       }
       case 'selector': {
         const end = t - e.offset
-        const sel = this.data.filter((s) => matches(s.labels, e.name, e.matchers))
+        const sel = this.select(e)
         if (e.range !== undefined) {
           const start = end - e.range
           return {
@@ -207,7 +261,7 @@ class Evaluator {
             series: sel
               .map((s) => ({
                 labels: s.labels,
-                points: s.points.filter(([pt]) => pt > start && pt <= end),
+                points: s.points.slice(after(s.points, start), after(s.points, end)),
               }))
               .filter((s) => s.points.length > 0),
           }
@@ -215,9 +269,8 @@ class Evaluator {
         return {
           kind: 'vector',
           samples: sel.flatMap((s) => {
-            let last: [number, number] | undefined
-            for (const p of s.points) if (p[0] <= end && p[0] > end - LOOKBACK_MS) last = p
-            return last ? [{ labels: s.labels, value: last[1] }] : []
+            const last = s.points[after(s.points, end) - 1]
+            return last && last[0] > end - LOOKBACK_MS ? [{ labels: s.labels, value: last[1] }] : []
           }),
         }
       }
@@ -263,26 +316,34 @@ class Evaluator {
       }
     }
     const arg = args[0] as Expr
+    // The usual case, a function of a range selector, reads each window in place.
+    if (arg.type === 'selector' && arg.range !== undefined) {
+      const end = t - arg.offset
+      const start = end - arg.range
+      return {
+        kind: 'vector',
+        samples: this.select(arg).flatMap((s) => {
+          const lo = after(s.points, start)
+          const hi = after(s.points, end)
+          let v: number | undefined
+          if (fn === 'irate') {
+            const a = s.points[hi - 2]
+            const b = s.points[hi - 1]
+            if (hi - lo >= 2 && a && b && b[0] > a[0])
+              v = (b[1] < a[1] ? b[1] : b[1] - a[1]) / ((b[0] - a[0]) / 1000)
+          } else v = extrapolatedRate(s.points, start, end, fn === 'rate', lo, hi)
+          return v === undefined ? [] : [{ labels: withoutName(s.labels), value: v }]
+        }),
+      }
+    }
     const m = this.at(arg, t)
     if (m.kind !== 'matrix')
       throw new PromqlError(
         `${fn}() needs a range vector, like ${fn}(http_server_requests_total[5m])`,
       )
-    const range = arg.type === 'selector' ? (arg.range ?? 0) : 0
-    const offset = arg.type === 'selector' ? arg.offset : 0
-    const end = t - offset
-    return {
-      kind: 'vector',
-      samples: m.series.flatMap((s) => {
-        let v: number | undefined
-        if (fn === 'irate') {
-          const a = s.points.at(-2)
-          const b = s.points.at(-1)
-          if (a && b && b[0] > a[0]) v = (b[1] < a[1] ? b[1] : b[1] - a[1]) / ((b[0] - a[0]) / 1000)
-        } else v = extrapolatedRate(s.points, end - range, end, fn === 'rate')
-        return v === undefined ? [] : [{ labels: withoutName(s.labels), value: v }]
-      }),
-    }
+    throw new PromqlError(
+      `${fn}() needs a metric with a range right inside it, like ${fn}(http_server_requests_total[5m])`,
+    )
   }
 
   private aggregate(e: Extract<Expr, { type: 'agg' }>, t: number): Value {
@@ -308,7 +369,17 @@ class Evaluator {
     >()
     for (const s of v.samples) {
       const k = g ? key(s.labels) : '{}'
-      const grp = groups.get(k) ?? { labels: g ? labelsFor(s.labels) : {}, samples: [] }
+      let known = this.groupLabels.get(e)
+      if (!known) {
+        known = new Map()
+        this.groupLabels.set(e, known)
+      }
+      let labels = known.get(k)
+      if (!labels) {
+        labels = g ? labelsFor(s.labels) : {}
+        known.set(k, labels)
+      }
+      const grp = groups.get(k) ?? { labels, samples: [] }
       grp.samples.push(s)
       groups.set(k, grp)
     }

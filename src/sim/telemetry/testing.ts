@@ -137,3 +137,50 @@ export function telemetryScenario(timeline: ScenarioInput['timeline'] = []) {
   const scenario = scenarioSchema.parse(telemetryScenarioInput(timeline))
   return { scenario, sim: loadSimulation(scenario) }
 }
+
+/**
+ * The six services, with the gate deployed by Argo CD from a deploy repo, and a release of the gate at
+ * +30m (tests and demos only): telemetry and deploys on one timeline.
+ */
+export function telemetryGitopsScenarioInput(
+  timeline: ScenarioInput['timeline'] = [],
+): ScenarioInput {
+  const input = telemetryScenarioInput(timeline)
+  const gate = input.clusters[0]?.resources?.find(
+    (r) => r.kind === 'Deployment' && r.metadata.name === 'gate',
+  )
+  return {
+    ...input,
+    timeline: [
+      ...(input.timeline ?? []),
+      {
+        at: '+30m',
+        type: 'gitCommit',
+        repo: 'ravenpost-deploy',
+        message: 'Release gate 1.1',
+        replace: [{ file: 'ravenpost/gate.yaml', from: 'gate:1.0', to: 'gate:1.1' }],
+      },
+    ],
+    images: { ...input.images, 'registry.example/ravenpost/gate:1.1': { memoryMi: 180 } },
+    gitops: {
+      repos: {
+        'ravenpost-deploy': {
+          files: { 'ravenpost/gate.yaml': `${JSON.stringify(gate, null, 2)}\n` },
+        },
+      },
+      applications: [
+        {
+          name: 'gate',
+          source: { repo: 'ravenpost-deploy', path: 'ravenpost' },
+          destination: { cluster: 'prod', namespace: 'ravenpost' },
+          syncPolicy: { automated: { prune: false, selfHeal: true } },
+        },
+      ],
+    },
+  }
+}
+
+export function telemetryGitopsScenario(timeline: ScenarioInput['timeline'] = []) {
+  const scenario = scenarioSchema.parse(telemetryGitopsScenarioInput(timeline))
+  return { scenario, sim: loadSimulation(scenario) }
+}

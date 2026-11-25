@@ -9,7 +9,8 @@ import { PipelineView } from '../gitops/PipelineView'
 import { ArgoConsole } from '../gitops/argo/ArgoConsole'
 import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
 import { PromqlExplorer } from '../o11y/PromqlExplorer'
-import { telemetryScenario } from '@/sim/telemetry/testing'
+import { DashboardView } from '../o11y/dashboards/DashboardView'
+import { telemetryGitopsScenario, telemetryScenario } from '@/sim/telemetry/testing'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
@@ -210,6 +211,8 @@ function Demo() {
 
         <PromqlDemo />
 
+        <DashboardDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -334,6 +337,29 @@ function PromqlDemo() {
   return (
     <Card id="promql" title="PromQL explorer">
       <PromqlExplorer sim={sim} level={3} />
+    </Card>
+  )
+}
+
+/** Dashboards (E8-02): an hour of six services, a gate release at 30 minutes, ledger OOMing from 40. */
+function DashboardDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = telemetryGitopsScenario([
+      {
+        at: '+40m',
+        type: 'setMemoryLimit',
+        namespace: 'ravenpost',
+        deployment: 'ledger',
+        container: 'ledger',
+        limit: '128Mi',
+      },
+    ])
+    s.advance(3_600_000)
+    return s
+  })
+  return (
+    <Card id="dashboards" title="Dashboards">
+      <DashboardView sim={sim} />
     </Card>
   )
 }
