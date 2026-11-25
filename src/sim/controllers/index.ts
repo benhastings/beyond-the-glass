@@ -2,6 +2,7 @@
 import type { Scenario } from '../core/scenario.ts'
 import { Simulator, type Controller, type SimOptions } from '../core/simulator.ts'
 import { deploymentController } from './deployment.ts'
+import { argoController } from '../gitops/argo.ts'
 import { gitopsController } from './gitops.ts'
 import { kubelet } from './kubelet.ts'
 import { replicaSetController } from './replicaset.ts'
@@ -13,7 +14,14 @@ import { scheduler } from './scheduler.ts'
  * the kubelet runs them. To add one: a new file, plus one line here.
  */
 export function defaultControllers(): Controller[] {
-  return [gitopsController, deploymentController, replicaSetController, scheduler, kubelet]
+  return [
+    argoController,
+    gitopsController,
+    deploymentController,
+    replicaSetController,
+    scheduler,
+    kubelet,
+  ]
 }
 
 /** A simulation with the full set of controllers running. */

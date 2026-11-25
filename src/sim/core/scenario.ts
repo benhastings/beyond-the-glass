@@ -311,6 +311,48 @@ export const scenarioSchema = z
     contexts: z.array(context).min(1),
     clusters: z.array(cluster).min(1),
     timeline: z.array(timelineEntry).default([]),
+    /**
+     * GitOps (E7-01): Git repositories (path → file) and the Argo CD applications that deploy them. The
+     * reconcile loop runs every `reconcileInterval` of sim time (Argo's default is 3 minutes).
+     */
+    gitops: z
+      .strictObject({
+        reconcileInterval: simTime.default('+3m'),
+        repos: z
+          .record(
+            slug,
+            z.strictObject({
+              branch: z.string().default('main'),
+              files: z.record(z.string(), z.string()),
+            }),
+          )
+          .default({}),
+        applications: z
+          .array(
+            z.strictObject({
+              name: slug,
+              project: z.string().default('default'),
+              source: z.strictObject({
+                repo: slug,
+                path: z.string(),
+                targetRevision: z.string().default('main'),
+              }),
+              destination: z.strictObject({ cluster: slug, namespace: slug }),
+              syncPolicy: z
+                .strictObject({
+                  automated: z
+                    .strictObject({
+                      prune: z.boolean().default(false),
+                      selfHeal: z.boolean().default(false),
+                    })
+                    .optional(),
+                })
+                .optional(),
+            }),
+          )
+          .default([]),
+      })
+      .optional(),
     /** How each image behaves when it runs (healthy if absent): crashes, memory use, log lines (E6-03). */
     images: z.record(z.string(), behaviourSchema).default({}),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */
