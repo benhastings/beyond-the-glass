@@ -1,7 +1,8 @@
 import { join } from 'node:path'
 import { FRAGMENT_SCENARIO_IDS } from '../../scenarios/fragment-ids.ts'
 import type { Plugin } from 'vite'
-import { buildManifest, scenarioIdsIn } from './load.ts'
+import { allLessons } from '../manifest.ts'
+import { buildManifest, practiceLinkErrors, scenarioIdsIn } from './load.ts'
 
 const ID = 'virtual:btg-content'
 const RESOLVED = `\0${ID}`
@@ -37,6 +38,11 @@ export function contentPlugin(opts: ContentPluginOptions = {}): Plugin {
       })
       for (const w of warnings) this.warn(w)
       for (const f of files) this.addWatchFile(f)
+      const broken = practiceLinkErrors(
+        allLessons(manifest).map((l) => l.id),
+        scenarios,
+      )
+      if (broken.length) this.error(broken.join('\n'))
       json = JSON.stringify(manifest)
     },
     resolveId(id) {

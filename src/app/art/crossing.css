@@ -1,0 +1,127 @@
+/*
+ * The Crossing (E1-06): push in (900 ms), ripple (1000 ms), arrive (900 ms): 2.8 s, under the 3 s ceiling.
+ * The light brightens once and fades once; nothing flashes (WCAG 2.3.1). With reduced motion (the OS or
+ * the in-app setting) the component uses the 400 ms crossfade instead, by opacity transitions only.
+ */
+.btg-crossing {
+  background: #12151a;
+}
+/* Each moving layer is its own compositor layer: scaled and faded without repainting (E1-06.AC1). */
+.btg-cross-scene,
+.btg-cross-light,
+.btg-cross-map,
+.btg-cross-shaft,
+.btg-cross-ring {
+  will-change: transform, opacity;
+}
+.btg-cross-ring {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 24vmin;
+  height: 15vmin;
+  margin: -7.5vmin 0 0 -12vmin;
+  border: 2px solid #7de8d8;
+  border-radius: 50%;
+  opacity: 0;
+}
+.btg-crossing[data-mode='full'] .btg-cross-scene {
+  transform-origin: 50% 44%;
+  animation: btg-push 900ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+@keyframes btg-push {
+  to {
+    transform: scale(3.4);
+  }
+}
+.btg-crossing[data-mode='full'] .btg-cross-light {
+  animation: btg-spill 1900ms 700ms ease-in-out both;
+}
+@keyframes btg-spill {
+  0% {
+    opacity: 0;
+  }
+  45%,
+  70% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.btg-crossing[data-mode='full'] .btg-cross-ring {
+  animation: btg-ring 1000ms 900ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+.btg-crossing[data-mode='full'] .btg-cross-ring:nth-child(2) {
+  animation-delay: 1020ms;
+}
+.btg-crossing[data-mode='full'] .btg-cross-ring:nth-child(3) {
+  animation-delay: 1140ms;
+}
+@keyframes btg-ring {
+  from {
+    opacity: 0.7;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 0;
+    transform: scale(4);
+  }
+}
+.btg-crossing[data-mode='full'] .btg-cross-map {
+  animation: btg-arrive 900ms 1900ms cubic-bezier(0, 0, 0.2, 1) both;
+}
+@keyframes btg-arrive {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.btg-crossing[data-mode='full'] .btg-cross-shaft {
+  animation: btg-shaft 900ms 1900ms ease-out both;
+}
+@keyframes btg-shaft {
+  from {
+    opacity: 0;
+    transform: translateX(-6%);
+  }
+  to {
+    opacity: 0.3;
+    transform: translateX(0);
+  }
+}
+.btg-crossing[data-mode='full'] .btg-cross-line {
+  animation: btg-line 600ms 2000ms ease-out both;
+}
+@keyframes btg-line {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: a 400 ms crossfade from the room to the map, with the line of narrative showing. */
+.btg-crossing[data-mode='reduce'] .btg-cross-scene,
+.btg-crossing[data-mode='reduce'] .btg-cross-map {
+  transition: opacity 400ms cubic-bezier(0.2, 0, 0, 1);
+}
+.btg-crossing[data-mode='reduce'] .btg-cross-map {
+  opacity: 0;
+}
+.btg-crossing[data-mode='reduce'][data-arrived] .btg-cross-scene {
+  opacity: 0;
+}
+.btg-crossing[data-mode='reduce'][data-arrived] .btg-cross-map {
+  opacity: 1;
+}
+.btg-crossing[data-mode='reduce'] .btg-cross-light,
+.btg-crossing[data-mode='reduce'] .btg-cross-ripple,
+.btg-crossing[data-mode='reduce'] .btg-cross-shaft {
+  display: none;
+}

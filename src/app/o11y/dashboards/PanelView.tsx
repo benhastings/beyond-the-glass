@@ -16,11 +16,11 @@ import {
 } from './panelData'
 
 const SPAN = {
-  3: 'lg:col-span-3',
-  4: 'lg:col-span-4',
-  6: 'lg:col-span-6',
-  8: 'lg:col-span-8',
-  12: 'lg:col-span-12',
+  3: '@3xl:col-span-3',
+  4: '@3xl:col-span-4',
+  6: '@3xl:col-span-6',
+  8: '@3xl:col-span-8',
+  12: '@3xl:col-span-12',
 } as const
 
 /**
@@ -38,7 +38,10 @@ export function PanelView({
   onExplore,
   exemplars = [],
   onOpenTrace,
+  headingLevel = 3,
 }: {
+  /** The panel title's heading level (one below the dashboard's). */
+  headingLevel?: 3 | 4
   sim: Simulator
   panel: Panel
   query: string
@@ -51,6 +54,7 @@ export function PanelView({
   exemplars?: { traceId: string; durationMs: number; rootService: string }[]
   onOpenTrace?: (traceId: string) => void
 }) {
+  const PanelHeading = headingLevel === 4 ? 'h4' : 'h3'
   const id = useId()
   const [asTable, setAsTable] = useState(false)
   const epoch = sim.clock.epochMs
@@ -73,9 +77,9 @@ export function PanelView({
       )}
     >
       <header className="flex flex-wrap items-start justify-between gap-2">
-        <h3 id={`${id}-title`} className="font-bold">
+        <PanelHeading id={`${id}-title`} className="font-bold">
           {p.title}
-        </h3>
+        </PanelHeading>
         <div className="flex flex-wrap gap-1">
           {p.type !== 'logs' && (
             <>

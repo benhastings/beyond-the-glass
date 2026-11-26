@@ -195,8 +195,8 @@ export function Results() {
         <Button
           variant="primary"
           onClick={() => {
-            // The Crossing (E1-06) will play here; until then, straight to the map.
-            void navigate('/map')
+            // The map plays the Crossing (E1-06) the first time.
+            void navigate('/map', { state: { crossing: 'first' } })
           }}
         >
           Step through the glass
