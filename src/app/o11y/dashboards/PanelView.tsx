@@ -36,6 +36,8 @@ export function PanelView({
   annotations,
   range,
   onExplore,
+  exemplars = [],
+  onOpenTrace,
 }: {
   sim: Simulator
   panel: Panel
@@ -45,6 +47,9 @@ export function PanelView({
   annotations: Annotation[]
   range: [number, number]
   onExplore: (query: string) => void
+  /** Slow sampled requests to open from a latency panel (exemplars → traces). */
+  exemplars?: { traceId: string; durationMs: number; rootService: string }[]
+  onOpenTrace?: (traceId: string) => void
 }) {
   const id = useId()
   const [asTable, setAsTable] = useState(false)
@@ -183,6 +188,23 @@ export function PanelView({
         )
       ) : (
         <PanelTable p={p} result={result} epochMs={epoch} />
+      )}
+      {onOpenTrace && exemplars.length > 0 && p.type === 'timeseries' && p.unit === 'seconds' && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span>Slowest sampled requests:</span>
+          {exemplars.map((x) => (
+            <Button
+              key={x.traceId}
+              variant="ghost"
+              onClick={() => {
+                onOpenTrace(x.traceId)
+              }}
+            >
+              Trace {x.traceId.slice(0, 8)} ({formatValue(x.durationMs / 1000, 'seconds')},{' '}
+              {x.rootService})
+            </Button>
+          ))}
+        </div>
       )}
       {summary && <p className="text-sm [overflow-wrap:anywhere]">{summary}</p>}
     </section>

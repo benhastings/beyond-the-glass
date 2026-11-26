@@ -138,3 +138,31 @@ The explorer (`src/app/o11y/traces/`) has:
 - the call path between services
 - each span's attributes, resource attributes, events and status
 - a "Logs for this span" hook
+
+## Logs and LogQL (E8-04)
+
+`src/sim/logql/logql.ts` queries the same lines `kubectl logs` reads (`logsInWindow`), so the two always
+agree. It supports this subset of LogQL:
+
+| Supported | Examples |
+|---|---|
+| A stream selector over `cluster`, `namespace`, `pod`, `container` and `app`, with `= != =~ !~` | `{namespace="ravenpost", app=~"api\|gate"}` |
+| Line filters | `\|= "timeout"`, `!= "healthz"`, `\|~ "5\\d\\d"`, `!~ "debug"` |
+| `\| json`, then field filters with `= != =~ !~` (strings) or `> >= < <= =` (numbers) | `\| json \| level="error" \| duration_ms > 500` |
+
+Metric queries (`rate(…)`, `count_over_time(…)`), other parsers (`logfmt`, `pattern`) and formatting stages
+are refused with a message that quotes them and says what to try.
+
+The logs explorer (`src/app/o11y/logs/`) has:
+
+- the log volume over the range, with a sentence saying when it was busiest
+- the lines, newest first, in a virtualised list: only the lines in view are rendered, and each says it is
+  line n of N; Up/Down, Page Up/Down, Home and End move between lines
+- each line's parsed fields
+- a trace ID button that opens the trace at that line's span
+
+`ObservabilityWorkspace` puts Dashboards, Metrics, Logs and Traces on one simulation, linked as in Grafana:
+
+- A latency panel's slowest sampled requests open their traces (exemplars).
+- A log line's trace ID opens the trace at its span (Loki → Tempo).
+- "Logs for this span" opens that pod's lines for the trace (Tempo → Loki).

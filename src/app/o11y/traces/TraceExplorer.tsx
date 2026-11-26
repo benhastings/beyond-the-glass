@@ -188,7 +188,7 @@ export function TraceExplorer({
           <p role="status">
             {result.matches.length === 0
               ? 'No traces match in this time range.'
-              : `${String(result.matches.length)} trace${result.matches.length === 1 ? '' : 's'} match, newest first.`}
+              : `${String(result.matches.length)} ${result.matches.length === 1 ? 'trace matches' : 'traces match'}, newest first.`}
           </p>
           {result.matches.length > 0 && (
             <div
