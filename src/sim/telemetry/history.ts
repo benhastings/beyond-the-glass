@@ -186,6 +186,20 @@ export function recordHistory(sim: Simulator): void {
       )
     }
   }
+  // Feature flags that slow a service down (E10-02).
+  for (const svc of sim.scenario.telemetry?.services ?? []) {
+    if (!svc.slowWhen) continue
+    const clusterName = svc.cluster ?? sim.scenario.clusters[0]?.name ?? ''
+    const cm = sim
+      .clusterByName(clusterName)
+      ?.get('ConfigMap', svc.namespace, svc.slowWhen.configMap)
+    record(
+      st,
+      stepKey('flag', clusterName, svc.namespace, svc.name),
+      now,
+      cm?.data[svc.slowWhen.key] === svc.slowWhen.equals ? 1 : 0,
+    )
+  }
   // Pods that are gone: their last run ended now.
   for (const [key, h] of Object.entries(st.containers)) {
     const last = h.runs.at(-1)
