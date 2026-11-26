@@ -324,7 +324,15 @@ export const scenarioSchema = z
             slug,
             z.strictObject({
               branch: z.string().default('main'),
-              files: z.record(z.string(), z.string()),
+              files: z.record(z.string(), z.string()).default({}),
+              /**
+               * Manifests copied from the scenario's own resources (E10-01): every Deployment, Service,
+               * ConfigMap and Secret in `namespace` on `cluster`, written under `path`. Git and the
+               * cluster then agree from the start, without writing each manifest twice.
+               */
+              mirror: z
+                .array(z.strictObject({ cluster: slug, namespace: slug, path: z.string() }))
+                .default([]),
             }),
           )
           .default({}),
@@ -470,6 +478,15 @@ export const scenarioSchema = z
   })
   .superRefine((s, ctx) => {
     const clusterNames = new Set(s.clusters.map((c) => c.name))
+    for (const [name, r] of Object.entries(s.gitops?.repos ?? {}))
+      r.mirror.forEach((m, i) => {
+        if (!clusterNames.has(m.cluster))
+          ctx.addIssue({
+            code: 'custom',
+            path: ['gitops', 'repos', name, 'mirror', i, 'cluster'],
+            message: `no cluster named ${m.cluster}`,
+          })
+      })
     const contextNames = new Set(s.contexts.map((c) => c.name))
     if (!contextNames.has(s.currentContext))
       ctx.addIssue({
