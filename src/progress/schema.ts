@@ -64,6 +64,8 @@ export const scenarioProgressSchema = z.strictObject({
   act: count.optional(),
   /** The learner's own working notes (capstone war room). */
   notes: z.string().max(4000).optional(),
+  /** When the learner finished the scenario (the capstone's badge, E10-05). Kept in progress codes. */
+  completedAt: timestamp.optional(),
 })
 
 const preference = z.enum(['system', 'on', 'off'])

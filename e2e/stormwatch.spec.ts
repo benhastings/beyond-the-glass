@@ -111,3 +111,21 @@ test('incident notes are kept across a reload', async ({ page }) => {
     'stage was fine; prod is the one paging',
   )
 })
+
+test('a finished night shows its badge on the map, linking to the debrief', async ({ page }) => {
+  const at = '2026-11-26T10:00:00.000Z'
+  const progress = {
+    schemaVersion: 1,
+    createdAt: at,
+    updatedAt: at,
+    scenarios: { 'the-long-night': { completedAt: at } },
+  }
+  await page.addInitScript(
+    `localStorage.setItem('btg:progress', ${JSON.stringify(JSON.stringify({ state: { progress }, version: 1 }))})`,
+  )
+  await page.goto('./#/map')
+  await expect(page.getByRole('region', { name: 'Badges' })).toContainText('The Long Night')
+  await expectNoA11yViolations(page)
+  await page.getByRole('link', { name: 'Read your debrief' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Stormwatch' })).toBeVisible()
+})
