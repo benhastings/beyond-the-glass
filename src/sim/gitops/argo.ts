@@ -3,6 +3,7 @@ import { recordMutation } from '../core/audit.ts'
 import type { Cluster } from '../core/cluster.ts'
 import type { Deployment, Kind, Resource } from '../core/resources.ts'
 import type { Controller, Simulator } from '../core/simulator.ts'
+import { stringify as stringifyYaml } from 'yaml'
 import { parseDuration } from '../core/duration.ts'
 import { createRepo, repo, resolve } from './git.ts'
 
@@ -447,6 +448,30 @@ export function reconcileApps(sim: Simulator): void {
   }
 }
 
+const MIRRORED = new Set(['Deployment', 'Service', 'ConfigMap', 'Secret'])
+
+/** A scenario repo's `mirror`: its namespaces' manifests, as files, minus what only the cluster sets. */
+function mirrorFiles(
+  sim: Simulator,
+  mirror: readonly { cluster: string; namespace: string; path: string }[],
+): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const m of mirror) {
+    const c = sim.scenario.clusters.find((x) => x.name === m.cluster)
+    for (const r of c?.resources ?? []) {
+      if (!MIRRORED.has(r.kind) || (r.metadata.namespace ?? 'default') !== m.namespace) continue
+      const doc = structuredClone(r) as Record<string, unknown> & {
+        metadata: Record<string, unknown>
+      }
+      delete doc.metadata.creationTimestamp
+      delete doc.status
+      out[`${m.path.replace(/\/$/, '')}/${r.kind.toLowerCase()}-${r.metadata.name}.yaml`] =
+        stringifyYaml(doc)
+    }
+  }
+  return out
+}
+
 /** The reconcile loop: a wakeup every interval (Argo's timeout.reconciliation, 3 minutes by default). */
 export const argoController: Controller = {
   name: ARGO_NAME,
@@ -459,7 +484,8 @@ export const argoController: Controller = {
     if (g) {
       st.intervalMs = parseDuration(g.reconcileInterval)
       for (const [name, r] of Object.entries(g.repos))
-        if (!repo(sim, name)) createRepo(sim, name, r.files, { branch: r.branch })
+        if (!repo(sim, name))
+          createRepo(sim, name, { ...mirrorFiles(sim, r.mirror), ...r.files }, { branch: r.branch })
       for (const a of g.applications) createApplication(sim, a)
     }
     sim.schedule(sim.now + st.intervalMs, ARGO_NAME)

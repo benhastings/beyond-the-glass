@@ -152,3 +152,19 @@ Fragments compose. Two fragments that need different sync policies on the same a
 error naming both. Expert paths are data (`run`, `mr`, `revertMr`, `wait`) that `playExpertPath` replays,
 so the capstone (E10) can reuse them.
 
+
+## Mirrored repos (E10-01)
+
+A scenario repo can take its manifests from the scenario's own resources instead of repeating them:
+
+```yaml
+gitops:
+  repos:
+    ravenpost-deploy:
+      mirror:
+        - { cluster: prod, namespace: ravenpost, path: prod }
+```
+
+Every Deployment, Service, ConfigMap and Secret in that namespace becomes
+`<path>/<kind>-<name>.yaml`, without the fields only a cluster sets. Git and the cluster agree from the
+start, so Argo CD's first reconcile changes nothing. `files` can add more files, or replace mirrored ones.
