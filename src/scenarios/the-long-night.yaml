@@ -99,6 +99,27 @@ acts:
             message: Use the image tag CI publishes,
           }
       - wait: +4m
+    diagnosis:
+      question: What took ravenpost-api down?
+      options:
+        - {
+            id: wrong-tag,
+            text: "The release asked for an image tag the registry doesn't have, and Recreate removed the old pods first",
+            correct: true,
+          }
+        - { id: node-down, text: 'A node went down and took the api pods with it' }
+        - { id: db-full, text: "The ledger's database ran out of space" }
+        - { id: dns, text: 'Cluster DNS stopped answering' }
+    hints:
+      - { level: nudge, text: 'Before anything else: which cluster is your terminal pointed at?' }
+      - {
+          level: pointer,
+          text: 'Look at the ravenpost-api pods in prod, then at what Argo CD deployed a few minutes ago.',
+        }
+      - {
+          level: command,
+          text: 'kubectl config use-context prod, then kubectl describe pod ravenpost-api -n ravenpost',
+        }
     practice: [your-first-look]
 
   - id: still-bleeding
@@ -132,6 +153,27 @@ acts:
           replace: ['LOG_LEVEL: info', "LOG_LEVEL: info\n  LEDGER_BATCH_SIZE: \"50\""]
           message: Add LEDGER_BATCH_SIZE, which 1.15.0 needs
       - wait: +7m
+    diagnosis:
+      question: Why does 1.15.0 keep restarting?
+      options:
+        - {
+            id: missing-key,
+            text: It needs a config key (LEDGER_BATCH_SIZE) that isn't in its ConfigMap,
+            correct: true,
+          }
+        - { id: oom, text: 'It runs out of memory' }
+        - { id: probe, text: 'Its liveness probe fails' }
+        - { id: pull, text: "Its image still can't be pulled" }
+    hints:
+      - {
+          level: nudge,
+          text: A container that starts and stops again usually says why on its way out.,
+        }
+      - {
+          level: pointer,
+          text: "Read the logs of the run that ended, not the one that's starting.",
+        }
+      - { level: command, text: 'kubectl logs deploy/ravenpost-api -n ravenpost --previous' }
     practice: [your-first-look]
 
   - id: the-slow-creep
@@ -220,6 +262,30 @@ acts:
             message: Give the scribe its memory back,
           }
       - wait: +6m
+    diagnosis:
+      question: What slowed the ledger, and what is killing the new scribe pod?
+      options:
+        - {
+            id: flag-and-limit,
+            text: 'The batch-lookup flag (one query per message), and a memory limit below what the scribe uses',
+            correct: true,
+          }
+        - { id: disk, text: 'Disk pressure on prod-worker-3' }
+        - { id: postgres, text: 'postgres is overloaded' }
+        - { id: network, text: 'The network between the services is slow' }
+    hints:
+      - {
+          level: nudge,
+          text: Two things went wrong; check what changed in Git shortly before each started.,
+        }
+      - {
+          level: pointer,
+          text: 'A slow trace shows which span takes the time; describe the crashing scribe pod for its last state.',
+        }
+      - {
+          level: command,
+          text: 'argocd app history ravenpost, then kubectl describe pod scribe -n ravenpost',
+        }
     practice: [your-first-look]
 
   - id: someone-helped
@@ -292,4 +358,22 @@ acts:
             message: Point the gate probe back at /ready,
           }
       - wait: +5m
+    diagnosis:
+      question: Why is the gate answering 503?
+      options:
+        - {
+            id: probe-path,
+            text: "Its readiness probe checks /readyz, which it doesn't serve, and Recreate left no old pods",
+            correct: true,
+          }
+        - { id: self-heal, text: "Argo CD's self-heal broke it" }
+        - { id: crashing, text: 'The gate is crash-looping' }
+        - { id: scaled, text: 'Someone scaled the gate to zero' }
+    hints:
+      - { level: nudge, text: 'A Service sends requests only to pods that are Ready.' }
+      - { level: pointer, text: "Check the gate's endpoints, then why its pods aren't Ready." }
+      - {
+          level: command,
+          text: 'kubectl get endpoints gate -n ravenpost, then kubectl describe pod gate -n ravenpost',
+        }
     practice: [your-first-look]
