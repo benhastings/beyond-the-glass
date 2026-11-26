@@ -1,0 +1,31 @@
+id: which-node
+title: Where does the notifier run?
+scenario: ravenpost
+brief: >-
+  List the ravenpost pods with their nodes, and find which node the notifier pod is on. Then answer with the
+  node's name.
+questions:
+  - id: node
+    prompt: Which node is the notifier pod on?
+objectives:
+  - id: wide
+    text: List the ravenpost pods with their nodes
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+get\s+(po|pod|pods)\b.*-o\s*wide'
+  - id: node
+    text: Name the node
+    check:
+      type: answered
+      question: node
+      matcher: { matches: '^\s*ravenpost-worker2\s*$' }
+hints:
+  - level: nudge
+    text: The plain pod list doesn't show nodes, but a wider one does.
+  - level: pointer
+    text: '`-o wide` adds the NODE column to `kubectl get pods`.'
+  - level: command
+    text: 'Run `kubectl get pods -n ravenpost -o wide`, then `answer node <the node on the notifier line>`.'
+expertPath:
+  - kubectl get pods -n ravenpost -o wide
+  - answer node ravenpost-worker2
