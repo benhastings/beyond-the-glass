@@ -59,6 +59,7 @@ describe('E6-01 scenario build step', () => {
 })
 
 describe('E6-01 framework-free simulator', () => {
+  // A type-aware lint of all of src/sim: it grows with the simulator, and shares the machine in CI.
   it('[E6-01.AC1] no file in src/sim imports React or the DOM, or reads the real clock or Math.random', async () => {
     const eslint = new ESLint({ cwd: ROOT })
     const results = await eslint.lintFiles(['src/sim/**/*.ts'])
@@ -76,7 +77,7 @@ describe('E6-01 framework-free simulator', () => {
         .map((m) => `${r.filePath}:${String(m.line)} ${m.message}`),
     )
     expect(boundary).toEqual([])
-  }, 60_000)
+  }, 180_000)
 
   it('[E6-01.AC1] the determinism rule rejects Math.random, Date.now and new Date() in src/sim', async () => {
     const eslint = new ESLint({ cwd: ROOT, overrideConfig: tseslint.configs.disableTypeChecked })

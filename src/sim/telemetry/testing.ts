@@ -46,7 +46,7 @@ const service = (name: string, port: number): Resource => ({
  */
 export function telemetryScenarioInput(timeline: ScenarioInput['timeline'] = []): ScenarioInput {
   const svcs: [string, number, string, number, boolean][] = [
-    ['gate', 2, '128Mi', 8080, false],
+    ['gate', 2, '256Mi', 8080, false],
     ['api', 2, '256Mi', 8080, false],
     ['ledger', 1, '256Mi', 8080, true],
     ['postgres', 1, '1Gi', 5432, false],

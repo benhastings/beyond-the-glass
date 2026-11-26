@@ -180,7 +180,7 @@ acTest(
     await page.keyboard.press('Enter')
     await area.fill('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: ravenpost-config\n bad: [')
     await page.keyboard.press('Control+s')
-    await expect(page.getByRole('alert')).toContainText(/Not saved\. Line \d+:/)
+    await expect(page.locator('#editor').getByRole('alert')).toContainText(/Not saved\. Line \d+:/)
     await expect(area).toBeFocused()
     await expectNoA11yViolations(page)
     await page.keyboard.press('Escape')

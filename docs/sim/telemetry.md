@@ -166,3 +166,37 @@ The logs explorer (`src/app/o11y/logs/`) has:
 - A latency panel's slowest sampled requests open their traces (exemplars).
 - A log line's trace ID opens the trace at its span (Loki → Tempo).
 - "Logs for this span" opens that pod's lines for the trace (Tempo → Loki).
+
+## Alerts and SLOs (E8-07)
+
+`src/sim/alerts/rules.ts` holds the alert rules: their PromQL, `for`, severity, summary, what to do, and a
+runbook. They are:
+
+- `RavenpostHighErrorRate` (page)
+- `RavenpostHighLatency`
+- `KubeDeploymentReplicasUnavailable` (page)
+- `KubePodCrashLooping`
+- `ContainerMemoryNearLimit`
+
+`evaluateRules` runs them as Prometheus does: every 30 seconds, an alert is pending while its expression
+returns a series, firing once it has held for `for`, and inactive when it stops returning.
+
+`src/sim/alerts/slo.ts` does the SRE workbook's arithmetic:
+
+- error budget = 1 − objective
+- burn rate = error ratio ÷ budget
+- budget consumed and time until the budget runs out
+- the multi-window, multi-burn-rate alerts:
+  - page on 14.4× over 1 h and 5 m
+  - page on 6× over 6 h and 30 m
+  - ticket on 1× over 3 d and 6 h
+
+The workspace's **Alerts** tab shows:
+
+- each rule's state (as an icon and a word), the alerts it has active, its expression and runbook, and its
+  changes over the last hour
+- the gate's availability SLO: success ratio and burn rate over 5 m, 30 m, 1 h and 6 h; the budget spent;
+  and explanations at the ELI5 and Operator levels
+
+The **pager** is a banner for page-severity alerts that are firing. It plays no sound, pulses only when
+the reader allows motion, and stays hidden after it's acknowledged until a new page arrives.
