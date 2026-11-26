@@ -475,6 +475,8 @@ export const scenarioSchema = z
      * (src/sim/capstone/script.ts); here only their identity is checked.
      */
     acts: z.array(z.looseObject({ id: slug, title: z.string().min(1) })).default([]),
+    /** The capstone debrief's example incident note, shown beside the learner's (E10-05). */
+    exemplarNote: z.string().min(1).optional(),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */
     objectives: z.array(slug).default([]),
     /**

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router'
+import { Link, useLocation, useSearchParams } from 'react-router'
 import { journey } from '@/placement'
 import { ARRIVAL, Crossing } from '../art/Crossing'
 import { useManifest } from '../content'
@@ -9,6 +9,7 @@ import { useProgress } from '../progress'
 import { Page } from '../shell/Page'
 import { usePageContext } from '../shell/page-context'
 import { Button } from '../ui/Button'
+import { cx, focusRing } from '../ui/styles'
 
 /**
  * `/map`: the journey map (E2-03). Every region, with its status; none is locked. The list view shows the
@@ -74,6 +75,22 @@ export default function JourneyMap() {
         </Button>
       </div>
       {view === 'map' ? <MapView regions={regions} /> : <ListView regions={regions} />}
+      {progress.scenarios['the-long-night']?.completedAt && (
+        <section aria-labelledby="map-badges" className="mt-6">
+          <h2 id="map-badges" className="text-xl font-bold">
+            Badges
+          </h2>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            <li className="inline-flex items-center gap-2 rounded-pill border border-line px-3 py-1 font-bold">
+              <span aria-hidden="true">⚡</span>
+              The Long Night: you saw Stormwatch through the storm.{' '}
+              <Link to="/stormwatch" className={cx('font-normal underline', focusRing)}>
+                Read your debrief
+              </Link>
+            </li>
+          </ul>
+        </section>
+      )}
     </Page>
   )
 }
