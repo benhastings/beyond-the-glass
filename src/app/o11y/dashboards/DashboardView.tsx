@@ -32,12 +32,16 @@ export function DashboardView({
   sim,
   initial = 'service-overview',
   onOpenTrace,
+  headingLevel = 2,
 }: {
   sim: Simulator
   initial?: string
+  /** The dashboard title's heading level (3 inside a war room pane). */
+  headingLevel?: 2 | 3
   /** Opens a trace from a latency panel's slowest sampled requests. */
   onOpenTrace?: (traceId: string) => void
 }) {
+  const DashboardHeading = headingLevel === 3 ? 'h3' : 'h2'
   const [id, setId] = useState(initial)
   const [range, setRange] = useState<(typeof RANGES)[number]['id']>('1h')
   const [custom, setCustom] = useState({ from: 60, to: 0 })
@@ -186,27 +190,31 @@ export function DashboardView({
           Refresh
         </Button>
       </div>
-      <h2 className="text-xl font-bold">{d.title}</h2>
+      <DashboardHeading className="text-xl font-bold">{d.title}</DashboardHeading>
       <p className="max-w-prose text-sm">
         {d.description} Showing {clockTime(sim.clock.epochMs, start)}–
         {clockTime(sim.clock.epochMs, end)}.
       </p>
-      <div className="grid grid-cols-12 gap-3">
-        {data.panels.map((x) => (
-          <PanelView
-            key={`${d.id}/${x.panel.id}`}
-            sim={sim}
-            panel={x.panel}
-            query={x.query}
-            result={x.result}
-            {...(x.logs ? { logs: x.logs } : {})}
-            annotations={data.annotations}
-            range={[start, end]}
-            onExplore={setExploring}
-            exemplars={data.exemplars}
-            {...(onOpenTrace ? { onOpenTrace } : {})}
-          />
-        ))}
+      {/* Panels size to the dashboard's own width, so a narrow war room pane stacks them. */}
+      <div className="@container">
+        <div className="grid grid-cols-12 gap-3">
+          {data.panels.map((x) => (
+            <PanelView
+              key={`${d.id}/${x.panel.id}`}
+              sim={sim}
+              panel={x.panel}
+              query={x.query}
+              result={x.result}
+              {...(x.logs ? { logs: x.logs } : {})}
+              annotations={data.annotations}
+              range={[start, end]}
+              headingLevel={headingLevel === 3 ? 4 : 3}
+              onExplore={setExploring}
+              exemplars={data.exemplars}
+              {...(onOpenTrace ? { onOpenTrace } : {})}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

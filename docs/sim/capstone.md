@@ -25,3 +25,12 @@ over a simulation:
 | `wrongContext` | Changes made on a cluster other than the one in trouble |
 | `hints` | Hints used |
 | `diagnosis` | The learner's answer, and whether it was right |
+
+## The war room (E10-04)
+
+`/stormwatch` loads `src/app/stormwatch/WarRoom.tsx` as its own chunk. Seven panes (the incident, terminal,
+Argo CD, pipelines and merge requests, dashboards, logs and traces, notes) sit two or three side by side,
+or one maximized; below 1024 px they become tabs. Each pane is a region with a level-2 heading. Alt+1–7 jump
+to a pane, Alt+M maximizes or restores, and ? lists the shortcuts. The layout is kept in `localStorage`
+(`btg:war-room-layout`); the incident (a simulator snapshot) and the notes are kept with progress. A gentle
+background clock moves the simulation 15 seconds every 5 seconds while the page is open.
