@@ -26,6 +26,7 @@ import { Dialog } from '../ui/Dialog'
 import { RadioGroup } from '../ui/RadioGroup'
 import { StatusPill } from '../ui/StatusPill'
 import { Tabs } from '../ui/Tabs'
+import { SmallScreenNote } from '../ui/SmallScreenNote'
 import { cx, focusRing } from '../ui/styles'
 import {
   bringUp,
@@ -332,6 +333,7 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
       <p role="status" aria-live="polite" className="sr-only">
         {announce}
       </p>
+      <SmallScreenNote what="The war room" />
       {act && (
         <p className="flex flex-wrap items-center gap-2">
           <StatusPill status="alert">{`${act.clock} · ${act.title}`}</StatusPill>
