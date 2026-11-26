@@ -13,7 +13,10 @@ export function scenarioPlugin(): Plugin {
     transform(code, id) {
       const file = id.split('?')[0] ?? id
       if (!SCENARIO_FILE.test(file)) return null
-      const scenario = parseScenario(code, file)
+      // A scenario that extends another is rebuilt when its base changes.
+      const scenario = parseScenario(code, file, (base) => {
+        this.addWatchFile(base)
+      })
       return { code: `export default ${JSON.stringify(scenario)}`, map: null }
     },
   }

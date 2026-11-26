@@ -204,6 +204,7 @@ describe('scenario schema', () => {
       'ciFailure',
       'gitCommit',
       'injectErrors',
+      'nodeWarning',
     ])
   })
 })
