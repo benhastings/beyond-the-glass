@@ -19,4 +19,5 @@ export const LESSON_COMPONENT_NAMES = [
   'DeepDive',
   'OtelPipeline',
   'Rosetta',
+  'IncidentNote',
 ] as const

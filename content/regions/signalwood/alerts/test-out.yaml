@@ -1,0 +1,47 @@
+# Test out of "Alerts, SLOs and the first five minutes" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-alerts-for
+    type: single
+    review: { lesson: alerts-that-mean-something, step: for }
+    prompt: What is an alert rule's `for` duration for?
+    explanation: The condition must hold that long before the alert fires, so blips don't page.
+    options:
+      - id: blips
+        text: So short blips don't page anyone
+        correct: true
+      - id: repeat
+        text: How often the alert repeats
+        feedback: It's how long the condition must hold first.
+      - id: resolve
+        text: How long until it resolves itself
+        feedback: Alerts resolve when the condition stops holding.
+  - id: test-out-alerts-budget
+    type: single
+    review: { lesson: slos-and-budgets, step: budget }
+    prompt: About how much downtime does a 99.9% monthly SLO allow?
+    explanation: 0.1% of 30 days is about 43 minutes.
+    options:
+      - id: four
+        text: About 4 minutes
+        feedback: That's 99.99%.
+      - id: forty
+        text: About 43 minutes
+        correct: true
+      - id: seven
+        text: About 7 hours
+        feedback: That's 99%.
+  - id: test-out-alerts-first
+    type: single
+    review: { lesson: first-five-minutes, step: sequence }
+    prompt: What comes right after acknowledging the page?
+    explanation: 'Assess the impact: who, how many, since when.'
+    options:
+      - id: restart
+        text: Restart the failing pods
+        feedback: That's acting before understanding.
+      - id: impact
+        text: Assess the impact
+        correct: true
+      - id: logs
+        text: Read every log
+        feedback: Logs come later, once you know where to look.
