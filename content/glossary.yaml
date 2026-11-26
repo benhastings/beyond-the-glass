@@ -147,7 +147,6 @@ terms:
     eli5: Which cluster your commands go to.
     operator: >-
       A kubeconfig entry naming a cluster, a user and a default namespace. kubectl uses the current one unless told otherwise.
-<<<<<<< HEAD
   - id: imagepullbackoff
     term: ImagePullBackOff
     aliases: [ErrImagePull, image pull back-off]
@@ -165,7 +164,6 @@ terms:
       The sha256 of an image's manifest, shown as Image ID in kubectl describe pod. Unlike a tag, it can't be
       moved to other contents, so it says exactly what is running.
     related: [image]
-=======
   - id: desired-state
     term: Desired state
     aliases: [declarative, declared state]
@@ -182,4 +180,3 @@ terms:
       A loop that watches one kind of object, compares its desired state with what's real, and acts to close
       the gap: the Deployment controller makes ReplicaSets, the ReplicaSet controller makes pods.
     related: [desired-state, deployment]
->>>>>>> origin/e9-01-console-room-lessons
