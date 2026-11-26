@@ -25,6 +25,8 @@ export interface TerminalProps {
   label?: string
   /** Extra session hooks, e.g. a challenge's `hint` and `answer` (E6-10). */
   session?: Omit<Session, 'history'>
+  /** The terminal's (visually hidden) heading level; commands are one below. 3 inside a war room pane. */
+  headingLevel?: 2 | 3
 }
 
 const lineCount = (e: TranscriptEntry) =>
@@ -57,7 +59,15 @@ const commonPrefix = (xs: string[]) =>
  * a line count and how to read it (Alt+O). History (↑/↓), Tab completion (listing candidates when
  * ambiguous), Ctrl+L and Ctrl+C work as in bash. History and scrollback live in the simulation's state.
  */
-export function Terminal({ sim, onChange, label = 'Terminal', session }: TerminalProps) {
+export function Terminal({
+  sim,
+  onChange,
+  label = 'Terminal',
+  session,
+  headingLevel = 2,
+}: TerminalProps) {
+  const Heading = headingLevel === 3 ? 'h3' : 'h2'
+  const CommandHeading = headingLevel === 3 ? 'h4' : 'h3'
   const t = transcript(sim)
   const shell = useMemo(
     () => createShell(sim, { ...session, history: t.history }),
@@ -222,7 +232,7 @@ export function Terminal({ sim, onChange, label = 'Terminal', session }: Termina
       className="grid min-w-0 gap-2 rounded-md border border-line bg-term-ground p-3 text-term-ink"
       onKeyDown={onRootKeyDown}
     >
-      <h2 className="sr-only">{label}</h2>
+      <Heading className="sr-only">{label}</Heading>
       <div
         ref={scroller}
         role="log"
@@ -235,10 +245,13 @@ export function Terminal({ sim, onChange, label = 'Terminal', session }: Termina
           const n = lineCount(e)
           return (
             <section key={i} aria-labelledby={`${id}-cmd-${String(i)}`} className="mb-2 min-w-0">
-              <h3 id={`${id}-cmd-${String(i)}`} className="flex flex-wrap gap-x-2 font-normal">
+              <CommandHeading
+                id={`${id}-cmd-${String(i)}`}
+                className="flex flex-wrap gap-x-2 font-normal"
+              >
                 <span className="text-term-prompt">{e.prompt} $</span>{' '}
                 <span className="break-all">{e.command}</span>
-              </h3>
+              </CommandHeading>
               {n > 0 && (
                 <div className="flex min-w-0 items-start gap-2">
                   <pre

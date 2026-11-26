@@ -87,6 +87,8 @@ the type's own fields. References are checked against the cluster's manifests.
 | `pipeline` | `project`, `message?`, `author?`, `files?`, `failure?` | Commits to an app repo and runs its CI pipeline (E7-02) |
 | `ciFailure` | `project`, `failure` | The project's next pipeline fails this way: `test`, `lint`, `scan`, `push`, `bad-tag`, `policy` (E7-02, E7-03) |
 | `gitCommit` | `repo`, `message`, `branch?`, `author?`, `replace?` (`file`, `from`, `to`), `changes?` | A colleague pushes a commit: edits by text replacement, or whole files (E7-06) |
+| `injectErrors` | `namespace`, `service`, `rate` | A share of a Service's requests fail with 500s (E8-01) |
+| `nodeWarning` | `node`, `reason?`, `message?` | A Warning event on a node, such as disk pressure (a red herring, E10-02) |
 
 `setImage` also takes an optional `behaviour` for the new image: the usual way to break something with a
 deploy (a crash on start, a tag that doesn't exist).
@@ -145,3 +147,26 @@ files:
     kind: Deployment
     ...
 ```
+
+## Building on another scenario (E10-02)
+
+`extends: <id>` starts from another scenario in the same folder:
+
+- Fields the new scenario sets replace the base's.
+- `timeline`, `objectives` and `acts` are added after the base's.
+- `images` and gitops `repos`/`ci` are merged by key.
+- gitops `applications` and telemetry `services` are merged by name.
+
+`the-long-night.yaml` extends `stormwatch.yaml` this way.
+
+Two behaviours exist for scripted failures:
+
+- **`requires`:** on an image's behaviour, `[{ configMap, key }]`. The app exits 1.5 s after starting while the
+  key is missing, and its last log line names the key.
+- **`slowWhen`:** on a telemetry service, `{ configMap, key, equals, latencyMs }`. The service is slower while a
+  feature flag is on, and turning the flag off undoes it.
+
+**Capstone acts** (`acts:`) are described in `src/sim/capstone/script.ts`. Each has a narrative, faults timed
+from the act's start, objectives (challenge predicates), its evidence in every signal, the root cause, and an
+expert path. `npm run capstone-doc` writes [`the-long-night.md`](the-long-night.md) from them.
+
