@@ -4,7 +4,11 @@ import { lazy, Suspense } from 'react'
 const TerminalForLesson = lazy(() => import('../TerminalForLesson'))
 
 /** `<Terminal scenario="…" challenge="…">`: a terminal on the scenario, with the challenge beside it if given. */
-export function LessonTerminal(props: { scenario: string; challenge?: string }) {
+export function LessonTerminal(props: {
+  scenario: string
+  challenge?: string
+  view?: 'pipelines'
+}) {
   return (
     <Suspense fallback={<p className="font-mono text-sm">Opening the terminal…</p>}>
       <TerminalForLesson {...props} />

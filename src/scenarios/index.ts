@@ -1,4 +1,5 @@
 // Scenario timelines (YAML), validated at build time by ./vite-plugin.ts. See docs/sim/scenarios.md.
+import pipelines from '@/scenarios/pipelines.yaml'
 import ravenpost from '@/scenarios/ravenpost.yaml'
 import stormwatch from '@/scenarios/stormwatch.yaml'
 import triage from '@/scenarios/triage.yaml'
@@ -9,4 +10,5 @@ export const SCENARIOS: Readonly<Record<string, Scenario>> = {
   [ravenpost.id]: ravenpost,
   [stormwatch.id]: stormwatch,
   [triage.id]: triage,
+  [pipelines.id]: pipelines,
 }

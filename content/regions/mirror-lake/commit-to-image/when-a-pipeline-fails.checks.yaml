@@ -1,0 +1,44 @@
+checks:
+  - id: pipeline-fail-skip
+    type: single
+    required: true
+    prompt: unit-tests failed. What happened to push-image?
+    explanation: It was skipped. Later stages don't run after a failure, so no image was pushed.
+    options:
+      - id: ran
+        text: It ran, and pushed the image anyway
+        feedback: Later stages are skipped after a failure.
+      - id: skipped
+        text: It was skipped, so no tag was pushed
+        correct: true
+      - id: failed
+        text: It failed too
+        feedback: It never ran; it shows as skipped.
+  - id: pipeline-fail-kinds
+    type: matching
+    prompt: Match each failed job's log ending to what went wrong.
+    explanation: Tests say the code is wrong, scans name a vulnerability, and pushes report the registry's refusal.
+    pairs:
+      - id: test
+        left: 'expected 500 to be 404'
+        right: A test failed; the code (or the test) is wrong
+      - id: scan
+        left: 'Total: 1 (HIGH: 0, CRITICAL: 1)'
+        right: The image has a known critical vulnerability
+      - id: push
+        left: 'denied: requested access to the resource is denied'
+        right: The registry refused the push
+  - id: pipeline-fail-prod
+    type: single
+    prompt: Every pipeline this afternoon after the first one failed. What is production running?
+    explanation: The last image that passed and was pushed. Failed pipelines change nothing in production.
+    options:
+      - id: last
+        text: The image from the last pipeline that passed
+        correct: true
+      - id: broken
+        text: The broken build
+        feedback: A failed pipeline never pushes or deploys its image.
+      - id: nothing
+        text: Nothing; the service is down
+        feedback: Failed pipelines leave production as it was.

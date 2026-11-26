@@ -103,7 +103,8 @@ describe('E7-02 pipeline view', () => {
     await userEvent.click(screen.getByRole('tab', { name: 'List' }))
     await userEvent.click(screen.getByRole('button', { name: 'View log for update-manifests' }))
     expect(screen.getByText(/Skipped: an earlier stage failed/)).toBeInTheDocument()
-    expect(screen.getByText('None yet')).toBeInTheDocument()
+    // It finished without pushing, so there's no image to wait for.
+    expect(screen.getByText('None', { exact: true })).toBeInTheDocument()
     expect([duration(5000), duration(65_000), duration(600_000)]).toEqual([
       '5s',
       '1m 05s',
