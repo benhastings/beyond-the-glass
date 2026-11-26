@@ -1,4 +1,11 @@
-import { useEffect, useId, useState, useSyncExternalStore, type ReactNode } from 'react'
+import {
+  startTransition,
+  useEffect,
+  useId,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react'
 import { SCENARIOS } from '@/scenarios'
 import { CapstoneRun } from '@/sim/capstone/engine'
 import { holds } from '@/sim/capstone/script'
@@ -98,8 +105,14 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
   const [tab, setTab] = useState<PaneId>('incident')
   const [trace, setTrace] = useState<{ traceId: string; spanId?: string }>()
   const wide = useWide()
-  const setLayout = (l: Layout) => {
-    setLayoutState(l)
+  const setLayout = (l: Layout, { deferred = false } = {}) => {
+    // Bringing a pane up by shortcut is a transition: a heavy pane (dashboards) renders in pieces, not
+    // one long task (E11-02). The layout controls themselves update at once.
+    if (deferred)
+      startTransition(() => {
+        setLayoutState(l)
+      })
+    else setLayoutState(l)
     saveLayout(storage(), l)
   }
   const changed = () => {
@@ -125,10 +138,24 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
       window.clearInterval(t)
     }
   })
+  // The pane to focus once it has rendered (bringing it up is a transition, so it may take a moment).
+  const [focusTarget, setFocusTarget] = useState<PaneId>()
+  useEffect(() => {
+    if (!focusTarget) return
+    const el = document.getElementById(`${id}-${focusTarget}`)
+    if (el) {
+      el.focus()
+      setFocusTarget(undefined)
+    }
+    // Again whenever the layout or tab changes, until the pane is there.
+  }, [focusTarget, id, layout, tab])
   const focusPane = (pane: PaneId) => {
-    if (wide) setLayout(bringUp(layout, pane))
-    else setTab(pane)
-    requestAnimationFrame(() => document.getElementById(`${id}-${pane}`)?.focus())
+    if (wide) setLayout(bringUp(layout, pane), { deferred: true })
+    else
+      startTransition(() => {
+        setTab(pane)
+      })
+    setFocusTarget(pane)
   }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
