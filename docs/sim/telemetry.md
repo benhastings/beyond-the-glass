@@ -114,3 +114,27 @@ The UI is `src/app/o11y/dashboards/`. It has a dashboard picker, variables, a ti
 custom one), Refresh, and a 12-column grid. Every panel has a "View as table" toggle and a sentence that
 says what it shows. Explore opens the panel's query in the PromQL explorer. The layout evokes Grafana's,
 with no Grafana logo or branding.
+
+## Traces and TraceQL (E8-05)
+
+`src/sim/traceql/traceql.ts` supports this subset of TraceQL:
+
+| Supported | Examples |
+|---|---|
+| Spanset filters on intrinsics: `name`, `status` (`error`, `ok`, `unset`), `duration` (`ns`, `us`, `ms`, `s`, `m`, `h`), `kind` | `{ status = error }`, `{ duration > 500ms }` |
+| Span attributes, resource attributes, or either | `{ span.http.response.status_code >= 500 }`, `{ resource.service.name = "ledger" }`, `{ .service.name = "api" }` |
+| `= != > >= < <= =~ !~`, `&&`, `\|\|`, parentheses | `{ (status = error \|\| duration >= 1s) && resource.service.name !~ "gate" }` |
+| The descendant operator `>>`, which returns the matching descendants | `{ resource.service.name = "api" } >> { status = error }` |
+
+Pipelines (`| count()`, `| select(…)`), other structural operators (`>`, `<`, `~`) and `&&` between
+spansets are refused with a message that quotes them and says what to try.
+
+The explorer (`src/app/o11y/traces/`) has:
+
+- a search form that writes TraceQL, a TraceQL field, and the matching traces, newest first
+- the waterfall, a WAI-ARIA tree with a table alternative
+- **S** to jump to the slowest span (by its own time) and **E** to jump to the next error, with on-screen
+  hints and buttons
+- the call path between services
+- each span's attributes, resource attributes, events and status
+- a "Logs for this span" hook
