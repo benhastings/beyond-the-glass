@@ -1,0 +1,47 @@
+# Test out of "Cluster anatomy, pods and namespaces" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-anatomy-scheduler
+    type: single
+    review: { lesson: keep-and-stewards, step: control-plane }
+    prompt: Which part of the control plane decides which node a new pod runs on?
+    explanation: The scheduler.
+    options:
+      - id: api
+        text: The API server
+        feedback: It records the pod; the scheduler places it.
+      - id: scheduler
+        text: The scheduler
+        correct: true
+      - id: kubelet
+        text: The kubelet
+        feedback: The kubelet runs pods already placed on its node.
+  - id: test-out-anatomy-wide
+    type: single
+    review: { lesson: pods, step: where }
+    prompt: Which flag adds the node to kubectl get pods?
+    explanation: -o wide adds the IP and NODE columns.
+    options:
+      - id: a
+        text: '-A'
+        feedback: That widens the search to every namespace, not the columns.
+      - id: l
+        text: '-l'
+        feedback: That filters by label.
+      - id: wide
+        text: '-o wide'
+        correct: true
+  - id: test-out-anatomy-label
+    type: single
+    review: { lesson: namespaces-and-labels, step: labels }
+    prompt: How do you list every pod with the label app=ravenpost-web in the ravenpost namespace?
+    explanation: -l takes a label selector.
+    options:
+      - id: label
+        text: kubectl get pods -n ravenpost -l app=ravenpost-web
+        correct: true
+      - id: describe
+        text: kubectl describe deployment ravenpost-web -n ravenpost
+        feedback: That describes the Deployment, not its pods.
+      - id: wide
+        text: kubectl get pods -n ravenpost -o wide
+        feedback: That lists every pod in the namespace, with nodes.

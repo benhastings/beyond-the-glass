@@ -1,0 +1,30 @@
+id: count-system-pods
+title: How many pods run the cluster itself?
+scenario: ravenpost
+brief: >-
+  The cluster's own parts run as pods in the kube-system namespace. Count them, and answer with the number.
+questions:
+  - id: count
+    prompt: How many pods are in kube-system?
+objectives:
+  - id: list
+    text: List the pods in kube-system
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+get\s+(po|pod|pods)\b.*(-n\s*kube-system|--namespace[=\s]kube-system|-A\b)'
+  - id: count
+    text: Say how many there are
+    check:
+      type: answered
+      question: count
+      matcher: { matches: '^\s*12\s*$' }
+hints:
+  - level: nudge
+    text: The cluster's own pods live in their own namespace.
+  - level: pointer
+    text: '`-n kube-system` picks the namespace. `--no-headers` and `| wc -l` count the lines for you.'
+  - level: command
+    text: 'Run `kubectl get pods -n kube-system --no-headers | wc -l`, then `answer count <the number>`.'
+expertPath:
+  - kubectl get pods -n kube-system --no-headers | wc -l
+  - answer count 12
