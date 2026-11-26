@@ -86,6 +86,9 @@ export function Shell() {
             <Link to="/lead" className={linkClass}>
               Lead view
             </Link>{' '}
+            <Link to="/field-cards" className={linkClass}>
+              Field cards
+            </Link>{' '}
             <SaveStatus />
           </p>
         </footer>

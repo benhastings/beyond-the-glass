@@ -18,6 +18,8 @@ import { Shell } from './shell/Shell'
 
 // Developer page (E1-03): its own chunk, so learners never download it.
 const KitchenSink = lazy(() => import('./pages/KitchenSink'))
+// Field cards (E2-07): their own chunk too.
+const FieldCards = lazy(() => import('./pages/FieldCards'))
 
 /**
  * Every page, one line each. A page is one file in ./pages that renders a <Page title>.
@@ -36,6 +38,7 @@ export const PAGES: RouteObject[] = [
   { path: 'settings', Component: Settings },
   { path: 'lead', Component: Lead },
   { path: 'stormwatch', Component: Stormwatch },
+  { path: 'field-cards/:card?', Component: FieldCards },
   { path: 'kitchen-sink', Component: KitchenSink },
   { path: '*', Component: NotFound },
 ]
