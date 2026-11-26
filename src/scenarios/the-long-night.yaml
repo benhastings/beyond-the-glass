@@ -36,6 +36,17 @@ telemetry:
           equals: 'true',
           latencyMs: 900,
         }
+# The debrief shows this beside the learner's own notes (E10-05): one way to keep notes during an incident.
+exemplarNote: |-
+  21:02 Paged: RavenpostHighErrorRate. Terminal was on stage; switched to prod.
+  21:04 ravenpost-api pods in ImagePullBackOff: the release asks for api:v1.15.0, and the registry has 1.15.0. Recreate removed the old pods first, so nothing is serving. Fixed the tag through Git (MR).
+  21:19 1.15.0 crash-loops. logs --previous: missing LEDGER_BATCH_SIZE. Added the key through Git. Ruled out: image, probes.
+  21:41 Ledger p99 up since the batch-lookup flag went on (traces: the ledger span is most of each request). Turned the flag off through Git.
+  21:43 New scribe pod OOMKilled at its new 128Mi limit; put the limit back through Git.
+  21:45 Disk pressure on prod-worker-3: nothing of ours runs there. Noted for the day team.
+  22:20 A kubectl edit on the gate was put back by self-heal (not the cause). The MR after it set the readiness path to /readyz; the gate serves /ready. Fixed the path in Git; endpoints back.
+  Follow-ups: a CI check that release tags exist; a release checklist item for new config keys; RollingUpdate, not Recreate, for the api and the gate.
+
 acts:
   - id: the-pager
     title: The pager

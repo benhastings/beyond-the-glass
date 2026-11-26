@@ -516,3 +516,28 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
 }
 
 export { ContentError, type ContentIssue }
+
+/**
+ * "Practice next" links (E10-05.AC2): every lesson a scenario act names in `practice` must exist. Returns
+ * one message per missing lesson, naming the scenario file and the act; the content plugin fails the
+ * build on any.
+ */
+export function practiceLinkErrors(lessonIds: readonly string[], scenariosDir: string): string[] {
+  if (!isDir(scenariosDir)) return []
+  const known = new Set(lessonIds)
+  const errors: string[] = []
+  for (const f of readdirSync(scenariosDir).filter((n) => /\.ya?ml$/.test(n))) {
+    const doc = parseYaml(readFileSync(join(scenariosDir, f), 'utf8')) as { acts?: unknown } | null
+    const acts = Array.isArray(doc?.acts) ? (doc.acts as unknown[]) : []
+    for (const act of acts) {
+      const { id, practice } = (act ?? {}) as { id?: unknown; practice?: unknown }
+      if (!Array.isArray(practice)) continue
+      for (const lesson of practice as unknown[])
+        if (typeof lesson !== 'string' || !known.has(lesson))
+          errors.push(
+            `src/scenarios/${f}: act "${String(id)}" suggests practising lesson "${String(lesson)}", which doesn't exist`,
+          )
+    }
+  }
+  return errors
+}
