@@ -37,7 +37,7 @@ acTest(
     await takeQuizAsNewcomer(page)
 
     // Results: the persona's placement, in words.
-    await expect(page.getByText('Your trail begins at the Chartroom.')).toBeVisible()
+    await expect(page.getByText('Your trail begins at the Console Room.')).toBeVisible()
     await expect(
       page.getByText('Kubernetes: Wayfarer. New to this. We start from the beginning.'),
     ).toBeVisible()
@@ -48,7 +48,7 @@ acTest(
     await expect(page.getByRole('heading', { level: 1, name: 'Map of the Reach' })).toBeVisible()
     await page.getByRole('button', { name: 'List view' }).click()
     const chartroom = page.getByRole('link', {
-      name: 'The Chartroom, recommended next, 0 of 1 modules',
+      name: 'The Chartroom, not started, 0 of 1 modules',
     })
     await expect(chartroom).toBeVisible()
 

@@ -3,36 +3,13 @@ import { SCENARIOS } from '@/scenarios'
 import { acTest } from '@/test/ac'
 import { createShell } from '../commands'
 import { loadSimulation, restoreSimulation } from '../controllers'
-import { parseDuration } from '../core/duration'
-import type { Simulator } from '../core/simulator'
-import { playExpertPath } from '../gitops/fragments/define'
 import { rangeSeries } from '../telemetry/metrics'
 import { CapstoneRun } from './engine'
+import { expertNight } from './testing'
 
 const MIN = 60_000
 const scenario = SCENARIOS['the-long-night']
 if (!scenario) throw new Error('no the-long-night scenario')
-
-/** Plays the expert path of every act, as a learner would, through the engine. */
-function expertNight(sim: Simulator, until = Infinity): CapstoneRun {
-  const run = new CapstoneRun(sim)
-  run.start()
-  for (let guard = 0; !run.finished && guard < 8 && run.actIndex < until; guard++) {
-    const act = run.current
-    if (!act) break
-    run.idle(parseDuration(act.minDuration))
-    const i = run.actIndex
-    playExpertPath(sim, act.expertPath, (step) => {
-      if ('run' in step) run.record(step.run)
-      else run.tick()
-    })
-    const actNow = () => run.actIndex
-    const done = () => run.finished
-    for (let k = 0; k < 20 && actNow() === i && !done(); k++) run.idle(MIN)
-    if (act.diagnosis) run.diagnose(act.id, act.diagnosis.options.find((o) => o.correct)?.id ?? '')
-  }
-  return run
-}
 
 describe('E10-03 capstone engine', () => {
   acTest(
@@ -146,6 +123,34 @@ describe('E10-03 capstone engine', () => {
     },
     120_000,
   )
+
+  it('knows which signals were looked at, from commands and from views', () => {
+    const sim = loadSimulation(scenario)
+    const run = new CapstoneRun(sim)
+    run.viewed('dashboards')
+    expect(run.actions).toEqual([])
+    run.start()
+    for (const c of [
+      'kubectl get pods -n ravenpost',
+      'kubectl logs deploy/ravenpost-api --previous',
+    ])
+      run.record(c)
+    run.viewed('traces')
+    run.viewed('traces')
+    expect(run.actions.filter((a) => a.kind === 'view')).toHaveLength(1)
+    expect(run.scores()[0]?.looked).toEqual({
+      kubectl: true,
+      events: false,
+      logs: true,
+      metrics: false,
+      traces: true,
+      argo: false,
+    })
+    run.record('kubectl describe pod ravenpost-api -n ravenpost')
+    run.record('argocd app history ravenpost')
+    run.viewed('dashboards')
+    expect(Object.values(run.scores()[0]?.looked ?? {}).every(Boolean)).toBe(true)
+  })
 
   it('does nothing before start, and start is idempotent', () => {
     const sim = loadSimulation(scenario)

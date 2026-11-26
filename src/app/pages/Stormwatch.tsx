@@ -9,8 +9,8 @@ export default function Stormwatch() {
   return (
     <Page title="Stormwatch" mood="stormwatch" region="stormwatch">
       <p className="mt-2 max-w-prose">
-        Night at the Stormwatch tower. The pager has gone, and the storm is building. Take your
-        time: nothing here is timed, and the debrief comes after.
+        Night at the Stormwatch tower, on call for Ravenpost. Take your time: nothing here is timed,
+        and the debrief comes after.
       </p>
       <div className="mt-4">
         <Suspense fallback={<p role="status">Opening the war room…</p>}>

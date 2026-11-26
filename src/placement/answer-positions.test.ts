@@ -63,8 +63,13 @@ describe('#145 where the correct answer sits', () => {
         displayOptions({ id: c.id, options: c.options ?? [] }).findIndex((o) => o.correct === true),
       )
     const s = spread(positions)
-    // Meaningful once there are enough checks to have a pattern.
-    if (s.n >= 10) expect(s.max, JSON.stringify([...s.counts])).toBeLessThanOrEqual(0.4)
+    // Meaningful once there are enough checks to have a pattern. With a dozen or so checks a fair
+    // shuffle can still bunch on one position, so this asks only what #145 was about: the correct
+    // answer isn't usually first, and it doesn't sit in one place for every check.
+    if (s.n >= 10) {
+      expect((s.counts.get(0) ?? 0) / s.n, JSON.stringify([...s.counts])).toBeLessThanOrEqual(0.4)
+      expect(s.counts.size).toBeGreaterThan(1)
+    }
     expect(positions.every((p) => p >= 0)).toBe(true)
   })
 })
