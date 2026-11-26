@@ -200,3 +200,27 @@ The workspace's **Alerts** tab shows:
 
 The **pager** is a banner for page-severity alerts that are firing. It plays no sound, pulses only when
 the reader allows motion, and stays hidden after it's acknowledged until a new page arrives.
+
+## The OpenTelemetry pipeline explainer (E8-06)
+
+The lesson component `<OtelPipeline />` (`src/app/o11y/otel/`, model in `src/sim/otel/pipeline.ts`) shows the
+path: SDK → OTLP → Collector (receivers → processors → exporters) → Prometheus, the trace store and the log
+store. The diagram is a row of steps; arrow keys move between them, and each step has a description.
+
+Four switches break the pipeline the ways teams really do. Each changes what reaches the trace store (from
+the last 100 requests) and the explanation:
+
+| Switch | What happens |
+|---|---|
+| The SDK doesn't pass trace context | Each service's span is its own trace: 300 one-span traces, no call chain |
+| The traces exporter's endpoint is misspelled | No traces at all; the Collector logs "Exporting failed. Dropping data." Metrics and logs still arrive. |
+| 1% sampling (`probabilistic_sampler`) | One trace in a hundred: rare slow or failing requests are likely gone |
+| No `k8sattributes` processor | Spans have no pod or namespace, so you can't get from a span to its pod or logs |
+
+The Collector config shown updates with each switch. `validateCollectorConfig` checks every combination
+the way the Collector does at startup:
+
+- each section's shape
+- that component types are known
+- that every component a pipeline names is configured
+- `memory_limiter` first and `batch` last
