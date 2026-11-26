@@ -8,61 +8,65 @@ $ kubectl logs <pod> -n <ns>
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/<node>-processes.sh
 /docker-entrypoint.sh: Configuration complete; ready for start up
-2026/11/25 05:57:14 [notice] 1#1: using the "epoll" event method
-2026/11/25 05:57:14 [notice] 1#1: nginx/1.27.5
-2026/11/25 05:57:14 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
-2026/11/25 05:57:14 [notice] 1#1: OS: Linux 7.2.5-3-omarchy
-2026/11/25 05:57:14 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 2147483584:2147483584
-2026/11/25 05:57:14 [notice] 1#1: start worker processes
-2026/11/25 05:57:14 [notice] 1#1: start worker process 37
-2026/11/25 05:57:14 [notice] 1#1: start worker process 38
-2026/11/25 05:57:14 [notice] 1#1: start worker process 39
-2026/11/25 05:57:14 [notice] 1#1: start worker process 40
-2026/11/25 05:57:14 [error] 37#37: *1 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:14 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:15 [error] 38#38: *2 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:15 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:20 [error] 39#39: *3 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:20 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:25 [error] 40#40: *4 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:25 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:30 [error] 37#37: *5 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:30 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:35 [error] 37#37: *6 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:35 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-<ip> - - [25/Nov/2026:05:57:40 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:40 [error] 37#37: *7 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-2026/11/25 05:57:45 [error] 37#37: *8 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:45 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:50 [error] 37#37: *9 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:50 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:57:55 [error] 37#37: *10 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:57:55 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:00 [error] 37#37: *11 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:00 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:05 [error] 37#37: *12 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:05 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:10 [error] 37#37: *13 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:10 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:15 [error] 37#37: *14 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:15 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:17 [error] 37#37: *15 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:17 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-<ip> - - [25/Nov/2026:05:58:22 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:22 [error] 37#37: *16 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-2026/11/25 05:58:27 [error] 37#37: *17 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:27 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-<ip> - - [25/Nov/2026:05:58:32 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:32 [error] 37#37: *18 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:37 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:37 [error] 37#37: *19 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:42 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:42 [error] 37#37: *20 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-2026/11/25 05:58:47 [error] 38#38: *21 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:47 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-<ip> - - [25/Nov/2026:05:58:52 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:58:52 [error] 38#38: *22 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-2026/11/25 05:58:57 [error] 38#38: *23 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:58:57 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
-2026/11/25 05:59:02 [error] 38#38: *24 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
-<ip> - - [25/Nov/2026:05:59:02 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:08:54 [notice] 1#1: using the "epoll" event method
+2026/11/25 12:08:54 [notice] 1#1: nginx/1.27.5
+2026/11/25 12:08:54 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2026/11/25 12:08:54 [notice] 1#1: OS: Linux 7.0.0-1020-azure
+2026/11/25 12:08:54 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 2147483584:2147483584
+2026/11/25 12:08:54 [notice] 1#1: start worker processes
+2026/11/25 12:08:54 [notice] 1#1: start worker process 37
+2026/11/25 12:08:54 [notice] 1#1: start worker process 38
+2026/11/25 12:08:54 [notice] 1#1: start worker process 39
+2026/11/25 12:08:54 [notice] 1#1: start worker process 40
+2026/11/25 12:08:55 [error] 37#37: *1 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:08:55 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:09:00 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:00 [error] 38#38: *2 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:05 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:05 [error] 39#39: *3 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:09:10 [error] 40#40: *4 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:10 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:09:15 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:15 [error] 37#37: *5 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:20 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:20 [error] 37#37: *6 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:09:25 [error] 37#37: *7 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:25 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:09:30 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:30 [error] 37#37: *8 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:09:35 [error] 37#37: *9 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:35 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:40 [error] 37#37: *10 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:40 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:09:45 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:45 [error] 37#37: *11 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:09:50 [error] 37#37: *12 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:09:50 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:09:55 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:09:55 [error] 37#37: *13 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:10:00 [error] 37#37: *14 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:00 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:02 [error] 37#37: *15 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:02 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:07 [error] 37#37: *16 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:07 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:10:12 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:12 [error] 37#37: *17 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:17 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:17 [error] 37#37: *18 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:10:22 [error] 37#37: *19 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:22 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:10:27 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:27 [error] 37#37: *20 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+2026/11/25 12:10:32 [error] 38#38: *21 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:32 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:37 [error] 38#38: *22 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:37 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:42 [error] 38#38: *23 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:42 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:47 [error] 38#38: *24 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:47 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:52 [error] 38#38: *25 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
+<ip> - - [25/Nov/2026:12:10:52 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+<ip> - - [25/Nov/2026:12:10:57 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.34" "-"
+2026/11/25 12:10:57 [error] 38#38: *26 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: <ip>, server: localhost, request: "GET /ready HTTP/1.1", host: "<ip>:80"
