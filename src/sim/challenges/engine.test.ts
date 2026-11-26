@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { acTest } from '@/test/ac'
 import { loadSimulation, restoreSimulation } from '../controllers'
 import { createShell } from '../commands'
-import { attach, ChallengeRun } from './engine'
+import { attach, ChallengeRun, playChallengePath } from './engine'
 import { challengeSchema, type ChallengeInput, type Predicate } from './schema'
 
 const base: ChallengeInput = {
@@ -267,10 +267,9 @@ describe('E6-10 challenges', () => {
       const run = new ChallengeRun(sim, c, session.history)
       attach(run, session)
       expect(run.evaluate().complete, `${c.id} complete before starting`).toBe(false)
-      for (const line of c.expertPath) {
-        const out = sh.run(line)
-        expect(out.exitCode, `${c.id}: ${line}\n${out.stderr}`).toBe(0)
-      }
+      for (const { step, exitCode } of playChallengePath(sim, sh, c.expertPath))
+        // A diff exits 1 when there are differences, as diff(1) does; anything else must succeed.
+        expect(exitCode, `${c.id}: ${step}`).toBe(/^(kubectl|argocd app) diff\b/.test(step) ? 1 : 0)
       const e = run.evaluate()
       expect(
         e.objectives.filter((o) => !o.done).map((o) => o.id),

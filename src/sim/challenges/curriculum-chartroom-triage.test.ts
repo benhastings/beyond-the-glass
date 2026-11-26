@@ -74,7 +74,7 @@ describe('E9-06 the Chartroom II', () => {
       for (const [id] of MINI) {
         const c = challenge(id)
         expect(
-          c.expertPath.every((l) => /^(kubectl|answer)\s/.test(l)),
+          c.expertPath.every((l) => typeof l === 'string' && /^(kubectl|answer)\s/.test(l)),
           id,
         ).toBe(true)
         expect(

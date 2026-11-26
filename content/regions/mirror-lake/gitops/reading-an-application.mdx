@@ -1,0 +1,64 @@
+---
+id: reading-an-application
+title: Reading an application
+order: 1
+objectives:
+  - Read an application's resource tree, diff, events and history
+  - See exactly what a sync would change before running it
+  - Read why a sync failed, and put Git back so it can apply
+estimatedMinutes: 18
+domain: delivery
+level: deckhand
+scenario: gitops-manual-sync
+terms: [gitops, merge-request]
+prerequisites: [lake-and-reflection]
+---
+
+<Step id="parts" title="Four views of one app">
+
+| View                      | Command                        | What it tells you                                                         |
+| ------------------------- | ------------------------------ | ------------------------------------------------------------------------- |
+| Summary and resource tree | `argocd app get APP`           | Sync and health, the last operation, and every object with its own status |
+| Diff                      | `argocd app diff APP`          | Line by line, what a sync would change                                    |
+| Events                    | `kubectl get events -n argocd` | What Argo CD did, and when                                                |
+| History                   | `argocd app history APP`       | Each sync: when, and which Git revision                                   |
+
+The console below the terminal shows the same, as a tree you can open.
+
+</Step>
+
+<Step id="manual" title="A release waiting in Git">
+
+This app syncs by hand. A colleague's release is merged, so the app is OutOfSync. Before syncing, read the
+diff. You'll also see `app.kubernetes.io/instance` on every object: Argo CD adds that label the first time it
+manages an object, so on an app that has never synced it shows up everywhere. The change that matters is the
+gate's image.
+
+<Terminal scenario="gitops-manual-sync" challenge="sync-the-release" view="argo" required />
+
+</Step>
+
+<Step id="failed" title="When a sync fails">
+
+A sync can fail: the API server refuses something Git asks for. The application keeps the last operation's
+phase and message, so `argocd app get` says why. Some fields can't change after an object is created (a
+Deployment's selector is one); a commit that changes one can never apply, and the fix is to undo it in Git.
+
+<Terminal scenario="gitops-sync-failed" challenge="read-the-failed-sync" view="changes" required />
+
+<Callout kind="habit">
+  Change through Git, even to undo. A revert through a merge request keeps the history true: anyone
+  can see what happened, and why.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="app-diff-first" />
+
+<Check id="app-failed" />
+
+<Check id="app-views" />
+
+</Step>

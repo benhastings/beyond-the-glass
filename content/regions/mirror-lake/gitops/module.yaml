@@ -1,0 +1,5 @@
+id: gitops
+title: Argo CD and GitOps discipline
+order: 1
+summary: Git as the desired state, Argo CD as the hand that makes the cluster match, and how to change, read and roll back a GitOps-managed app.
+domain: delivery

@@ -1,0 +1,61 @@
+---
+id: drift
+title: Drift, and why kubectl didn't stick
+order: 2
+objectives:
+  - Say what self-heal does, and see it undo a kubectl change
+  - Make a change that lasts, through a merge request
+  - Explain why self-heal is a feature, not an obstacle
+estimatedMinutes: 16
+domain: delivery
+level: deckhand
+scenario: gitops-drift
+terms: [gitops, merge-request, deployment]
+prerequisites: [reading-an-application]
+---
+
+<Step id="drift" title="A ripple on the lake">
+
+<Analogy
+  then="Someone fixed a config file on one server at 3 a.m. and didn't write it down. Months later, nobody knew why that server behaved differently."
+  now="A hand-made change in the cluster is drift. With self-heal, Argo CD notices it within minutes and puts Git's version back."
+/>
+
+Drift is any difference between the cluster and Git that didn't come from Git. With **self-heal** on, Argo
+CD treats drift as a mistake and reverts it at its next reconcile. The events say so:
+`kubectl get events -n argocd`.
+
+</Step>
+
+<Step id="stick" title="Make it stick">
+
+The gate needs four replicas tonight. Try it whichever way you like, and watch what happens. The merge
+request panel is below the terminal.
+
+<Terminal scenario="gitops-drift" challenge="make-it-stick" view="changes" required />
+
+</Step>
+
+<Step id="feature" title="Why that's a feature">
+
+Self-heal means the cluster is always what Git says, so Git's history is always the true record: what
+changed, who changed it, who reviewed it. A 3 a.m. fix that only lives in the cluster is gone by morning,
+and so is the mystery it would have left behind.
+
+<Callout kind="info">
+  In an emergency, a team can turn self-heal off for one app (`argocd app set APP --sync-policy
+  none`), make a change by hand, and put it in Git straight after. Say so in the incident channel,
+  and turn it back on.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="drift-what" />
+
+<Check id="drift-lasting" />
+
+<Check id="drift-feature" />
+
+</Step>

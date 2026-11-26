@@ -1,0 +1,49 @@
+id: roll-back-the-release
+title: A release that never arrived, again
+scenario: gitops-bad-release
+brief: >-
+  A release of the gate asked for a tag that doesn't exist, and Argo CD shows the app Degraded. Get the gate
+  healthy on 2.3.1 again, and say which way you chose: a git revert, or an Argo CD rollback.
+questions:
+  - id: how
+    prompt: Did you revert in Git, or roll back in Argo CD?
+objectives:
+  - id: look
+    text: Read the application and the pods
+    check:
+      {
+        type: ranCommand,
+        pattern: '^(argocd\s+app\s+(get|history)\s+ravenpost|kubectl\s+get\s+(po|pod|pods))\b',
+      }
+  - id: healthy
+    text: Healthy on 2.3.1
+    check:
+      type: all
+      of:
+        - { type: argoApp, app: ravenpost, health: Healthy }
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: gate }
+          path: 'spec.template.spec.containers[0].image'
+          equals: registry.example/ravenpost/gate:2.3.1
+          quantifier: all
+  - id: how
+    text: Say which way you chose
+    check:
+      {
+        type: answered,
+        question: how,
+        matcher: { matches: '(revert|rollback|roll back|git|argo)' },
+      }
+hints:
+  - level: nudge
+    text: Two ways back. One keeps Git true; the other is faster but leaves Git asking for the bad tag.
+  - level: pointer
+    text: 'A revert merge request to ravenpost-deploy; or `argocd app set ravenpost --sync-policy none` then `argocd app rollback ravenpost`.'
+  - level: command
+    text: 'Revert the newest commit to ravenpost-deploy through a merge request, wait for Argo CD, then `answer how git revert`.'
+expertPath:
+  - argocd app get ravenpost
+  - kubectl get pods -n ravenpost
+  - revertMr: { repo: ravenpost-deploy }
+  - wait: +4m
+  - answer how git revert, so Git stays true
