@@ -29,28 +29,49 @@ export const LOOKBACK_MS = 5 * 60_000
 
 // Label sets keep their identity from step to step, so signatures and name-stripped copies are cached
 // per object: a range query asks for the same ones hundreds of times.
-const signatures = new WeakMap<Labels, Map<string, string>>()
-function signature(
-  l: Labels,
-  drop: readonly string[] = ['__name__'],
-  keep?: readonly string[],
-): string {
-  const spec = keep ? `+${keep.join(',')}` : `-${drop.join(',')}`
-  let m = signatures.get(l)
-  if (!m) {
-    m = new Map()
-    signatures.set(l, m)
-  }
-  let sig = m.get(spec)
+/** Which labels a signature covers: all but `drop`, or only `keep`. Built once, not per call. */
+interface SigSpec {
+  key: string
+  drop?: ReadonlySet<string>
+  keep?: ReadonlySet<string>
+  /** Each label set's signature under this spec. */
+  cache: WeakMap<Labels, string>
+}
+const sigSpec = (drop: readonly string[], keep?: readonly string[]): SigSpec =>
+  keep
+    ? { key: `+${keep.join(',')}`, keep: new Set(keep), cache: new WeakMap() }
+    : { key: `-${drop.join(',')}`, drop: new Set(drop), cache: new WeakMap() }
+const BUT_NAME = sigSpec(['__name__'])
+const BUT_NAME_LE = sigSpec(['__name__', 'le'])
+const EVERY = sigSpec([])
+/** The signature for one-to-one matching or grouping, from the node's `on`/`ignoring`/`by`/`without`. */
+const matchSpec = (
+  m: { mode: 'on' | 'ignoring' | 'by' | 'without'; labels: string[] } | undefined,
+): SigSpec =>
+  m && (m.mode === 'on' || m.mode === 'by')
+    ? sigSpec([], m.labels)
+    : sigSpec(['__name__', ...(m?.labels ?? [])])
+
+function signature(l: Labels, spec: SigSpec = BUT_NAME): string {
+  let sig = spec.cache.get(l)
   if (sig === undefined) {
     sig = JSON.stringify(
       Object.entries(l)
-        .filter(([k]) => (keep ? keep.includes(k) : !drop.includes(k)))
+        .filter(([k]) => (spec.keep ? spec.keep.has(k) : !spec.drop?.has(k)))
         .sort(([a], [b]) => (a < b ? -1 : 1)),
     )
-    m.set(spec, sig)
+    spec.cache.set(l, sig)
   }
   return sig
+}
+const leValues = new Map<string, number>()
+const leValue = (le: string) => {
+  let v = leValues.get(le)
+  if (v === undefined) {
+    v = le === '+Inf' ? Infinity : Number(le)
+    leValues.set(le, v)
+  }
+  return v
 }
 const stripped = new WeakMap<Labels, Labels>()
 function withoutName(l: Labels): Labels {
@@ -134,6 +155,24 @@ function names(e: Expr): string[] | undefined {
   }
 }
 
+/**
+ * Counter-reset corrections, summed: `[j]` is what every reset up to point j adds back (a reset adds the
+ * value before it). Built once per series, so each window's correction is a subtraction.
+ */
+const resetPrefixes = new WeakMap<readonly [number, number][], Float64Array>()
+function resetPrefix(points: readonly [number, number][]): Float64Array {
+  let r = resetPrefixes.get(points)
+  if (!r) {
+    r = new Float64Array(points.length)
+    for (let j = 1; j < points.length; j++) {
+      const prev = (points[j - 1] as [number, number])[1]
+      r[j] = (r[j - 1] ?? 0) + ((points[j] as [number, number])[1] < prev ? prev : 0)
+    }
+    resetPrefixes.set(points, r)
+  }
+  return r
+}
+
 /** Prometheus' extrapolated rate/increase over the samples in (rangeStart, rangeEnd]. */
 export function extrapolatedRate(
   points: readonly [number, number][],
@@ -148,10 +187,8 @@ export function extrapolatedRate(
   const first = points[lo] as [number, number]
   const last = points[hi - 1] as [number, number]
   let result = last[1] - first[1]
-  for (let j = lo + 1; j < hi; j++) {
-    const prev = (points[j - 1] as [number, number])[1]
-    if ((points[j] as [number, number])[1] < prev) result += prev
-  }
+  const resets = resetPrefix(points)
+  result += (resets[hi - 1] ?? 0) - (resets[lo] ?? 0)
   const sampled = (last[0] - first[0]) / 1000
   if (sampled <= 0) return undefined
   let toStart = (first[0] - rangeStart) / 1000
@@ -221,8 +258,45 @@ class Evaluator {
   private readonly selected = new Map<Expr, RawSeries[]>()
   /** One label object per aggregation group, kept across steps (so signatures stay cached). */
   private readonly groupLabels = new Map<Expr, Map<string, Labels>>()
+  /** histogram_quantile's output labels per group, kept across steps. */
+  private readonly quantileLabels = new Map<string, Labels>()
+  /** Each grouping or matching node's signature spec, built once. */
+  private readonly specs = new Map<Expr, SigSpec>()
+  private spec(e: Expr, m: Parameters<typeof matchSpec>[0]): SigSpec {
+    let x = this.specs.get(e)
+    if (!x) {
+      x = matchSpec(m)
+      this.specs.set(e, x)
+    }
+    return x
+  }
   constructor(data: RawSeries[]) {
     this.data = data
+  }
+
+  /**
+   * `after(points, t)`, for times that only move forward (a range query's steps): each series keeps a
+   * cursor per window edge and walks it on, instead of searching again. Going back falls back to a search.
+   */
+  private readonly cursors = new WeakMap<
+    readonly [number, number][],
+    [number, number, number, number]
+  >()
+  private seek(points: readonly [number, number][], t: number, edge: 0 | 1): number {
+    let c = this.cursors.get(points)
+    if (!c) {
+      c = [-Infinity, 0, -Infinity, 0]
+      this.cursors.set(points, c)
+    }
+    const ti = edge * 2
+    if (t < (c[ti] as number)) c[ti + 1] = after(points, t)
+    else {
+      let i = c[ti + 1] as number
+      while (i < points.length && (points[i] as [number, number])[0] <= t) i++
+      c[ti + 1] = i
+    }
+    c[ti] = t
+    return c[ti + 1] as number
   }
 
   private select(e: Extract<Expr, { type: 'selector' }>): RawSeries[] {
@@ -297,44 +371,46 @@ class Evaluator {
       for (const s of v.samples) {
         const le = s.labels.le
         if (le === undefined) continue
-        const key = signature(s.labels, ['__name__', 'le'])
-        const g = groups.get(key) ?? {
-          labels: Object.fromEntries(
-            Object.entries(s.labels).filter(([k]) => k !== '__name__' && k !== 'le'),
-          ),
-          buckets: [],
+        const key = signature(s.labels, BUT_NAME_LE)
+        let g = groups.get(key)
+        if (!g) {
+          let labels = this.quantileLabels.get(key)
+          if (!labels) {
+            labels = Object.fromEntries(
+              Object.entries(s.labels).filter(([k]) => k !== '__name__' && k !== 'le'),
+            )
+            this.quantileLabels.set(key, labels)
+          }
+          g = { labels, buckets: [] }
+          groups.set(key, g)
         }
-        g.buckets.push({ le: le === '+Inf' ? Infinity : Number(le), count: s.value })
-        groups.set(key, g)
+        g.buckets.push({ le: leValue(le), count: s.value })
       }
-      return {
-        kind: 'vector',
-        samples: [...groups.values()].map((g) => ({
-          labels: g.labels,
-          value: bucketQuantile(q.value, g.buckets),
-        })),
-      }
+      const samples: { labels: Labels; value: number }[] = []
+      for (const g of groups.values())
+        samples.push({ labels: g.labels, value: bucketQuantile(q.value, g.buckets) })
+      return { kind: 'vector', samples }
     }
     const arg = args[0] as Expr
     // The usual case, a function of a range selector, reads each window in place.
     if (arg.type === 'selector' && arg.range !== undefined) {
       const end = t - arg.offset
       const start = end - arg.range
-      return {
-        kind: 'vector',
-        samples: this.select(arg).flatMap((s) => {
-          const lo = after(s.points, start)
-          const hi = after(s.points, end)
-          let v: number | undefined
-          if (fn === 'irate') {
-            const a = s.points[hi - 2]
-            const b = s.points[hi - 1]
-            if (hi - lo >= 2 && a && b && b[0] > a[0])
-              v = (b[1] < a[1] ? b[1] : b[1] - a[1]) / ((b[0] - a[0]) / 1000)
-          } else v = extrapolatedRate(s.points, start, end, fn === 'rate', lo, hi)
-          return v === undefined ? [] : [{ labels: withoutName(s.labels), value: v }]
-        }),
+      const samples: { labels: Labels; value: number }[] = []
+      const isRate = fn === 'rate'
+      for (const s of this.select(arg)) {
+        const lo = this.seek(s.points, start, 0)
+        const hi = this.seek(s.points, end, 1)
+        let v: number | undefined
+        if (fn === 'irate') {
+          const a = s.points[hi - 2]
+          const b = s.points[hi - 1]
+          if (hi - lo >= 2 && a && b && b[0] > a[0])
+            v = (b[1] < a[1] ? b[1] : b[1] - a[1]) / ((b[0] - a[0]) / 1000)
+        } else v = extrapolatedRate(s.points, start, end, isRate, lo, hi)
+        if (v !== undefined) samples.push({ labels: withoutName(s.labels), value: v })
       }
+      return { kind: 'vector', samples }
     }
     const m = this.at(arg, t)
     if (m.kind !== 'matrix')
@@ -351,10 +427,8 @@ class Evaluator {
     if (v.kind !== 'vector')
       throw new PromqlError(`${e.op}() needs an instant vector: wrap a range in rate() first`)
     const g = e.grouping
-    const key = (l: Labels) =>
-      g?.mode === 'by'
-        ? signature(l, [], g.labels)
-        : signature(l, ['__name__', ...(g?.labels ?? [])])
+    const spec = this.spec(e, g)
+    const key = (l: Labels) => signature(l, spec)
     const labelsFor = (l: Labels): Labels =>
       g?.mode === 'by'
         ? Object.fromEntries(Object.entries(l).filter(([k]) => g.labels.includes(k)))
@@ -422,10 +496,8 @@ class Evaluator {
     if (['and', 'or', 'unless'].includes(e.op)) {
       if (l.kind !== 'vector' || r.kind !== 'vector')
         throw new PromqlError(`"${e.op}" works on two instant vectors`)
-      const sig = (x: Labels) =>
-        e.matching?.mode === 'on'
-          ? signature(x, [], e.matching.labels)
-          : signature(x, ['__name__', ...(e.matching?.labels ?? [])])
+      const spec = this.spec(e, e.matching)
+      const sig = (x: Labels) => signature(x, spec)
       const right = new Set(r.samples.map((s) => sig(s.labels)))
       if (e.op === 'and')
         return { kind: 'vector', samples: l.samples.filter((s) => right.has(sig(s.labels))) }
@@ -459,10 +531,8 @@ class Evaluator {
     if (l.kind === 'vector' && r.kind === 'scalar') return scalarSide(l, r.value, true)
     if (l.kind === 'scalar' && r.kind === 'vector') return scalarSide(r, l.value, false)
     if (l.kind === 'vector' && r.kind === 'vector') {
-      const sig = (x: Labels) =>
-        e.matching?.mode === 'on'
-          ? signature(x, [], e.matching.labels)
-          : signature(x, ['__name__', ...(e.matching?.labels ?? [])])
+      const spec = this.spec(e, e.matching)
+      const sig = (x: Labels) => signature(x, spec)
       const right = new Map<string, number>()
       for (const s of r.samples) {
         const k = sig(s.labels)
@@ -537,7 +607,7 @@ export function rangeQuery(
       continue
     }
     for (const smp of v.samples) {
-      const k = signature(smp.labels, [])
+      const k = signature(smp.labels, EVERY)
       const s = out.get(k) ?? { labels: smp.labels, points: [] }
       s.points.push([t, smp.value])
       out.set(k, s)
