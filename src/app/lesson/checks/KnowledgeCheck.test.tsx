@@ -28,10 +28,15 @@ describe('E5-03 knowledge checks', () => {
 
   acTest('E5-03.AC1', 'single and multiple choice work from the keyboard', async () => {
     let { user } = show('sample-single')
+    // Options are shown in a stable shuffled order (#145), so follow the order on screen.
+    const radios = screen.getAllByRole('radio')
     await user.tab()
-    expect(screen.getByRole('radio', { name: 'The kubelet' })).toHaveFocus()
+    expect(radios[0]).toHaveFocus()
     await user.keyboard('{ArrowDown}')
-    expect(screen.getByRole('radio', { name: 'The scheduler' })).toBeChecked()
+    expect(radios[1]).toBeChecked()
+    // A wrong answer, chosen from the keyboard: focus moves to it with the arrows.
+    const scheduler = screen.getByRole('radio', { name: 'The scheduler' })
+    while (!(scheduler as HTMLInputElement).checked) await user.keyboard('{ArrowDown}')
     await user.tab()
     await user.keyboard('{Enter}')
     expect(status()).toHaveTextContent(
@@ -46,11 +51,13 @@ describe('E5-03 knowledge checks', () => {
       passed: true,
     })
     ;({ user } = show('sample-multiple'))
-    await user.tab()
-    await user.keyboard(' ')
-    await user.tab()
-    await user.keyboard(' ')
-    await user.tab()
+    // Tab through the boxes in the order shown, pressing Space on the two right ones.
+    const right = ['kubectl describe pod', 'kubectl logs --previous']
+    for (const box of screen.getAllByRole('checkbox')) {
+      await user.tab()
+      expect(box).toHaveFocus()
+      if (right.some((r) => box.closest('label')?.textContent.includes(r))) await user.keyboard(' ')
+    }
     await user.tab()
     await user.keyboard('{Enter}')
     expect(status()).toHaveTextContent(/✓ Correct/)

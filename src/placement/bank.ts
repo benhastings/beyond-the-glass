@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { stableShuffle } from '../content/checks.ts'
 
 /**
  * The Threshold's question bank (E4-01): `content/threshold/bank.yaml`, validated at build time. The model
@@ -141,3 +142,15 @@ export const bankSchema = z
 
 export type Bank = z.output<typeof bankSchema>
 export type BankItem = Bank['items'][number]
+
+/**
+ * An item's options in the order the quiz shows them (#145): scenario items are shuffled stably per item,
+ * so the correct answer isn't always first, and "I’m not sure yet" stays last. Experience items keep their
+ * order, which runs from least to most.
+ */
+export function displayOrder(item: BankItem): BankItem['options'] {
+  if (item.kind !== 'scenario') return item.options
+  const rest = item.options.filter((o) => o.id !== NOT_SURE)
+  const unsure = item.options.filter((o) => o.id === NOT_SURE)
+  return [...stableShuffle(`${item.id}/shuffle`, rest), ...unsure]
+}
