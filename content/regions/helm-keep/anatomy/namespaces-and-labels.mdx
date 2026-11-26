@@ -1,0 +1,74 @@
+---
+id: namespaces-and-labels
+title: Namespaces and labels
+order: 2
+objectives:
+  - List the namespaces in a cluster, and count the pods in one
+  - Find every pod of one app with a label selector (`-l app=…`)
+  - Say how a Deployment uses labels to find its pods
+estimatedMinutes: 15
+domain: kubernetes
+level: wayfarer
+scenario: ravenpost
+terms: [namespace, label, deployment]
+prerequisites: [pods]
+---
+
+<Step id="namespaces" title="Namespaces">
+
+<Rosetta id="host-group-namespace" />
+
+A <Term id="namespace">namespace</Term> groups a team's or a system's objects. Ravenpost's are in
+`ravenpost`; the cluster's own parts are in `kube-system`. Most commands look in one namespace (`-n`), or in
+all of them (`-A`). Names only need to be unique within a namespace.
+
+<Callout kind="habit">
+  Check your context: the prompt shows the cluster and namespace your commands go to. A command in
+  the wrong namespace finds nothing, or worse, finds the wrong thing.
+</Callout>
+
+How many pods does the cluster itself need?
+
+<Terminal scenario="ravenpost" challenge="count-system-pods" required />
+
+</Step>
+
+<Step id="labels" title="Labels">
+
+<Depth>
+  <ELI5>
+    Labels are name tags. Each tag has a name and a value, like "app: ledger". You can ask the
+    cluster for everything wearing a certain tag.
+  </ELI5>
+  <Operator>
+    A <Term id="label">label</Term> is a key and value on an object, such as `app=ravenpost-api`. A
+    label **selector** (`-l app=ravenpost-api`) picks objects by their labels, across names that
+    change. That's how you find all of one app's pods, whatever they're called today.
+  </Operator>
+</Depth>
+
+`--show-labels` adds a LABELS column, so you can see what's there to select on.
+
+<Terminal scenario="ravenpost" challenge="pods-by-label" required />
+
+</Step>
+
+<Step id="selectors" title="How a Deployment finds its pods">
+
+A Deployment doesn't keep a list of pod names. It has a selector, such as `app: ravenpost-api`, and counts
+the pods that match. If there are too few, it makes more; too many, it removes some. A Service finds the
+pods to send traffic to the same way.
+
+So labels aren't decoration. Change a pod's labels by hand, and its Deployment no longer counts it.
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="labels-selector" />
+
+<Check id="labels-namespace" />
+
+<Check id="labels-deployment" />
+
+</Step>
