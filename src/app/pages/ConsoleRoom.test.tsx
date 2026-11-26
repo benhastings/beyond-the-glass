@@ -114,4 +114,16 @@ describe('E2-02 Console Room', () => {
     const file = join(process.cwd(), 'src/app/pages/ConsoleRoom.tsx')
     expect(lintTsx(file, readFileSync(file, 'utf8'))).toEqual([])
   })
+
+  acTest('E1-04.AC2', 'the scene is decorative, and the page describes it in text', () => {
+    show()
+    const scene = document.querySelector('svg[data-scene="console-room"]')
+    expect(scene).toHaveAttribute('aria-hidden', 'true')
+    expect(scene).toHaveAttribute('focusable', 'false')
+    expect(screen.getByText(/^A dim operations room late at night/)).toHaveClass('sr-only')
+    // Its layers are there for the Crossing.
+    expect(
+      [...(scene?.querySelectorAll('[data-layer]') ?? [])].map((g) => g.getAttribute('data-layer')),
+    ).toEqual(['back', 'desk', 'monitor-left', 'monitor-right', 'glass', 'props'])
+  })
 })

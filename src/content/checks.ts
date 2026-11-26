@@ -224,3 +224,11 @@ export function gradeTestOut(
     review: results.filter((r) => !r.passed).map((r) => r.check),
   }
 }
+
+/**
+ * A single- or multiple-choice check's options in the order learners see them (#145): a stable shuffle per
+ * check, so the correct answer isn't always where the author happened to write it.
+ */
+export function displayOptions<O>(check: { id: string; options: readonly O[] }): O[] {
+  return stableShuffle(`${check.id}/options`, check.options)
+}
