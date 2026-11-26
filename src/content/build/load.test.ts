@@ -315,6 +315,17 @@ describe('buildManifest errors', () => {
     },
   )
 
+  it('a component that isn’t registered fails the build, naming it and its line; code is skipped', () => {
+    const lesson = 'regions/alpha/basics/first-steps.mdx'
+    const root = variant({
+      [lesson]: (t) =>
+        `${t}\n<Rosettta id="process-container" />\n\n\`<NotATag>\` in code\n\n\`\`\`text\n<AlsoCode>\n\`\`\`\n`,
+    })
+    expect(issuesOf(root).map((i) => [i.file, i.field, i.message.split(' (')[0]])).toEqual([
+      [lesson, '<Rosettta>', 'unknown component <Rosettta>'],
+    ])
+  })
+
   it('test-outs need 3–5 questions, each pointing at a real lesson step in the module', () => {
     const q = (id: string, lesson: string, step: string) =>
       `  - id: ${id}\n    type: single\n    review: { lesson: ${lesson}, step: ${step} }\n    prompt: P\n    explanation: E\n    options:\n      - { id: a, text: A, correct: true }\n      - { id: b, text: B }\n`
