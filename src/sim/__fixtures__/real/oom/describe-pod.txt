@@ -62,7 +62,7 @@ Events:
   Type     Reason     Age                 From               Message
   ----     ------     ----                ----               -------
   Normal   Scheduled  <age>                default-scheduler  Successfully assigned <ns>/web-<hash>-<id> to <node>
-  Normal   Pulled     <age> (x5 over <age>)  kubelet            spec.containers{web}: Container image "busybox:1.36" already present on machine
-  Normal   Created    <age> (x5 over <age>)  kubelet            spec.containers{web}: Created container: web
-  Normal   Started    <age> (x5 over <age>)  kubelet            spec.containers{web}: Started container web
-  Warning  BackOff    <age> (x10 over <age>)  kubelet            spec.containers{web}: Back-off restarting failed container web in pod web-<hash>-9zhzb_<ns>(<uid>)
+  Normal   Pulled     <age> (x5 over <age>)  kubelet            Container image "busybox:1.36" already present on machine
+  Normal   Created    <age> (x5 over <age>)  kubelet            Created container: web
+  Normal   Started    <age> (x5 over <age>)  kubelet            Started container web
+  Warning  BackOff    <age> (x9 over <age>)  kubelet            Back-off restarting failed container web in pod web-<hash>-v7vsk_<ns>(<uid>)
