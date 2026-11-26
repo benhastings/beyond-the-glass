@@ -31,6 +31,7 @@ export interface ServiceSpec {
   operation: string
   /** Passes trace context on to its calls (E9-10). */
   propagates: boolean
+  slowWhen?: { configMap: string; key: string; equals: string; latencyMs: number }
 }
 
 export interface ServiceState {
@@ -66,6 +67,7 @@ export function services(sim: Simulator): ServiceSpec[] {
     kind: s.kind,
     operation: s.operation ?? DEFAULT_OPERATION[s.kind],
     propagates: s.propagates,
+    ...(s.slowWhen ? { slowWhen: s.slowWhen } : {}),
   }))
 }
 
@@ -97,6 +99,8 @@ interface ServiceInputs {
   errors: Steps
   latency: Steps
   rps: Steps
+  /** 1 while its `slowWhen` flag is on. */
+  flag: Steps
   histories: ContainerHistory[]
   /** When its containers stopped (not counting deletions), in order: a restart's errors. */
   stops: number[]
@@ -126,6 +130,7 @@ export function modelContext(
       errors: steps(sim, stepKey('errors', s.cluster, s.namespace, s.name)),
       latency: steps(sim, stepKey('latency', s.cluster, s.namespace, s.name)),
       rps: steps(sim, stepKey('rps', s.cluster, s.namespace, s.name)),
+      flag: steps(sim, stepKey('flag', s.cluster, s.namespace, s.name)),
       histories: mine,
       stops: mine
         .flatMap((h) =>
@@ -184,7 +189,9 @@ export function modelAt(
     const inp = inputs.get(s.name)
     const endpoints = valueAt(inp?.endpoints ?? [], mid, 1)
     const injected = valueAt(inp?.errors ?? [], mid, 0)
-    const extra = valueAt(inp?.latency ?? [], mid, 0)
+    const extra =
+      valueAt(inp?.latency ?? [], mid, 0) +
+      (s.slowWhen && valueAt(inp?.flag ?? [], mid, 0) === 1 ? s.slowWhen.latencyMs : 0)
     // No ready endpoints: every request fails at once with a 503.
     const unavailable = endpoints === 0 ? 1 : 0
     let err = Math.min(

@@ -23,6 +23,7 @@ describe('parseScenario', () => {
     expect(Object.keys(SCENARIOS)).toEqual([
       'ravenpost',
       'stormwatch',
+      'the-long-night',
       'triage',
       'pipelines',
       'signals',

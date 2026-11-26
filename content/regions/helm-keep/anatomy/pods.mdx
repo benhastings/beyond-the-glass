@@ -1,0 +1,78 @@
+---
+id: pods
+title: Pods
+order: 1
+objectives:
+  - Say why Kubernetes runs pods rather than bare containers
+  - Follow a pod through its phases, from Pending to Running or Failed
+  - Find which node a pod runs on, with `kubectl get pods -o wide`
+  - Read a pod's state and events with `kubectl describe pod`
+estimatedMinutes: 15
+domain: kubernetes
+level: wayfarer
+scenario: ravenpost
+terms: [pod, container, node]
+prerequisites: [keep-and-stewards]
+---
+
+<Step id="why-pods" title="Why a pod, not a container">
+
+<Analogy
+  then="A service on a server was a main process, sometimes with a helper beside it, sharing the host's address and disk."
+  now="A pod is that small group: one main container, sometimes helpers, sharing one address and its volumes."
+/>
+
+A <Term id="pod">pod</Term> is the smallest thing Kubernetes runs. Usually it holds one container. When
+two containers must always run together (a program and a helper that ships its logs, say), they go in the
+same pod, so they're scheduled together and can talk over `localhost`.
+
+Pods are disposable. They're created, they run, and when they're replaced the new pod has a new name and
+a new address. Nothing should depend on one particular pod.
+
+</Step>
+
+<Step id="lifecycle" title="A pod's life">
+
+<Depth>
+  <ELI5>
+    A new pod waits for a machine. Then its program starts. If the program keeps running, the pod is
+    Running. If it ends, the pod says whether it ended well or badly.
+  </ELI5>
+  <Operator>
+    **Pending**: accepted, but not yet scheduled, or still pulling its image. **Running**: on a
+    node, with at least one container started. **Succeeded** or **Failed**: every container has
+    ended (for one-off jobs). STATUS in `kubectl get pods` often shows something more specific, such
+    as ContainerCreating, CrashLoopBackOff or ImagePullBackOff: the reason a container is waiting.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="where" title="Where is it running?">
+
+`kubectl get pods` lists pods; `-o wide` adds each pod's IP address and **node**. Find where the notifier
+runs.
+
+<Terminal scenario="ravenpost" challenge="which-node" required />
+
+</Step>
+
+<Step id="describe" title="Describe a pod">
+
+`kubectl describe pod NAME` prints everything about one pod: its node, its containers with their image,
+**State** and **Last State**, its conditions, and at the bottom the **Events**: what the cluster did to it,
+in order. Names match by prefix, so `kubectl describe pod ravenpost-notifier -n ravenpost` is enough.
+
+<Rosetta id="ssh-to-look" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="pods-shared" />
+
+<Check id="pods-pending" />
+
+<Check id="pods-wide" />
+
+</Step>

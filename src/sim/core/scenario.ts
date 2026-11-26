@@ -451,6 +451,18 @@ export const scenarioSchema = z
                * starts a new trace, so traces stop here and its callees' spans have no parent.
                */
               propagates: z.boolean().default(true),
+              /**
+               * A feature flag that makes it slow (E10-02): while the ConfigMap key has this value, each
+               * request takes `latencyMs` longer (an N+1 query behind the flag, say).
+               */
+              slowWhen: z
+                .strictObject({
+                  configMap: z.string(),
+                  key: z.string(),
+                  equals: z.string(),
+                  latencyMs: z.number().positive(),
+                })
+                .optional(),
             }),
           )
           .default([]),
@@ -471,6 +483,13 @@ export const scenarioSchema = z
       .optional(),
     /** How each image behaves when it runs (healthy if absent): crashes, memory use, log lines (E6-03). */
     images: z.record(z.string(), behaviourSchema).default({}),
+    /**
+     * The capstone's acts (E10-02), in order. Validated in full by the capstone engine
+     * (src/sim/capstone/script.ts); here only their identity is checked.
+     */
+    acts: z.array(z.looseObject({ id: slug, title: z.string().min(1) })).default([]),
+    /** The capstone debrief's example incident note, shown beside the learner's (E10-05). */
+    exemplarNote: z.string().min(1).optional(),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */
     objectives: z.array(slug).default([]),
     /**

@@ -92,6 +92,18 @@ export function SettingsPanel() {
             update({ textSize: Number(v) as typeof settings.textSize })
           }}
         />
+        <div className="grid gap-2">
+          <p>The Crossing plays once, when you first step through the glass. See it again:</p>
+          <div>
+            <Button
+              onClick={() => {
+                void navigate('/map', { state: { crossing: 'replay' } })
+              }}
+            >
+              Replay the Crossing
+            </Button>
+          </div>
+        </div>
       </section>
 
       <section aria-labelledby={`${id}-start`} className="grid gap-3">

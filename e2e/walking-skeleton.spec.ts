@@ -37,17 +37,18 @@ acTest(
     await takeQuizAsNewcomer(page)
 
     // Results: the persona's placement, in words.
-    await expect(page.getByText('Your trail begins at the Chartroom.')).toBeVisible()
+    await expect(page.getByText('Your trail begins at the Console Room.')).toBeVisible()
     await expect(
       page.getByText('Kubernetes: Wayfarer. New to this. We start from the beginning.'),
     ).toBeVisible()
     await expectNoA11yViolations(page)
-    // The Crossing (E1-06) isn't built yet; Step through the glass goes straight to the map.
+    // Step through the glass: the Crossing (E1-06) plays, and ends on the map.
     await page.getByRole('button', { name: 'Step through the glass' }).click()
+    await expect(page.getByRole('dialog', { name: 'The Crossing' })).toBeHidden({ timeout: 3500 })
     await expect(page.getByRole('heading', { level: 1, name: 'Map of the Reach' })).toBeVisible()
     await page.getByRole('button', { name: 'List view' }).click()
     const chartroom = page.getByRole('link', {
-      name: 'The Chartroom, recommended next, 0 of 1 modules',
+      name: /^The Chartroom, not started, 0 of [0-9]+ modules$/,
     })
     await expect(chartroom).toBeVisible()
 
@@ -111,7 +112,7 @@ acTest(
     await reopened.goto('./#/map?view=list')
     await expect(
       // One of the module's three lessons is done, so the region is under way.
-      reopened.getByRole('link', { name: 'The Chartroom, in progress, 0 of 1 modules' }),
+      reopened.getByRole('link', { name: /^The Chartroom, in progress, 0 of [0-9]+ modules$/ }),
     ).toBeVisible()
     await again.close()
   },

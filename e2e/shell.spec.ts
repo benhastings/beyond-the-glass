@@ -57,6 +57,18 @@ test.describe('E2-01 app shell', () => {
       for (const [link, title] of journey) {
         await tabTo(page, link)
         await page.keyboard.press('Enter')
+        if (link === 'Step through the glass') {
+          // The Crossing (E1-06) plays the first time: Esc skips it, as a keyboard user would. Then the
+          // map's heading has focus, and the announcer says where you've arrived.
+          await expect(page.getByRole('dialog', { name: 'The Crossing' })).toBeVisible()
+          await page.keyboard.press('Escape')
+          await expect(page.getByRole('heading', { level: 1, name: title })).toBeFocused()
+          await expect(page.getByTestId('route-announcer')).toHaveText(
+            'You step through the glass, into the Reach.',
+          )
+          await expectNoA11yViolations(page)
+          continue
+        }
         if (!title) continue
         await expectPage(page, title)
         await expectNoA11yViolations(page)
