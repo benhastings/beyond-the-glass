@@ -148,6 +148,15 @@ export class ChallengeRun {
             e.actor === 'learner' &&
             e.verb === p.verb &&
             (p.kind === undefined || e.kind === p.kind) &&
+            (p.name === undefined || e.name === p.name) &&
+            (p.cluster === undefined || e.cluster === p.cluster),
+        )
+      case 'noMutation':
+        return !auditLog(this.sim).some(
+          (e) =>
+            e.actor === 'learner' &&
+            (p.cluster === undefined || e.cluster === p.cluster) &&
+            (p.kind === undefined || e.kind === p.kind) &&
             (p.name === undefined || e.name === p.name),
         )
       case 'all':
@@ -163,8 +172,16 @@ export class ChallengeRun {
       text: o.text,
       done: this.check(o.check),
     }))
+    const learnerChanges = (cluster: string) =>
+      auditLog(this.sim)
+        .filter((e) => e.actor === 'learner' && e.cluster === cluster)
+        .map((e) => e.command ?? '')
     const warnings = this.challenge.forbidden
-      .filter((f) => this.history.some((l) => new RegExp(f.pattern).test(l)))
+      .filter((f) =>
+        (f.cluster === undefined ? this.history : learnerChanges(f.cluster)).some((l) =>
+          new RegExp(f.pattern).test(l),
+        ),
+      )
       .map((f) => f.message)
     const complete = objectives.every((o) => o.done)
     if (complete && this.state.completedAt === undefined) this.state.completedAt = this.sim.now

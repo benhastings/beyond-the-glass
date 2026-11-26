@@ -1,5 +1,5 @@
 id: first-look
-title: A first look
+title: kubectl essentials and safe habits
 order: 0
-summary: Point kubectl at the cluster, list what's running, and spot the one thing that isn't.
+summary: Know which cluster you're on, look before you touch, and find what you need fast.
 domain: kubernetes

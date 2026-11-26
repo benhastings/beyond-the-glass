@@ -87,6 +87,15 @@ const base = {
     verb: z.string(),
     kind: z.string().optional(),
     name: z.string().optional(),
+    /** Only changes made on this cluster count (E9-05: the right context). */
+    cluster: z.string().optional(),
+  }),
+  /** The learner changed nothing on `cluster` (with `kind`/`name`, nothing of that kind or name). */
+  noMutation: z.strictObject({
+    type: z.literal('noMutation'),
+    cluster: z.string().optional(),
+    kind: z.string().optional(),
+    name: z.string().optional(),
   }),
 }
 
@@ -117,7 +126,19 @@ export const challengeSchema = z.strictObject({
     .array(z.strictObject({ id: slug, text: z.string().min(1), check: predicateSchema }))
     .min(1),
   /** Commands that would do harm here; running one is flagged (never blocks completion). */
-  forbidden: z.array(z.strictObject({ pattern: regex, message: z.string().min(1) })).default([]),
+  /**
+   * Commands that would do harm, each with why. With `cluster`, the pattern is matched against changes the
+   * learner actually made on that cluster, so a change made in the wrong context is flagged (E9-05).
+   */
+  forbidden: z
+    .array(
+      z.strictObject({
+        pattern: regex,
+        message: z.string().min(1),
+        cluster: z.string().optional(),
+      }),
+    )
+    .default([]),
   /** The hint ladder, in order: nudge, then pointer, then the exact command. */
   hints: z
     .array(z.strictObject({ level: z.enum(HINT_LEVELS), text: z.string().min(1) }))

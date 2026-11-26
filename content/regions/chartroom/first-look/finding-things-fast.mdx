@@ -1,0 +1,80 @@
+---
+id: finding-things-fast
+title: Finding things fast
+order: 2
+objectives:
+  - Narrow a listing with a label selector, or widen it to every namespace
+  - Sort pods and events to put what matters first
+  - Trim output with grep and head
+estimatedMinutes: 14
+domain: kubernetes
+level: wayfarer
+scenario: ravenpost
+terms: [label, kubectl]
+prerequisites: [your-first-look]
+---
+
+<Step id="narrow" title="Narrow it, or widen it">
+
+`-l` picks objects by label, so `-l app=ravenpost-api` is every api pod, whatever they're called today.
+`-A` goes the other way: every namespace at once.
+
+<CodeBlock
+  language="console"
+  caption="One app's pods, and every pod everywhere"
+  code={`kubectl get pods -n ravenpost -l app=ravenpost-api
+kubectl get pods -A`}
+/>
+
+</Step>
+
+<Step id="sort" title="Sort what matters to the top">
+
+`--sort-by` takes a path into the object. Two that earn their keep:
+
+<CodeBlock
+  language="console"
+  caption="Newest events last; most restarted pods last"
+  code={`kubectl get events -n ravenpost --sort-by=.lastTimestamp
+kubectl get pods -A --sort-by=.status.containerStatuses[0].restartCount`}
+/>
+
+<Depth>
+  <ELI5>
+    Sorting puts things in order. Sort the events by time, and the newest is at the bottom. Sort
+    pods by restarts, and the troublemaker is at the bottom.
+  </ELI5>
+  <Operator>
+    The path is a JSONPath into each item, as `-o yaml` shows it. Sorting is ascending, so the
+    newest or biggest is last, right above your prompt. Events without sorting come in no useful
+    order.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="pipes" title="grep and head">
+
+The terminal pipes kubectl's output through `grep`, `head`, `tail` and `wc -l`, as a shell would.
+
+<CodeBlock
+  language="console"
+  caption="Only the lines you want"
+  code={`kubectl get pods -A | grep -v Running
+kubectl get events -n ravenpost --sort-by=.lastTimestamp | tail -5
+kubectl get pods -n kube-system --no-headers | wc -l`}
+/>
+
+<Terminal scenario="ravenpost" challenge="most-restarts" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="fast-sort" />
+
+<Check id="fast-grep" />
+
+<Check id="fast-label" />
+
+</Step>

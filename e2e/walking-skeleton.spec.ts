@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 import { acTest } from './ac.ts'
 import { expect, expectNoA11yViolations } from './fixtures.ts'
 
-const LESSON = 'Your first look at the cluster'
+const LESSON = 'Look before you touch'
 
 /** Answers the Threshold as someone new to all of it: "never", and "I'm not sure yet" to every scenario. */
 async function takeQuizAsNewcomer(page: Page) {
@@ -53,7 +53,13 @@ acTest(
 
     // Into the region and the lesson.
     await chartroom.click()
-    await page.getByRole('link', { name: 'A first look', exact: true }).click()
+    // The module opens at its first lesson (Know where you are); this test takes the second, with the
+    // failing-pod challenge.
+    await page
+      .getByRole('link', { name: 'kubectl essentials and safe habits', exact: true })
+      .click()
+    await expect(page.getByRole('heading', { level: 1, name: 'Know where you are' })).toBeVisible()
+    await page.goto('./#/lesson/your-first-look')
     await expect(page.getByRole('heading', { level: 1, name: LESSON })).toBeVisible()
     await page.getByRole('link', { name: 'Next step →' }).click()
     await page.getByRole('link', { name: 'Next step →' }).click()
@@ -67,10 +73,11 @@ acTest(
     await expect(page.getByText(/^Challenge complete\./)).toBeVisible()
     await expectNoA11yViolations(page)
 
-    // The required check, then finish.
+    // Past "Then find out why" (its challenge is optional) to the required check, then finish.
+    await page.getByRole('link', { name: 'Next step →' }).click()
     await page.getByRole('link', { name: 'Next step →' }).click()
     await page.getByRole('radio', { name: /keeps exiting/ }).click()
-    await page.getByRole('button', { name: 'Check my answer' }).click()
+    await page.getByRole('button', { name: 'Check my answer' }).first().click()
     await expect(page.getByText('✓ Correct.')).toBeVisible()
     console.log(
       'BEFORE',
@@ -103,7 +110,8 @@ acTest(
     await expect(reopened.getByRole('heading', { name: 'Lesson complete' })).toBeVisible()
     await reopened.goto('./#/map?view=list')
     await expect(
-      reopened.getByRole('link', { name: 'The Chartroom, complete, 1 of 1 modules' }),
+      // One of the module's three lessons is done, so the region is under way.
+      reopened.getByRole('link', { name: 'The Chartroom, in progress, 0 of 1 modules' }),
     ).toBeVisible()
     await again.close()
   },
@@ -126,7 +134,7 @@ acTest(
       localStorage.setItem('btg:progress', JSON.stringify({ state: { progress }, version: 1 }))
     })
     await page.goto('./')
-    const cont = page.getByRole('link', { name: 'Continue: Your first look at the cluster' })
+    const cont = page.getByRole('link', { name: 'Continue: Look before you touch' })
     await expect(cont).toHaveAttribute('href', '#/lesson/your-first-look/2')
     await cont.click()
     await expect(page.getByRole('link', { name: '2. Ask the cluster' })).toHaveAttribute(

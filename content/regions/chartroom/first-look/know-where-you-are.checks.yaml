@@ -1,0 +1,43 @@
+checks:
+  - id: context-star
+    type: single
+    required: true
+    prompt: In the output of `kubectl config get-contexts`, what does the `*` mark?
+    explanation: The current context, where commands go unless you say otherwise.
+    options:
+      - id: default
+        text: The cluster with the most pods
+        feedback: get-contexts doesn't count pods.
+      - id: current
+        text: The context your commands go to now
+        correct: true
+      - id: prod
+        text: The production cluster
+        feedback: Any context can be current, prod or not.
+  - id: context-once
+    type: single
+    prompt: You want one command to run on stage, without switching your terminal. What do you add?
+    explanation: --context sends one command to another context; use-context switches until you switch back.
+    options:
+      - id: use
+        text: Run kubectl config use-context stage first
+        feedback: That switches for every command after it, until you switch back.
+      - id: ns
+        text: -n stage
+        feedback: -n picks a namespace, not a cluster.
+      - id: flag
+        text: --context stage
+        correct: true
+  - id: context-first
+    type: ordering
+    prompt: Put these in the order you'd do them before changing anything.
+    explanation: Know where you are, look at what's there, then change, then check.
+    items:
+      - id: context
+        text: Check the current context
+      - id: look
+        text: Look at what's running there
+      - id: change
+        text: Make the change
+      - id: verify
+        text: Check that the change did what you meant

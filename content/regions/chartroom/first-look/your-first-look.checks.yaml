@@ -14,3 +14,34 @@ checks:
       - id: healthy
         text: It is running normally
         feedback: A healthy pod shows Running, with READY at 1/1.
+  - id: first-look-previous
+    type: single
+    prompt: A container keeps restarting. Which command shows what it printed in the run that crashed?
+    explanation: --previous shows the logs of the last terminated run, where the reason usually is.
+    options:
+      - id: logs
+        text: kubectl logs POD -n NAMESPACE
+        feedback: That shows the run that's starting now, which may not have failed yet.
+      - id: previous
+        text: kubectl logs POD -n NAMESPACE --previous
+        correct: true
+      - id: describe
+        text: kubectl get pods -n NAMESPACE
+        feedback: That shows the restart count, not what the program printed.
+  - id: first-look-readonly
+    type: multiple
+    prompt: Which of these only read, and change nothing?
+    explanation: get, describe, logs and events only read. delete changes the cluster.
+    options:
+      - id: get
+        text: kubectl get pods -A
+        correct: true
+      - id: describe
+        text: kubectl describe pod ravenpost-notifier -n ravenpost
+        correct: true
+      - id: delete
+        text: kubectl delete pod ravenpost-notifier -n ravenpost
+        feedback: That removes the pod. Its Deployment makes a new one, but it's still a change.
+      - id: logs
+        text: kubectl logs deploy/ravenpost-notifier -n ravenpost --previous
+        correct: true
