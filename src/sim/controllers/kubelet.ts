@@ -290,7 +290,13 @@ function startContainer(sim: Simulator, cluster: Cluster, pod: Pod, cs: Containe
   // More memory than the limit allows: the kernel kills it a few seconds in (OOMKilled, 137).
   const limit = memoryBytes(spec?.resources?.limits?.memory)
   const oom = b.memoryMi !== undefined && limit > 0 && b.memoryMi * 1024 ** 2 > limit
+  // A required config key that isn't there: the app refuses to start (E10-02).
+  const ns = pod.metadata.namespace ?? 'default'
+  const missingConfig = (b.requires ?? []).some(
+    (r) => cluster.get('ConfigMap', ns, r.configMap)?.data[r.key] === undefined,
+  )
   if (oom) schedule(sim, t + (b.exitAfterMs ?? 4000), { ...base, action: 'exit', oom: true })
+  else if (missingConfig) schedule(sim, t + 1500, { ...base, action: 'exit' })
   else if (b.exitAfterMs !== undefined)
     schedule(sim, t + b.exitAfterMs, { ...base, action: 'exit' })
   // A probe on a path the app doesn't serve gets a 404; a failing app answers 503 (readiness) or 500.

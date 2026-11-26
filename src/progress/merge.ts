@@ -65,6 +65,8 @@ export function mergeScenario(a: ScenarioProgress, b: ScenarioProgress): Scenari
   // This browser's snapshot is kept (codes don't carry them); the further act wins.
   const act = Math.max(a.act ?? -1, b.act ?? -1)
   const notes = a.notes || b.notes
+  // Finished in either: the earlier finish.
+  const done = [a.completedAt, b.completedAt].filter((x): x is string => x !== undefined).sort()[0]
   return {
     ...(a.snapshot !== undefined
       ? { snapshot: a.snapshot }
@@ -73,6 +75,7 @@ export function mergeScenario(a: ScenarioProgress, b: ScenarioProgress): Scenari
         : {}),
     ...(act >= 0 ? { act } : {}),
     ...(notes ? { notes } : {}),
+    ...(done ? { completedAt: done } : {}),
   }
 }
 

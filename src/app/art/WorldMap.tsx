@@ -19,9 +19,12 @@ export const MAP_SIZE = { width: 900, height: 640 }
 export function WorldMap({
   highlight,
   className,
+  fill = false,
 }: {
   highlight?: string | undefined
   className?: string
+  /** Cover the whole box (the Crossing) instead of fitting inside it. */
+  fill?: boolean
 }) {
   const dim = (id: string) =>
     highlight && highlight !== id
@@ -31,6 +34,7 @@ export function WorldMap({
     <svg
       aria-hidden="true"
       focusable="false"
+      preserveAspectRatio={fill ? 'xMidYMid slice' : 'xMidYMid meet'}
       viewBox="0 0 900 640"
       className={className}
       data-map="reach"

@@ -23,11 +23,19 @@ export const CONSOLE_ROOM_DESCRIPTION =
  * Idle motion (status lights, a gentle CRT flicker under 3 Hz, the glass breathing once) runs for five
  * seconds and stops; with reduced motion nothing moves and the glass rests at 85 %.
  */
-export function ConsoleRoomScene({ className }: { className?: string }) {
+export function ConsoleRoomScene({
+  className,
+  fill = false,
+}: {
+  className?: string
+  /** Cover the whole box (the Crossing) instead of fitting inside it. */
+  fill?: boolean
+}) {
   return (
     <svg
       aria-hidden="true"
       focusable="false"
+      preserveAspectRatio={fill ? 'xMidYMid slice' : 'xMidYMid meet'}
       viewBox="0 0 640 540"
       className={className}
       data-scene="console-room"

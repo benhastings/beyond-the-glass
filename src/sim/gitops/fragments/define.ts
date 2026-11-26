@@ -109,7 +109,12 @@ export function withTimeline(
 }
 
 /** Runs an expert path against a simulation; returns the commands run (the challenge engine's history). */
-export function playExpertPath(sim: Simulator, steps: readonly ExpertStep[]): string[] {
+/** `onStep` runs after each step (the capstone engine records commands and moves acts on there). */
+export function playExpertPath(
+  sim: Simulator,
+  steps: readonly ExpertStep[],
+  onStep?: (step: ExpertStep) => void,
+): string[] {
   const shell = createShell(sim)
   const history: string[] = []
   const settleAndMerge = (id: number) => {
@@ -136,6 +141,7 @@ export function playExpertPath(sim: Simulator, steps: readonly ExpertStep[]): st
       })
       settleAndMerge(mr.id)
     } else settleAndMerge(proposeRevert(sim, step.revertMr.repo).mr.id)
+    onStep?.(step)
   }
   return history
 }
