@@ -24,6 +24,11 @@ export const behaviourSchema = z.strictObject({
   memoryMi: z.number().nonnegative().optional(),
   /** Steady CPU use in millicores (for `kubectl top`). */
   cpuMillis: z.number().nonnegative().optional(),
+  /**
+   * ConfigMap keys the app needs at startup (E10-02): if one is missing from its namespace, the process
+   * exits 1.5 s in, after logging which (`kubectl logs --previous`), and keeps crash-looping until it's there.
+   */
+  requires: z.array(z.strictObject({ configMap: z.string(), key: z.string() })).optional(),
   /** Log lines the container writes when it starts (and, for a crash, just before it exits). */
   log: z.array(z.string()).optional(),
 })
