@@ -79,6 +79,17 @@ export function runLines(
     const t = run.start + 120 + i * 15
     if (t <= run.end) lines.push({ t, text })
   })
+  // A run that stopped with required config missing says why last (E10-02).
+  if (run.exited && b.requires?.length && run.reason !== 'OOMKilled')
+    lines.push({
+      t: Math.max(run.start, run.end - 5),
+      text: json({
+        level: 'fatal',
+        ts: iso(sim, Math.max(run.start, run.end - 5)),
+        msg: `missing required config key ${b.requires.map((r) => `${r.key} (ConfigMap ${r.configMap})`).join(', ')}`,
+        exit_code: 1,
+      }),
+    })
   const port = spec?.ports?.[0]?.containerPort
   if (port && !run.exited) add(run.start + 300, { msg: 'listening', addr: `:${String(port)}` })
   if (!run.exited || run.end - run.start > REQUEST_EVERY_MS) {

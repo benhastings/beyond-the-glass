@@ -42,4 +42,30 @@ describe('the production bundle', () => {
     // The diagrams themselves are there, as SVG.
     expect(js.some(({ code }) => code.includes('flowchart-v2'))).toBe(true)
   })
+
+  it('[E10-04.AC4] keeps the war room in its own chunk, which index.html does not load', () => {
+    const html = readFileSync(join(dist, 'index.html'), 'utf8')
+    const room = js.filter(({ code }) => code.includes('btg-war-room'))
+    expect(room.map((x) => x.file)).toHaveLength(1)
+    const file = room[0]?.file ?? ''
+    expect(html).not.toContain(file)
+    // Nor does anything the first page loads import it statically.
+    const entry = /src="\.\/assets\/([^"]+\.js)"/.exec(html)?.[1] ?? ''
+    expect(entry).not.toBe('')
+    expect(entry).not.toBe(file)
+    const staticImports = (code: string) =>
+      [...code.matchAll(/(?:^|[;\s])import\s*(?:[\w${},*\s]+from\s*)?"\.\/([^"]+)"/g)].map(
+        (m) => m[1],
+      )
+    const loaded = new Set<string>()
+    const visit = (f: string) => {
+      if (loaded.has(f)) return
+      loaded.add(f)
+      for (const dep of staticImports(js.find((x) => x.file === f)?.code ?? '')) if (dep) visit(dep)
+    }
+    visit(entry)
+    // The walk did follow the entry's imports (vendor and app chunks).
+    expect(loaded.size).toBeGreaterThan(1)
+    expect([...loaded]).not.toContain(file)
+  })
 })

@@ -5,6 +5,7 @@ import signals from '@/scenarios/signals.yaml'
 import slowLedger from '@/scenarios/slow-ledger.yaml'
 import brokenTraces from '@/scenarios/broken-traces.yaml'
 import stormwatch from '@/scenarios/stormwatch.yaml'
+import theLongNight from '@/scenarios/the-long-night.yaml'
 import triage from '@/scenarios/triage.yaml'
 import type { Scenario } from '@/sim/core/scenario'
 import { FRAGMENT_SCENARIO_LIST } from './fragments'
@@ -13,6 +14,7 @@ import { FRAGMENT_SCENARIO_LIST } from './fragments'
 export const SCENARIOS: Readonly<Record<string, Scenario>> = {
   [ravenpost.id]: ravenpost,
   [stormwatch.id]: stormwatch,
+  [theLongNight.id]: theLongNight,
   [triage.id]: triage,
   [pipelines.id]: pipelines,
   [signals.id]: signals,
