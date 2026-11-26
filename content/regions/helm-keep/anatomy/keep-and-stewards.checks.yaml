@@ -1,0 +1,46 @@
+checks:
+  - id: anatomy-scheduler
+    type: matching
+    required: true
+    prompt: Match each part of the control plane to its job.
+    explanation: The API server is the front door, etcd the memory, the scheduler places pods, and the controller manager keeps objects matching the plan.
+    pairs:
+      - id: api
+        left: API server
+        right: Takes every request, checks it, and records it
+      - id: etcd
+        left: etcd
+        right: Stores the desired and current state
+      - id: scheduler
+        left: Scheduler
+        right: Chooses a node for each new pod
+      - id: controllers
+        left: Controller manager
+        right: Runs the loops that fix differences from the plan
+  - id: anatomy-order
+    type: ordering
+    prompt: Put these in the order they happen after you create a Deployment.
+    explanation: The API server records it, a controller makes pods, the scheduler places them, and the kubelet starts them.
+    items:
+      - id: record
+        text: The API server records the Deployment
+      - id: pods
+        text: A controller creates the pod objects
+      - id: schedule
+        text: The scheduler assigns each pod a node
+      - id: start
+        text: Each kubelet starts its pod's containers
+  - id: anatomy-kubelet
+    type: single
+    prompt: A container on ravenpost-worker exits. What restarts it?
+    explanation: The kubelet on that node restarts containers of the pods assigned to it.
+    options:
+      - id: scheduler
+        text: The scheduler
+        feedback: The scheduler only places new pods on nodes.
+      - id: etcd
+        text: etcd
+        feedback: etcd stores state; it doesn't run anything.
+      - id: kubelet
+        text: The kubelet on ravenpost-worker
+        correct: true
