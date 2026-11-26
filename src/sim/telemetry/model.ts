@@ -29,6 +29,8 @@ export interface ServiceSpec {
   errorRate: number
   kind: 'http' | 'db' | 'queue' | 'worker'
   operation: string
+  /** Passes trace context on to its calls (E9-10). */
+  propagates: boolean
 }
 
 export interface ServiceState {
@@ -63,6 +65,7 @@ export function services(sim: Simulator): ServiceSpec[] {
     errorRate: s.errorRate,
     kind: s.kind,
     operation: s.operation ?? DEFAULT_OPERATION[s.kind],
+    propagates: s.propagates,
   }))
 }
 

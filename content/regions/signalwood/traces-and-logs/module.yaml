@@ -1,0 +1,5 @@
+id: traces-and-logs
+title: OpenTelemetry traces and logs
+order: 1
+summary: Follow one request across services, see how trace context travels, read logs that know their trace, and find the slow span.
+domain: observability

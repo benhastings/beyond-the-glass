@@ -6,6 +6,8 @@ import readTheFailedSync from '@/challenges/read-the-failed-sync.yaml'
 import rollBackTheRelease from '@/challenges/roll-back-the-release.yaml'
 import p99ByService from '@/challenges/p99-by-service.yaml'
 import whenDidItBreak from '@/challenges/when-did-it-break.yaml'
+import brokenTraces from '@/challenges/broken-traces.yaml'
+import slowRequest from '@/challenges/slow-request.yaml'
 import mostRestarts from '@/challenges/most-restarts.yaml'
 import readThePipelines from '@/challenges/read-the-pipelines.yaml'
 import rightContext from '@/challenges/right-context.yaml'
@@ -39,4 +41,6 @@ export const CHALLENGES: Readonly<Record<string, Challenge>> = {
   [rollBackTheRelease.id]: rollBackTheRelease,
   [whenDidItBreak.id]: whenDidItBreak,
   [p99ByService.id]: p99ByService,
+  [slowRequest.id]: slowRequest,
+  [brokenTraces.id]: brokenTraces,
 }

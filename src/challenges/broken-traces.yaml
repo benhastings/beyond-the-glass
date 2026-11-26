@@ -1,0 +1,28 @@
+id: broken-traces
+title: Traces that stop short
+scenario: broken-traces
+brief: >-
+  Traces of sends stop at ravenpost-api, and the ledger's and the queue's spans turn up as traces of their
+  own. Find where the trace breaks, and say why.
+questions:
+  - id: where
+    prompt: Which service do the traces stop at?
+  - id: why
+    prompt: Why do they stop there?
+objectives:
+  - id: where
+    text: Say where the traces break
+    check: { type: answered, question: where, matcher: { matches: '^\s*ravenpost-api\s*$' } }
+  - id: why
+    text: Say why
+    check: { type: answered, question: why, matcher: { matches: '(propagat|context|traceparent)' } }
+hints:
+  - level: nudge
+    text: Compare a gate trace with a ledger trace from the same moment. Which spans have no parent?
+  - level: pointer
+    text: 'A trace continues only if each service passes the trace context (the traceparent header) on to the services it calls.'
+  - level: command
+    text: '`answer where ravenpost-api`, then `answer why it does not propagate the trace context to its calls`.'
+expertPath:
+  - answer where ravenpost-api
+  - answer why it does not propagate the trace context (traceparent) to the services it calls

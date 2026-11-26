@@ -1,0 +1,43 @@
+checks:
+  - id: slow-order
+    type: ordering
+    required: true
+    prompt: Put the hops from symptom to cause in order.
+    explanation: The panel says when, an exemplar opens a trace, the trace shows the span, the span names the service, and its logs say why.
+    items:
+      - id: panel
+        text: The latency panel shows the rise
+      - id: exemplar
+        text: A slow request's exemplar opens its trace
+      - id: span
+        text: The widest span shows where the time went
+      - id: logs
+        text: That service's logs say why
+  - id: slow-which
+    type: single
+    prompt: A trace shows gate 1200 ms, api 1190 ms, ledger 1180 ms, postgres 4 ms. Which service is slow?
+    explanation: The ledger. Its span is long and its only child is short, so the time is its own.
+    options:
+      - id: gate
+        text: The gate
+        feedback: It's waiting for the api.
+      - id: postgres
+        text: postgres
+        feedback: It took 4 ms.
+      - id: ledger
+        text: The ledger
+        correct: true
+  - id: slow-why
+    type: single
+    prompt: Which signal usually says why a service is slow?
+    explanation: Its logs, from when it got slow, often name the change or the condition.
+    options:
+      - id: metrics
+        text: Its metrics
+        feedback: Metrics say when and how much.
+      - id: traces
+        text: Its traces
+        feedback: Traces say where.
+      - id: logs
+        text: Its logs
+        correct: true

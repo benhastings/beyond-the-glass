@@ -446,6 +446,11 @@ export const scenarioSchema = z
               kind: z.enum(['http', 'db', 'queue', 'worker']).default('http'),
               /** The route or statement its spans are named after. */
               operation: z.string().optional(),
+              /**
+               * Whether it passes trace context on to the services it calls (E9-10). Without it, each call
+               * starts a new trace, so traces stop here and its callees' spans have no parent.
+               */
+              propagates: z.boolean().default(true),
             }),
           )
           .default([]),

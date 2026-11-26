@@ -1,0 +1,36 @@
+id: slow-request
+title: Why did sends get slow?
+scenario: slow-ledger
+brief: >-
+  Sends got slower this evening. Start at the p99 latency panel, open one of the slowest requests' traces,
+  find the span that takes most of the time, then that service's logs. Say which service and operation is
+  responsible, and what its log says.
+questions:
+  - id: service
+    prompt: Which service is responsible?
+  - id: operation
+    prompt: Which operation (the span's name)?
+  - id: log
+    prompt: What does the log line that explains it say?
+objectives:
+  - id: service
+    text: Name the service
+    check: { type: answered, question: service, matcher: { matches: '^\s*ledger\s*$' } }
+  - id: operation
+    text: Name the operation
+    check: { type: answered, question: operation, matcher: { matches: 'POST\s+/entries' } }
+  - id: log
+    text: Quote the explanation
+    check: { type: answered, question: log, matcher: { matches: '(batch|one query per)' } }
+hints:
+  - level: nudge
+    text: The latency panel's slowest requests link to their traces. In a trace, the widest span is where the time goes.
+  - level: pointer
+    text: "Open a slow trace from the p99 latency panel, select the longest span, then Logs for this span, or read that service's logs from when it got slow."
+  - level: command
+    text: '`answer service ledger`, `answer operation POST /entries`, then `kubectl logs deploy/ledger -n ravenpost | grep warn` and answer with what it says.'
+expertPath:
+  - kubectl logs deploy/ledger -n ravenpost | grep warn
+  - answer service ledger
+  - answer operation POST /entries
+  - answer log batch lookups enabled, one query per recipient

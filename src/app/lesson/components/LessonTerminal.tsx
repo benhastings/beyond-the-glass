@@ -7,7 +7,7 @@ const TerminalForLesson = lazy(() => import('../TerminalForLesson'))
 export function LessonTerminal(props: {
   scenario: string
   challenge?: string
-  view?: 'pipelines' | 'changes' | 'argo' | 'dashboards' | 'promql'
+  view?: 'pipelines' | 'changes' | 'argo' | 'dashboards' | 'promql' | 'observability'
 }) {
   return (
     <Suspense fallback={<p className="font-mono text-sm">Opening the terminal…</p>}>
