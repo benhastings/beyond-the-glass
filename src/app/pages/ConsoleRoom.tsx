@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { allLessons } from '@/content'
+import { CONSOLE_ROOM_DESCRIPTION, ConsoleRoomScene } from '../art/ConsoleRoomScene'
 import { useManifest } from '../content'
 import { useProgress } from '../progress'
 import { Page } from '../shell/Page'
@@ -35,13 +36,9 @@ export default function ConsoleRoom() {
   const regions = manifest.regions.filter((r) => r.id !== 'console-room')
   return (
     <Page title={SITE_NAME} mood="console">
-      {/* The Console Room scene (E1-04 art replaces this placeholder). */}
-      <div
-        aria-hidden="true"
-        className="mt-4 grid h-40 max-w-prose place-items-center rounded-lg border-4 border-line bg-raised"
-      >
-        <div className="h-20 w-32 rounded-md border-4 border-line bg-accent opacity-70" />
-      </div>
+      {/* The Console Room scene (E1-04): decorative, described in text for screen readers. */}
+      <ConsoleRoomScene className="mt-4 block h-auto w-full max-w-xl rounded-lg" />
+      <p className="sr-only">{CONSOLE_ROOM_DESCRIPTION}</p>
       <p className="mt-6 max-w-prose text-lg">
         For years you watched the glass: the dashboards, the alerts, the steady glow of the NOC. The
         systems behind it have moved into clusters, pipelines and signals. Step through, and learn
