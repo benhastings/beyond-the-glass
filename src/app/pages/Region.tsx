@@ -5,6 +5,7 @@ import { useManifest } from '../content'
 import { StatusBadge } from '../journey/StatusBadge'
 import { useProgress } from '../progress'
 import { NotFound } from '../shell/NotFound'
+import { RegionVignette } from '../art/vignettes'
 import { Page } from '../shell/Page'
 
 const link = 'underline underline-offset-4'
@@ -37,8 +38,11 @@ export default function Region() {
           <StatusBadge status={here.status} />
         </p>
       )}
-      {/* The region's vignette (E1-05 art); a placeholder until then. */}
-      <div aria-hidden="true" className="mt-4 h-24 max-w-prose rounded-lg bg-region-soft" />
+      {/* The region's vignette (E1-05): decorative; the heading names the region. */}
+      <RegionVignette
+        id={region.id}
+        className="mt-4 block aspect-[4/1] h-auto w-full max-w-prose rounded-lg"
+      />
       <p
         className={`mt-4 max-w-prose rounded-lg p-4 ${region.mood === 'reach' ? 'bg-region-soft' : 'bg-raised'}`}
         data-testid="region-summary"

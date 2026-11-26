@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import {
+  displayOrder,
   LEVEL_NAMES,
   levelsOf,
   quizLength,
@@ -159,7 +160,7 @@ export function Quiz() {
           key={item.id}
           name={item.id}
           legend={<span className="text-lg font-bold">{item.stem}</span>}
-          options={item.options.map((o) => ({ value: o.id, label: o.text }))}
+          options={displayOrder(item).map((o) => ({ value: o.id, label: o.text }))}
           {...(value !== undefined ? { value } : {})}
           onValueChange={(v) => {
             record(item.id, v)
