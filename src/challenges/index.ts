@@ -1,5 +1,6 @@
 // Terminal challenges (YAML), validated at build time by ./vite-plugin.ts. See docs/sim/challenges.md.
 import findTheFailingPod from '@/challenges/find-the-failing-pod.yaml'
+import readTheImage from '@/challenges/read-the-image.yaml'
 import whyIsItCrashing from '@/challenges/why-is-it-crashing.yaml'
 import type { Challenge } from '@/sim/challenges/schema'
 
@@ -7,4 +8,5 @@ import type { Challenge } from '@/sim/challenges/schema'
 export const CHALLENGES: Readonly<Record<string, Challenge>> = {
   [findTheFailingPod.id]: findTheFailingPod,
   [whyIsItCrashing.id]: whyIsItCrashing,
+  [readTheImage.id]: readTheImage,
 }
