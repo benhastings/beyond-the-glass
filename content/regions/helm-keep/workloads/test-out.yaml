@@ -1,0 +1,62 @@
+# Test out of "Deployments, Services, config and resources" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-workloads-replace
+    type: single
+    review: { lesson: reconciliation, step: replace }
+    prompt: You delete a pod that a Deployment manages. What happens?
+    explanation: Its ReplicaSet sees one too few and creates a replacement.
+    options:
+      - id: gone
+        text: It stays deleted
+        feedback: The ReplicaSet keeps the count, so a new pod appears.
+      - id: new
+        text: A new pod with a new name replaces it
+        correct: true
+      - id: same
+        text: The same pod restarts
+        feedback: The deleted pod is gone; a different one is created.
+  - id: test-out-workloads-endpoints
+    type: single
+    review: { lesson: services, step: endpoints }
+    prompt: Which command shows the pod addresses a Service sends traffic to?
+    explanation: kubectl get endpoints lists the Ready pods' IPs and ports.
+    options:
+      - id: svc
+        text: kubectl get svc
+        feedback: That shows the Service's own address.
+      - id: ep
+        text: kubectl get endpoints
+        correct: true
+      - id: wide
+        text: kubectl get nodes -o wide
+        feedback: That lists nodes.
+  - id: test-out-workloads-readiness
+    type: single
+    review: { lesson: probes-and-resources, step: probes }
+    prompt: What happens when a pod's readiness probe fails?
+    explanation: It's taken out of its Services' endpoints until it passes again; nothing restarts.
+    options:
+      - id: restart
+        text: The container restarts
+        feedback: That's a liveness probe.
+      - id: out
+        text: It stops getting traffic from its Services
+        correct: true
+      - id: delete
+        text: The pod is deleted
+        feedback: Nothing is deleted.
+  - id: test-out-workloads-oom
+    type: single
+    review: { lesson: probes-and-resources, step: resources }
+    prompt: describe pod shows Last State Terminated, Reason OOMKilled. What happened?
+    explanation: The container went over its memory limit and was killed.
+    options:
+      - id: oom
+        text: It went over its memory limit and was killed
+        correct: true
+      - id: probe
+        text: Its liveness probe failed
+        feedback: That shows a probe failure in the events, not OOMKilled.
+      - id: node
+        text: Its node ran out of disk
+        feedback: That's disk pressure, a different event.
