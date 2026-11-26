@@ -55,6 +55,28 @@ export const actSchema = z.strictObject({
   /** Something that looks related but isn't. */
   redHerring: z.string().optional(),
   expertPath: z.array(expertStep).min(1),
+  /** "What caused this?": asked once the act is over; scored in the debrief (E10-03). */
+  diagnosis: z
+    .strictObject({
+      question: z.string().min(1),
+      options: z
+        .array(
+          z.strictObject({
+            id: slug,
+            text: z.string().min(1),
+            correct: z.boolean().default(false),
+          }),
+        )
+        .min(2),
+    })
+    .refine((d) => d.options.filter((o) => o.correct).length === 1, 'exactly one option is correct')
+    .optional(),
+  /** Nudge, pointer, then the command (as challenges have). */
+  hints: z
+    .array(
+      z.strictObject({ level: z.enum(['nudge', 'pointer', 'command']), text: z.string().min(1) }),
+    )
+    .default([]),
   /** Lessons to practise afterwards (for the debrief, E10-05). */
   practice: z.array(z.string()).default([]),
 })
