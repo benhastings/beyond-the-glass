@@ -1,0 +1,379 @@
+# "The Long Night" (E10-02): the capstone. Four acts on the Ravenpost reference system (stormwatch.yaml);
+# each act's faults start when the act does (src/sim/capstone/script.ts). The evidence table and expert
+# paths are in docs/sim/the-long-night.md. Narrative copy is a draft for SME review.
+extends: stormwatch
+id: the-long-night
+title: The Long Night
+description: >-
+  A storm is coming in over the Reach, and Ravenpost is about to have the longest night of its year.
+  You're on call. Four problems, one after another; some of them hide behind others.
+startTime: 2026-03-14T20:55:00Z
+currentContext: stage
+images:
+  # The 20:55 release asked for a tag the registry doesn't have ("v1.15.0"; CI tags without the v).
+  registry.example/ravenpost/api:v1.15.0: { pull: notFound }
+  # 1.15.0 itself needs a config key the release forgot.
+  registry.example/ravenpost/api:1.15.0:
+    memoryMi: 210
+    cpuMillis: 120
+    requires: [{ configMap: ravenpost-api-config, key: LEDGER_BATCH_SIZE }]
+  # The gate serves /ready and /healthz; nothing answers on /readyz.
+  registry.example/ravenpost/gate:2.3.1:
+    { memoryMi: 90, cpuMillis: 40, healthPaths: [/ready, /healthz] }
+telemetry:
+  services:
+    # Batch lookups make the ledger do one query per message: slow, but only while the flag is on.
+    - name: ledger
+      namespace: ravenpost
+      calls: [postgres]
+      latencyMs: 14
+      errorRate: 0.0001
+      operation: POST /entries
+      slowWhen:
+        {
+          configMap: ravenpost-api-config,
+          key: FEATURE_BATCH_LOOKUP,
+          equals: 'true',
+          latencyMs: 900,
+        }
+acts:
+  - id: the-pager
+    title: The pager
+    clock: '21:02'
+    narrative: >-
+      Your pager goes off: RavenpostHighErrorRate. Senders at the gate are getting errors. A release of
+      ravenpost-api was merged a few minutes ago. Your terminal is still pointed at staging.
+    minDuration: +6m
+    faults:
+      - type: gitCommit
+        after: +0s
+        repo: ravenpost-deploy
+        author: ana
+        message: Release ravenpost-api 1.15.0 (Recreate for the ledger migration)
+        replace:
+          - file: prod/deployment-ravenpost-api.yaml
+            from: |-
+              replicas: 3
+                selector:
+            to: |-
+              replicas: 3
+                strategy:
+                  type: Recreate
+                selector:
+          - { file: prod/deployment-ravenpost-api.yaml, from: 'api:1.14.0', to: 'api:v1.15.0' }
+    objectives:
+      - id: image-exists
+        text: ravenpost-api asks for an image the registry has
+        check:
+          type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-api }
+          path: spec.template.spec.containers[0].image
+          matches: ':(1\.14\.0|1\.15\.0)$'
+      - id: no-pull-errors
+        text: No ravenpost-api pod is failing to pull its image
+        check:
+          type: resourceState
+          resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-api } }
+          path: status.containerStatuses[0].state.waiting.reason
+          matches: '^(ErrImagePull|ImagePullBackOff)$'
+          quantifier: none
+    evidence:
+      kubectl: ravenpost-api pods in ErrImagePull, then ImagePullBackOff; none of the old pods left (the release switched to Recreate)
+      events: 'Failed to pull image "registry.example/ravenpost/api:v1.15.0": not found; Back-off pulling image'
+      logs: No new lines from ravenpost-api (nothing is running); the gate logs 503s from its calls
+      metrics: kube_deployment_status_replicas_available for ravenpost-api drops to 0; the gate's 5xx ratio goes to nearly 100%
+      traces: Gate traces end in errors at ravenpost-api, "no endpoints available"
+      argo: ravenpost synced to the release at about 20:58; health Progressing, then Degraded past the progress deadline
+    rootCause: The release asked for registry.example/ravenpost/api:v1.15.0; CI publishes 1.15.0 (no v). With the Recreate strategy, the old pods were removed before the new ones could start.
+    expertPath:
+      - run: kubectl config current-context
+      - run: kubectl config use-context prod
+      - run: kubectl get pods -n ravenpost
+      - run: kubectl describe pod ravenpost-api -n ravenpost
+      - run: argocd app history ravenpost
+      - mr:
+          {
+            repo: ravenpost-deploy,
+            file: prod/deployment-ravenpost-api.yaml,
+            replace: ['api:v1.15.0', 'api:1.15.0'],
+            message: Use the image tag CI publishes,
+          }
+      - wait: +4m
+    diagnosis:
+      question: What took ravenpost-api down?
+      options:
+        - {
+            id: wrong-tag,
+            text: "The release asked for an image tag the registry doesn't have, and Recreate removed the old pods first",
+            correct: true,
+          }
+        - { id: node-down, text: 'A node went down and took the api pods with it' }
+        - { id: db-full, text: "The ledger's database ran out of space" }
+        - { id: dns, text: 'Cluster DNS stopped answering' }
+    hints:
+      - { level: nudge, text: 'Before anything else: which cluster is your terminal pointed at?' }
+      - {
+          level: pointer,
+          text: 'Look at the ravenpost-api pods in prod, then at what Argo CD deployed a few minutes ago.',
+        }
+      - {
+          level: command,
+          text: 'kubectl config use-context prod, then kubectl describe pod ravenpost-api -n ravenpost',
+        }
+    practice: [your-first-look]
+
+  - id: still-bleeding
+    title: Still bleeding
+    clock: '21:19'
+    narrative: >-
+      The image pulls now. But the errors haven't stopped: ravenpost-api starts, and stops, and starts again.
+    minDuration: +2m
+    objectives:
+      - id: api-ready
+        text: All three ravenpost-api replicas are available
+        check:
+          type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-api }
+          path: status.availableReplicas
+          equals: '3'
+    evidence:
+      kubectl: ravenpost-api pods in CrashLoopBackOff, RESTARTS climbing; describe shows Last State Terminated, Error, exit code 1
+      events: Back-off restarting failed container api
+      logs: 'kubectl logs --previous: "missing required config key LEDGER_BATCH_SIZE (ConfigMap ravenpost-api-config)"'
+      metrics: kube_pod_container_status_restarts_total rises for every api pod; replicas available stays 0; the gate's 5xx ratio stays high
+      traces: Still "no endpoints available" at ravenpost-api
+      argo: ravenpost Synced to the fixed tag, health Degraded
+    rootCause: Version 1.15.0 needs LEDGER_BATCH_SIZE in ravenpost-api-config, and the release didn't add it. (A learner who reverted the release in the first act never meets this.)
+    expertPath:
+      - run: kubectl get pods -n ravenpost
+      - run: kubectl logs deploy/ravenpost-api -n ravenpost --previous
+      - mr:
+          repo: ravenpost-deploy
+          file: prod/configmap-ravenpost-api-config.yaml
+          replace: ['LOG_LEVEL: info', "LOG_LEVEL: info\n  LEDGER_BATCH_SIZE: \"50\""]
+          message: Add LEDGER_BATCH_SIZE, which 1.15.0 needs
+      - wait: +7m
+    diagnosis:
+      question: Why does 1.15.0 keep restarting?
+      options:
+        - {
+            id: missing-key,
+            text: It needs a config key (LEDGER_BATCH_SIZE) that isn't in its ConfigMap,
+            correct: true,
+          }
+        - { id: oom, text: 'It runs out of memory' }
+        - { id: probe, text: 'Its liveness probe fails' }
+        - { id: pull, text: "Its image still can't be pulled" }
+    hints:
+      - {
+          level: nudge,
+          text: A container that starts and stops again usually says why on its way out.,
+        }
+      - {
+          level: pointer,
+          text: "Read the logs of the run that ended, not the one that's starting.",
+        }
+      - { level: command, text: 'kubectl logs deploy/ravenpost-api -n ravenpost --previous' }
+    practice: [your-first-look]
+
+  - id: the-slow-creep
+    title: The slow creep
+    clock: '21:41'
+    narrative: >-
+      Errors are back to normal. Then the latency panel starts to climb, and a ticket comes in about the scribe.
+      Somewhere, a disk is filling up too.
+    minDuration: +8m
+    faults:
+      - type: gitCommit
+        after: +0s
+        repo: ravenpost-deploy
+        author: ana
+        message: Turn on batch lookups in prod
+        replace:
+          [
+            {
+              file: prod/configmap-ravenpost-api-config.yaml,
+              from: 'FEATURE_BATCH_LOOKUP: "false"',
+              to: 'FEATURE_BATCH_LOOKUP: "true"',
+            },
+          ]
+      - type: gitCommit
+        after: +2m
+        repo: ravenpost-deploy
+        author: kai
+        message: Trim scribe memory to fit the nodes
+        replace: [{ file: prod/deployment-scribe.yaml, from: 'memory: 384Mi', to: 'memory: 128Mi' }]
+      - type: nodeWarning
+        after: +4m
+        node: prod-worker-3
+        reason: NodeHasDiskPressure
+        message: 'Node prod-worker-3 status is now: NodeHasDiskPressure'
+    objectives:
+      - id: flag-off
+        text: Batch lookups are off again
+        check:
+          type: resourceState
+          resource: { kind: ConfigMap, namespace: ravenpost, name: ravenpost-api-config }
+          path: data.FEATURE_BATCH_LOOKUP
+          equals: 'false'
+      - id: scribe-rolled-out
+        text: Both scribe replicas run the current template
+        check:
+          type: all
+          of:
+            - {
+                type: resourceState,
+                resource: { kind: Deployment, namespace: ravenpost, name: scribe },
+                path: status.updatedReplicas,
+                equals: '2',
+              }
+            - {
+                type: resourceState,
+                resource: { kind: Deployment, namespace: ravenpost, name: scribe },
+                path: status.availableReplicas,
+                equals: '2',
+              }
+    evidence:
+      kubectl: A new scribe pod in CrashLoopBackOff (Last State OOMKilled, exit 137) while the old two keep running; kubectl top shows ledger busy
+      events: Back-off restarting the scribe container; a NodeHasDiskPressure warning on prod-worker-3, a node none of this runs on
+      logs: Ledger request lines take far longer; the OOMKilled scribe's last lines end abruptly
+      metrics: p99 for ledger, ravenpost-api and gate climbs from ~100 ms to over a second; container_memory_working_set_bytes for the new scribe pod hits its 128 MiB limit
+      traces: '{ duration > 500ms } finds slow traces; the ledger span takes most of the time'
+      argo: ravenpost Synced to both commits; health Progressing (the scribe rollout can't finish)
+    rootCause: Two changes went out minutes apart. Turning on batch lookups made the ledger run one query per message; trimming the scribe's memory limit below what it uses gets each new scribe pod OOMKilled.
+    redHerring: Disk pressure on prod-worker-3, which runs none of the affected pods.
+    expertPath:
+      - run: kubectl get pods -n ravenpost
+      - run: kubectl describe pod scribe -n ravenpost
+      - run: kubectl get events -n ravenpost --sort-by=.lastTimestamp
+      - run: argocd app history ravenpost
+      - mr:
+          {
+            repo: ravenpost-deploy,
+            file: prod/configmap-ravenpost-api-config.yaml,
+            replace: ['FEATURE_BATCH_LOOKUP: "true"', 'FEATURE_BATCH_LOOKUP: "false"'],
+            message: Turn batch lookups off again,
+          }
+      - mr:
+          {
+            repo: ravenpost-deploy,
+            file: prod/deployment-scribe.yaml,
+            replace: ['memory: 128Mi', 'memory: 384Mi'],
+            message: Give the scribe its memory back,
+          }
+      - wait: +6m
+    diagnosis:
+      question: What slowed the ledger, and what is killing the new scribe pod?
+      options:
+        - {
+            id: flag-and-limit,
+            text: 'The batch-lookup flag (one query per message), and a memory limit below what the scribe uses',
+            correct: true,
+          }
+        - { id: disk, text: 'Disk pressure on prod-worker-3' }
+        - { id: postgres, text: 'postgres is overloaded' }
+        - { id: network, text: 'The network between the services is slow' }
+    hints:
+      - {
+          level: nudge,
+          text: Two things went wrong; check what changed in Git shortly before each started.,
+        }
+      - {
+          level: pointer,
+          text: 'A slow trace shows which span takes the time; describe the crashing scribe pod for its last state.',
+        }
+      - {
+          level: command,
+          text: 'argocd app history ravenpost, then kubectl describe pod scribe -n ravenpost',
+        }
+    practice: [your-first-look]
+
+  - id: someone-helped
+    title: Someone helped
+    clock: '22:20'
+    narrative: >-
+      Things are quiet. A colleague mentions they tidied up the gate's probe earlier. Then the gate
+      starts answering every request with a 503.
+    minDuration: +9m
+    faults:
+      # The colleague's kubectl edit, which self-heal puts back.
+      - {
+          type: setReadinessPath,
+          after: +0s,
+          namespace: ravenpost,
+          deployment: gate,
+          container: gate,
+          path: /healthz,
+        }
+      # Then their hurried merge request, which Argo deploys.
+      - type: gitCommit
+        after: +5m
+        repo: ravenpost-deploy
+        author: kai
+        message: 'Gate: probe /readyz like the docs say, and Recreate to free node room'
+        replace:
+          - { file: prod/deployment-gate.yaml, from: 'path: /ready', to: 'path: /readyz' }
+          - file: prod/deployment-gate.yaml
+            from: |-
+              replicas: 2
+                selector:
+            to: |-
+              replicas: 2
+                strategy:
+                  type: Recreate
+                selector:
+    objectives:
+      - id: gate-ready
+        text: Both gate replicas are available
+        check:
+          type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: gate }
+          path: status.availableReplicas
+          equals: '2'
+      - id: probe-path
+        text: The gate's readiness probe checks /ready
+        check:
+          type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: gate }
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          equals: /ready
+    evidence:
+      kubectl: gate pods Running but 0/1 Ready; kubectl get endpoints gate shows no addresses
+      events: 'Readiness probe failed: HTTP probe failed with statuscode: 404'
+      logs: The gate's own lines are normal; nothing reaches it
+      metrics: kube_deployment_status_replicas_available for gate is 0; the gate's 503s are nearly all of its requests
+      traces: Traces end at the gate with 503, "no endpoints available for service gate"
+      argo: "kubectl get events -n argocd: an automated sync put back the colleague's kubectl edit; then a sync to their merge request"
+    rootCause: The colleague's kubectl edit was undone by self-heal, so they changed Git instead, to the wrong path (/readyz), and with Recreate there was no old pod left to keep serving.
+    expertPath:
+      - run: kubectl get endpoints gate -n ravenpost
+      - run: kubectl describe pod gate -n ravenpost
+      - run: kubectl get events -n argocd
+      - run: argocd app history ravenpost
+      - mr:
+          {
+            repo: ravenpost-deploy,
+            file: prod/deployment-gate.yaml,
+            replace: ['path: /readyz', 'path: /ready'],
+            message: Point the gate probe back at /ready,
+          }
+      - wait: +5m
+    diagnosis:
+      question: Why is the gate answering 503?
+      options:
+        - {
+            id: probe-path,
+            text: "Its readiness probe checks /readyz, which it doesn't serve, and Recreate left no old pods",
+            correct: true,
+          }
+        - { id: self-heal, text: "Argo CD's self-heal broke it" }
+        - { id: crashing, text: 'The gate is crash-looping' }
+        - { id: scaled, text: 'Someone scaled the gate to zero' }
+    hints:
+      - { level: nudge, text: 'A Service sends requests only to pods that are Ready.' }
+      - { level: pointer, text: "Check the gate's endpoints, then why its pods aren't Ready." }
+      - {
+          level: command,
+          text: 'kubectl get endpoints gate -n ravenpost, then kubectl describe pod gate -n ravenpost',
+        }
+    practice: [your-first-look]

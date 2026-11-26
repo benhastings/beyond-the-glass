@@ -1,19 +1,9 @@
 import { useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router'
 import { regionLabel, type RegionJourney } from '@/placement'
+import { MAP_SIZE, MAP_SPOTS, WorldMap } from '../art/WorldMap'
 import { cx, focusRing } from '../ui/styles'
 import { StatusBadge } from './StatusBadge'
-
-/** Where each region sits on the placeholder map (percent of the map's width and height), in journey order. */
-const SPOTS = [
-  [12, 78],
-  [32, 58],
-  [54, 72],
-  [70, 46],
-  [48, 28],
-  [24, 22],
-  [82, 14],
-] as const
 
 /**
  * The Reach as a map (E2-03): one link per region, placed along a path. Arrow keys move between regions
@@ -26,6 +16,8 @@ export function MapView({ regions }: { regions: RegionJourney[] }) {
       regions.findIndex((r) => r.status === 'recommended'),
     ),
   )
+  // The region whose pin has focus: highlighted in the art, the others dimmed.
+  const [focused, setFocused] = useState<string>()
   const links = useRef<(HTMLAnchorElement | null)[]>([])
   const move = (to: number) => {
     const i = (to + regions.length) % regions.length
@@ -45,7 +37,14 @@ export function MapView({ regions }: { regions: RegionJourney[] }) {
       move(regions.length - 1)
     }
   }
-  const spot = (i: number) => SPOTS[i] ?? [10 + ((i * 23) % 80), 10 + ((i * 37) % 80)]
+  // Each region's pin sits on its place in the art (percent of the map); a region the art doesn't have yet
+  // gets a spot along the bottom.
+  const spot = (i: number): [number, number] => {
+    const at = MAP_SPOTS[regions[i]?.id ?? '']
+    return at
+      ? [(at[0] / MAP_SIZE.width) * 100, (at[1] / MAP_SIZE.height) * 100]
+      : [10 + ((i * 23) % 80), 90]
+  }
   return (
     // The keydown handler implements the roving-tabindex arrow keys for the links inside.
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
@@ -53,22 +52,10 @@ export function MapView({ regions }: { regions: RegionJourney[] }) {
       role="group"
       aria-label="Regions of the Reach. Use the arrow keys to move between them."
       onKeyDown={onKeyDown}
-      className="relative mt-6 aspect-[4/3] w-full max-w-3xl rounded-lg border border-line bg-raised sm:aspect-[16/9]"
+      className="relative mt-6 aspect-[900/640] w-full max-w-4xl overflow-hidden rounded-lg border border-line"
     >
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        className="absolute inset-0 h-full w-full"
-      >
-        <polyline
-          points={regions.map((_, i) => spot(i).join(',')).join(' ')}
-          fill="none"
-          className="stroke-line"
-          strokeWidth="0.6"
-          strokeDasharray="2 1.5"
-        />
-      </svg>
+      {/* The art (E1-05), with the region in focus highlighted and the others dimmed. */}
+      <WorldMap highlight={focused} className="absolute inset-0 h-full w-full" />
       {regions.map((r, i) => {
         const [x, y] = spot(i)
         return (
@@ -81,6 +68,10 @@ export function MapView({ regions }: { regions: RegionJourney[] }) {
             tabIndex={i === active ? 0 : -1}
             onFocus={() => {
               setActive(i)
+              setFocused(r.id)
+            }}
+            onBlur={() => {
+              setFocused(undefined)
             }}
             aria-label={regionLabel(r)}
             className={cx(

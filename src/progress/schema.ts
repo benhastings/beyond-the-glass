@@ -72,6 +72,8 @@ export const settingsSchema = z.strictObject({
   reduceMotion: preference.default('system'),
   highContrast: preference.default('system'),
   textSize: z.union([z.literal(100), z.literal(115), z.literal(130)]).default(100),
+  /** The Crossing (E1-06) has played once; it plays again only when replayed from Settings. */
+  crossingSeen: z.boolean().optional(),
   /** The depth layer last chosen in each domain's lessons (E5-05); the placement level decides until then. */
   depthByDomain: z.record(contentId, depth).optional(),
   /** When settings last changed: the later copy wins when progress is merged (E3-03). */
