@@ -47,6 +47,7 @@ describe('E0-05 test harness', () => {
     mkdirSync(dirname(join(dir, rel)), { recursive: true })
     writeFileSync(join(dir, rel), text)
   }
+  // A whole coverage run of the unit and dom projects: it grows with the suite, hence the long timeouts.
   const coverage = () => {
     const r = spawnSync(
       'npx',
@@ -80,7 +81,7 @@ describe('E0-05 test harness', () => {
     const { code, out } = coverage()
     expect(code, out).not.toBe(0)
     expect(out).toMatch(/does not meet "src\/sim\/\*\*" threshold \(90%\)/)
-  }, 60_000)
+  }, 300_000)
 
   it('[E0-05.AC2] the same coverage in src/app passes, because the 90% bar is only for pure packages', () => {
     reset()
@@ -88,7 +89,7 @@ describe('E0-05 test harness', () => {
     write('src/app/partial.test.ts', callsHalf('partial'))
     const { code, out } = coverage()
     expect(code, out).toBe(0)
-  }, 60_000)
+  }, 300_000)
 
   it('[E0-05.AC2] the coverage gate fails when overall coverage drops below 70% lines', () => {
     reset()
@@ -103,7 +104,7 @@ describe('E0-05 test harness', () => {
     const { code, out } = coverage()
     expect(code, out).not.toBe(0)
     expect(out).toMatch(/does not meet global threshold \(70%\)/)
-  }, 60_000)
+  }, 300_000)
 
   describe('CI wiring', () => {
     interface Step {

@@ -11,6 +11,7 @@ import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
 import { PromqlExplorer } from '../o11y/PromqlExplorer'
 import { DashboardView } from '../o11y/dashboards/DashboardView'
 import { TraceExplorer } from '../o11y/traces/TraceExplorer'
+import { ObservabilityWorkspace } from '../o11y/ObservabilityWorkspace'
 import { TraceView } from '../o11y/traces/TraceView'
 import { sampleTrace } from '../o11y/traces/sample'
 import { telemetryGitopsScenario, telemetryScenario } from '@/sim/telemetry/testing'
@@ -218,6 +219,8 @@ function Demo() {
 
         <TraceDemo />
 
+        <WorkspaceDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -394,6 +397,22 @@ function TraceDemo() {
         </div>
         {big && <TraceView trace={sampleTrace(200)} epochMs={sim.clock.epochMs} />}
       </div>
+    </Card>
+  )
+}
+
+/** Dashboards, metrics, logs and traces together (E8-04): ledger fails half its requests from 10 minutes. */
+function WorkspaceDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = telemetryScenario([
+      { at: '+10m', type: 'injectErrors', namespace: 'ravenpost', service: 'ledger', rate: 0.5 },
+    ])
+    s.advance(20 * 60_000)
+    return s
+  })
+  return (
+    <Card id="workspace" title="Observability workspace">
+      <ObservabilityWorkspace sim={sim} />
     </Card>
   )
 }

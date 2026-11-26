@@ -197,15 +197,29 @@ export function trace(sim: Simulator, traceId: string): Trace | undefined {
   return build(sim, entry, entryIndex, bucket, ctx)
 }
 
+/**
+ * Built traces per simulation and bucket. History only changes at or after `now`, so a bucket that ended
+ * two buckets before `now` is final: its traces are kept and reused (log lines ask for them often).
+ */
+const built = new WeakMap<Simulator, Map<number, Trace[]>>()
+
 /** Every sampled trace that started in [start, end], oldest first. */
 export function tracesInWindow(sim: Simulator, start: number, end: number): Trace[] {
-  const ctx = modelContext(sim)
+  let ctx: ModelContext | undefined
+  const cache = built.get(sim) ?? new Map<number, Trace[]>()
+  built.set(sim, cache)
   const out: Trace[] = []
-  for (let b = Math.floor(start / STEP_MS); b * STEP_MS <= Math.min(end, sim.now); b++)
-    ctx.entries.forEach((e, i) => {
-      const t = build(sim, e, i, b, ctx)
+  for (let b = Math.floor(start / STEP_MS); b * STEP_MS <= Math.min(end, sim.now); b++) {
+    let traces = cache.get(b)
+    if (!traces) {
+      ctx ??= modelContext(sim)
+      const c = ctx
+      traces = c.entries.map((e, i) => build(sim, e, i, b, c))
+      if ((b + 2) * STEP_MS <= sim.now) cache.set(b, traces)
+    }
+    for (const t of traces)
       if (t.start >= start && t.start <= end && t.start <= sim.now) out.push(t)
-    })
+  }
   return out
 }
 

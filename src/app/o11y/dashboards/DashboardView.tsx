@@ -11,7 +11,7 @@ import { Button } from '../../ui/Button'
 import { cx, focusRing } from '../../ui/styles'
 import { clockTime } from '../format'
 import { PromqlExplorer } from '../PromqlExplorer'
-import { errorLogs, runPanel } from './panelData'
+import { errorLogs, runPanel, slowTraces } from './panelData'
 import { PanelView } from './PanelView'
 
 const RANGES = [
@@ -31,9 +31,12 @@ const select = cx('min-h-11 rounded-md border border-line bg-surface px-2', focu
 export function DashboardView({
   sim,
   initial = 'service-overview',
+  onOpenTrace,
 }: {
   sim: Simulator
   initial?: string
+  /** Opens a trace from a latency panel's slowest sampled requests. */
+  onOpenTrace?: (traceId: string) => void
 }) {
   const [id, setId] = useState(initial)
   const [range, setRange] = useState<(typeof RANGES)[number]['id']>('1h')
@@ -63,9 +66,10 @@ export function DashboardView({
         ...(p.type === 'logs' ? { logs: errorLogs(sim, vars.namespace ?? '', start, end) } : {}),
       }
     })
-    return { choices, panels, annotations: deployAnnotations(sim, start, end) }
+    const exemplars = onOpenTrace ? slowTraces(sim, vars.service ?? '', start, end) : []
+    return { choices, panels, annotations: deployAnnotations(sim, start, end), exemplars }
     // `start` and `end` follow `now`, which Refresh moves to the simulation's time.
-  }, [sim, d, start, end, vars])
+  }, [sim, d, start, end, vars, onOpenTrace])
   if (!d) return null
   if (exploring !== undefined)
     return (
@@ -199,6 +203,8 @@ export function DashboardView({
             annotations={data.annotations}
             range={[start, end]}
             onExplore={setExploring}
+            exemplars={data.exemplars}
+            {...(onOpenTrace ? { onOpenTrace } : {})}
           />
         ))}
       </div>

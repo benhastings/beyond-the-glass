@@ -3,6 +3,7 @@ import { lowerIsWorse, type Panel, type Threshold } from '@/sim/dashboards'
 import type { RawSeries, SeriesSource } from '@/sim/promql'
 import { rangeQuery } from '@/sim/promql'
 import { logsInWindow } from '@/sim/telemetry/logs'
+import { tracesInWindow } from '@/sim/telemetry/traces'
 import { clockTime, formatValue } from '../format'
 import { seriesName } from '../PromqlExplorer'
 
@@ -89,3 +90,12 @@ export const logsSummary = (p: Panel, rows: LogRow[], epochMs: number) =>
   rows.length === 0
     ? `${p.title}: no error lines in this time range.`
     : `${p.title}: ${String(rows.length)} error line${rows.length === 1 ? '' : 's'}; the newest is from ${rows[0]?.pod ?? ''} at ${clockTime(epochMs, rows[0]?.t ?? 0)}.`
+
+/** Sampled requests worth opening from a latency panel: the slowest traces through the chosen services. */
+export function slowTraces(sim: Simulator, service: string, start: number, end: number, n = 3) {
+  const re = new RegExp(`^(?:${service || '.*'})$`)
+  return tracesInWindow(sim, Math.max(start, end - 15 * 60_000), end)
+    .filter((t) => t.spans.some((s) => re.test(s.service)))
+    .sort((a, b) => b.durationMs - a.durationMs)
+    .slice(0, n)
+}
