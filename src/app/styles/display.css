@@ -41,3 +41,23 @@
     outline: 1px solid CanvasText;
   }
 }
+
+/* Print (E2-07): black on white whatever the mood, so pages and field cards read on paper. */
+@media print {
+  :root,
+  [data-mood] {
+    --color-ground: #ffffff;
+    --color-surface: #ffffff;
+    --color-raised: #ffffff;
+    --color-ink: #000000;
+    --color-ink-muted: #333333;
+    --color-line: #666666;
+    --color-link: #000000;
+    --color-accent: #000000;
+    --color-region-accent: #000000;
+  }
+  @page {
+    size: letter;
+    margin: 0.4in;
+  }
+}

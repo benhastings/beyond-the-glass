@@ -169,6 +169,8 @@ describe('App shell', () => {
       '/settings',
       '/lead',
       '/stormwatch',
+      // Added by E2-07 (printable field cards).
+      '/field-cards/:card?',
       '/kitchen-sink',
       '/*',
     ])
