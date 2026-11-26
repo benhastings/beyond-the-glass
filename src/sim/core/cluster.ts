@@ -113,7 +113,14 @@ export class Cluster {
     const key = keyOf(kind, namespace, name)
     const bucket = this.bucket(kind)
     if (!Object.hasOwn(bucket, key)) return false
+    // Deletes move the version on too, as in the API server, so the version names one state of the cluster.
+    this.data.resourceVersion++
     return Reflect.deleteProperty(bucket, key)
+  }
+
+  /** The cluster's latest resourceVersion: it changes whenever any object is stored or deleted. */
+  get revision(): number {
+    return this.data.resourceVersion
   }
 
   /** Namespaces that exist. */

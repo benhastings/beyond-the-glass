@@ -44,7 +44,12 @@ export const FRAGMENT_SCENARIOS: Record<
       ],
     },
   },
-  'gitops-bad-release': { fragment: 'bad-release', warmUp: '+13m', params: { badTag: 'v2.4.0' } },
+  // After Argo CD's first sync, so its history has a good revision to roll back to.
+  'gitops-bad-release': {
+    fragment: 'bad-release',
+    warmUp: '+17m',
+    params: { badTag: 'v2.4.0', at: '+4m' },
+  },
 }
 
 function build(id: keyof typeof FRAGMENT_SCENARIOS): Scenario {

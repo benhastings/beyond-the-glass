@@ -2,7 +2,7 @@ import { auditLog } from '../core/audit.ts'
 import type { Resource } from '../core/resources.ts'
 import { readPath } from '../core/path.ts'
 import { application, compareApp } from '../gitops/argo.ts'
-import { mergeRequests, repo } from '../gitops/git.ts'
+import { mergeRequests, repo, repos } from '../gitops/git.ts'
 import { playExpertPath } from '../gitops/fragments/define.ts'
 import { ancestors, LEARNER } from '../gitops/mr.ts'
 import type { Simulator } from '../core/simulator.ts'
@@ -134,7 +134,7 @@ export class ChallengeRun {
           (m) => m.state === 'merged' && m.author === LEARNER,
         )
       case 'argoApp': {
-        const now = compareApp(this.sim, p.app)
+        const now = this.compared(p.app)
         const op = application(this.sim, p.app)?.status.operationState
         return (
           now !== undefined &&
@@ -165,6 +165,25 @@ export class ChallengeRun {
       case 'any':
         return p.of.some((x) => this.check(x))
     }
+  }
+
+  /**
+   * compareApp for one app, remembered while nothing has changed: the same sim time, cluster versions and
+   * Git heads. Comparing renders every manifest, and the checklist is evaluated after every command.
+   */
+  private readonly comparisons = new Map<string, ReturnType<typeof compareApp>>()
+  private compared(app: string): ReturnType<typeof compareApp> {
+    const key = [
+      app,
+      this.sim.now,
+      ...this.sim.clusters().map((c) => c.revision),
+      ...repos(this.sim).map((r) => r.branches[r.defaultBranch] ?? ''),
+    ].join('|')
+    if (!this.comparisons.has(key)) {
+      this.comparisons.clear()
+      this.comparisons.set(key, compareApp(this.sim, app))
+    }
+    return this.comparisons.get(key)
   }
 
   evaluate(): Evaluation {

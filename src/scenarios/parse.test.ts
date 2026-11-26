@@ -20,7 +20,16 @@ function issuesOf(text: string) {
 describe('parseScenario', () => {
   it('parses every bundled scenario', () => {
     expect(parseScenario(GOOD, 'ravenpost.yaml').id).toBe('ravenpost')
-    expect(Object.keys(SCENARIOS)).toEqual(['ravenpost', 'stormwatch', 'triage', 'pipelines'])
+    expect(Object.keys(SCENARIOS)).toEqual([
+      'ravenpost',
+      'stormwatch',
+      'triage',
+      'pipelines',
+      'gitops-drift',
+      'gitops-manual-sync',
+      'gitops-sync-failed',
+      'gitops-bad-release',
+    ])
   })
 
   acTest('E6-01.AC3', 'reports YAML syntax errors with a line number', () => {

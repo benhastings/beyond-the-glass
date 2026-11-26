@@ -255,28 +255,36 @@ describe('E6-10 engine', () => {
 })
 
 describe('E6-10 challenges', () => {
-  acTest('E6-10.AC4', 'every challenge is solvable: its expert path completes it', () => {
-    expect(Object.keys(CHALLENGES).length).toBeGreaterThan(0)
-    for (const c of Object.values(CHALLENGES)) {
-      const scenario = SCENARIOS[c.scenario]
-      expect(scenario, `${c.id}: scenario ${c.scenario}`).toBeDefined()
-      if (!scenario) continue
-      const sim = loadSimulation(scenario)
-      const session = { history: [] as string[] }
-      const sh = createShell(sim, session)
-      const run = new ChallengeRun(sim, c, session.history)
-      attach(run, session)
-      expect(run.evaluate().complete, `${c.id} complete before starting`).toBe(false)
-      for (const { step, exitCode } of playChallengePath(sim, sh, c.expertPath))
-        // A diff exits 1 when there are differences, as diff(1) does; anything else must succeed.
-        expect(exitCode, `${c.id}: ${step}`).toBe(/^(kubectl|argocd app) diff\b/.test(step) ? 1 : 0)
-      const e = run.evaluate()
-      expect(
-        e.objectives.filter((o) => !o.done).map((o) => o.id),
-        c.id,
-      ).toEqual([])
-      expect(e.warnings, c.id).toEqual([])
-      expect(e.complete).toBe(true)
-    }
-  })
+  acTest(
+    'E6-10.AC4',
+    'every challenge is solvable: its expert path completes it',
+    () => {
+      expect(Object.keys(CHALLENGES).length).toBeGreaterThan(0)
+      for (const c of Object.values(CHALLENGES)) {
+        const scenario = SCENARIOS[c.scenario]
+        expect(scenario, `${c.id}: scenario ${c.scenario}`).toBeDefined()
+        if (!scenario) continue
+        const sim = loadSimulation(scenario)
+        const session = { history: [] as string[] }
+        const sh = createShell(sim, session)
+        const run = new ChallengeRun(sim, c, session.history)
+        attach(run, session)
+        expect(run.evaluate().complete, `${c.id} complete before starting`).toBe(false)
+        for (const { step, exitCode } of playChallengePath(sim, sh, c.expertPath))
+          // A diff exits 1 when there are differences, as diff(1) does; anything else must succeed.
+          expect(exitCode, `${c.id}: ${step}`).toBe(
+            /^(kubectl|argocd app) diff\b/.test(step) ? 1 : 0,
+          )
+        const e = run.evaluate()
+        expect(
+          e.objectives.filter((o) => !o.done).map((o) => o.id),
+          c.id,
+        ).toEqual([])
+        expect(e.warnings, c.id).toEqual([])
+        expect(e.complete).toBe(true)
+      }
+      // Every challenge, including the GitOps ones that wait for pipelines and syncs: longer than 5 s under coverage.
+    },
+    60_000,
+  )
 })

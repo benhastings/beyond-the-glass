@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { FRAGMENT_SCENARIO_IDS } from '../../scenarios/fragment-ids.ts'
 import { LESSON_COMPONENT_NAMES } from '../components.ts'
 import {
   glossaryFile,
@@ -181,7 +182,12 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
     files.push(p)
     return readFileSync(p, 'utf8')
   }
-  const scenarioIds = new Set(opts.scenarioIds ?? scenarioIdsIn(join(root, '../src/scenarios')))
+  const scenarioIds = new Set(
+    opts.scenarioIds ?? [
+      ...scenarioIdsIn(join(root, '../src/scenarios')),
+      ...FRAGMENT_SCENARIO_IDS,
+    ],
+  )
   const challengeIds = new Set(opts.challengeIds ?? scenarioIdsIn(join(root, '../src/challenges')))
 
   // Glossary
