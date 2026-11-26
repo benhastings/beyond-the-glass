@@ -1,0 +1,45 @@
+checks:
+  - id: promql-rate
+    type: single
+    required: true
+    prompt: Which gives requests per second from the counter http_server_requests_total?
+    explanation: rate() over a window gives the per-second increase, and handles counter resets.
+    options:
+      - id: raw
+        text: http_server_requests_total
+        feedback: That's the running total, not a rate.
+      - id: sum
+        text: sum(http_server_requests_total)
+        feedback: That adds the totals up; still not per second.
+      - id: rate
+        text: rate(http_server_requests_total[5m])
+        correct: true
+  - id: promql-sum
+    type: single
+    prompt: You want one series per service, not per pod. What do you wrap the rate in?
+    explanation: sum by (service) adds the series up, keeping only the service label.
+    options:
+      - id: by
+        text: sum by (service) (…)
+        correct: true
+      - id: max
+        text: max(…)
+        feedback: That keeps one series in total, not one per service.
+      - id: without
+        text: Nothing; rate already groups by service
+        feedback: rate keeps every label, including pod.
+  - id: promql-le
+    type: spot-the-bug
+    prompt: This query returns nothing. Which line is wrong?
+    explanation: The sum drops le, so histogram_quantile has no buckets to work from. Keep le in the by clause.
+    code: |
+      histogram_quantile(
+        0.99,
+        sum by (service) (
+          rate(http_server_request_duration_seconds_bucket[5m])
+        )
+      )
+    bugLines: [3]
+    lineFeedback:
+      '2': 0.99 is the 99th percentile, as intended.
+      '4': The rate of the bucket counters is right.

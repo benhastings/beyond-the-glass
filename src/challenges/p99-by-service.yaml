@@ -1,0 +1,26 @@
+id: p99-by-service
+title: p99 latency, service by service
+scenario: signals
+brief: >-
+  Write a PromQL query, in the explorer below, that gives the 99th-percentile request duration for each
+  service over the last five minutes. When it returns one series per service, answer with the query.
+questions:
+  - id: query
+    prompt: Your query
+objectives:
+  - id: query
+    text: A p99 latency query, one series per service
+    check:
+      type: answered
+      question: query
+      matcher:
+        matches: 'histogram_quantile\(\s*0?\.99\s*,\s*sum\s+by\s*\(\s*(le\s*,\s*service|service\s*,\s*le)\s*\)\s*\(\s*rate\(\s*http_server_request_duration_seconds_bucket(\{[^}]*\})?\[\d+[smh]\]\s*\)\s*\)\s*\)'
+hints:
+  - level: nudge
+    text: Latency percentiles come from a histogram's buckets, and the quantile needs the le label kept.
+  - level: pointer
+    text: 'The starter library has "p99 latency": change its `sum by (le)` to keep service as well.'
+  - level: command
+    text: 'Run `histogram_quantile(0.99, sum by (le, service) (rate(http_server_request_duration_seconds_bucket[5m])))` in the explorer, then `answer query` with it.'
+expertPath:
+  - answer query histogram_quantile(0.99, sum by (le, service) (rate(http_server_request_duration_seconds_bucket[5m])))

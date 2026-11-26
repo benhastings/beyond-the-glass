@@ -1,0 +1,47 @@
+# Test out of "Metrics, Prometheus and Grafana" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-metrics-type
+    type: single
+    review: { lesson: what-a-metric-is, step: types }
+    prompt: Memory in use goes up and down. What type of metric is it?
+    explanation: A gauge.
+    options:
+      - id: counter
+        text: A counter
+        feedback: Counters only go up.
+      - id: gauge
+        text: A gauge
+        correct: true
+      - id: histogram
+        text: A histogram
+        feedback: Histograms count observations into buckets.
+  - id: test-out-metrics-red
+    type: single
+    review: { lesson: red-and-use, step: red }
+    prompt: What are the RED signals?
+    explanation: Rate, Errors and Duration.
+    options:
+      - id: red
+        text: Rate, Errors, Duration
+        correct: true
+      - id: use
+        text: Utilisation, Saturation, Errors
+        feedback: That's USE, for resources.
+      - id: other
+        text: Restarts, Events, Deploys
+        feedback: Those are useful, but not RED.
+  - id: test-out-metrics-p99
+    type: single
+    review: { lesson: promql-starter, step: quantile }
+    prompt: Which gives p99 latency per service?
+    explanation: Keep le and service in the sum, then take the quantile.
+    options:
+      - id: le
+        text: histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_seconds_bucket[5m])))
+        feedback: That's p99 across everything, not per service.
+      - id: right
+        text: histogram_quantile(0.99, sum by (le, service) (rate(http_server_request_duration_seconds_bucket[5m])))
+        correct: true
+      - id: no-le
+        text: histogram_quantile(0.99, sum by (service) (rate(http_server_request_duration_seconds_bucket[5m])))
+        feedback: Without le, there are no buckets to work from.

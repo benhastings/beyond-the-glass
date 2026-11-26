@@ -1,0 +1,28 @@
+id: when-did-it-break
+title: When did it break, and what changed?
+scenario: signals
+brief: >-
+  Senders started seeing errors this evening. On the dashboard below, find when ravenpost-api's error rate
+  climbed, and the deploy annotation shortly before it. Answer with the time and with the deploy.
+questions:
+  - id: when
+    prompt: At what time (HH:MM) did the error rate start to climb?
+  - id: deploy
+    prompt: Which deploy came shortly before it? (Its revision or image tag.)
+objectives:
+  - id: when
+    text: Say when the errors started
+    check: { type: answered, question: when, matcher: { matches: '20:4[5-9]' } }
+  - id: deploy
+    text: Name the deploy shortly before
+    check: { type: answered, question: deploy, matcher: { matches: '(78c2023|c11a9293)' } }
+hints:
+  - level: nudge
+    text: Errors are one of the RED signals. The deploy annotations are the vertical markers.
+  - level: pointer
+    text: 'On the Service Overview, choose ravenpost-api and a range that covers the evening; read the error-ratio panel and the annotation nearest its rise (View as table lists both).'
+  - level: command
+    text: '`answer when 20:46`, then `answer deploy 78c2023` (the sync shortly before the rise).'
+expertPath:
+  - answer when 20:46
+  - answer deploy 78c2023

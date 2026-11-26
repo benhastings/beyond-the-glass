@@ -25,6 +25,7 @@ describe('parseScenario', () => {
       'stormwatch',
       'triage',
       'pipelines',
+      'signals',
       'gitops-drift',
       'gitops-manual-sync',
       'gitops-sync-failed',
