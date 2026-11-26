@@ -22,6 +22,11 @@ export interface Controller {
 export type Wakeup =
   | { at: number; seq: number; kind: 'timeline'; index: number }
   | { at: number; seq: number; kind: 'controller'; controller: string; payload?: unknown }
+  /** A timeline entry added while running (a capstone act's faults, E10-02), carried with its wakeup. */
+  | { at: number; seq: number; kind: 'event'; entry: TimelineEntryInput }
+
+/** A timeline entry as a scenario writes it: `type`, optional `cluster`, and the event's parameters. */
+export type TimelineEntryInput = { type: string; cluster?: string } & Record<string, unknown>
 
 export interface Traffic {
   rps?: number
@@ -63,7 +68,11 @@ const snapshotShape = z.looseObject({
   ),
   traffic: z.record(z.string(), z.looseObject({})),
   queue: z.array(
-    z.looseObject({ at: z.number(), seq: z.number(), kind: z.enum(['timeline', 'controller']) }),
+    z.looseObject({
+      at: z.number(),
+      seq: z.number(),
+      kind: z.enum(['timeline', 'controller', 'event']),
+    }),
   ),
 })
 
@@ -283,9 +292,27 @@ export class Simulator {
     this.clock.set(t)
   }
 
+  /**
+   * Applies a timeline event `delayMs` from now, as if the scenario's timeline had it (E10-02). The
+   * entry is checked now, so a mistake shows when it's scheduled rather than when it fires.
+   */
+  injectEvent(entry: TimelineEntryInput, delayMs = 0): void {
+    const def = timelineEvent(entry.type)
+    if (!def) throw new RangeError(`no timeline event type "${entry.type}"`)
+    def.schema.parse(timelineParams(entry))
+    if (entry.cluster !== undefined && !this.clusterMap.has(entry.cluster))
+      throw new RangeError(`no cluster "${entry.cluster}"`)
+    this.push({
+      at: this.clock.now + Math.max(0, delayMs),
+      seq: 0,
+      kind: 'event',
+      entry: structuredClone(entry),
+    })
+  }
+
   private dispatch(w: Wakeup): void {
-    if (w.kind === 'timeline') {
-      const entry = this.scenario.timeline[w.index]
+    if (w.kind === 'timeline' || w.kind === 'event') {
+      const entry = w.kind === 'timeline' ? this.scenario.timeline[w.index] : w.entry
       const def = entry && timelineEvent(entry.type)
       if (!entry || !def) return
       const clusterName = entry.cluster
