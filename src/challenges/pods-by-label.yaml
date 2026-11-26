@@ -1,0 +1,31 @@
+id: pods-by-label
+title: Every worker pod, by label
+scenario: ravenpost
+brief: >-
+  Find every ravenpost-worker pod with a label selector, not by name. Then answer with how many there are.
+questions:
+  - id: count
+    prompt: How many ravenpost-worker pods are there?
+objectives:
+  - id: labels
+    text: List the pods by label
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+get\s+(po|pod|pods)\b.*(-l\s*|--selector[=\s])app=ravenpost-worker\b'
+  - id: count
+    text: Say how many there are
+    check:
+      type: answered
+      question: count
+      matcher: { matches: '^\s*2\s*$' }
+hints:
+  - level: nudge
+    text: Every pod of one app wears the same label. `--show-labels` shows them.
+  - level: pointer
+    text: '`-l app=ravenpost-worker` lists only the pods with that label.'
+  - level: command
+    text: 'Run `kubectl get pods -n ravenpost -l app=ravenpost-worker`, then `answer count 2`.'
+expertPath:
+  - kubectl get pods -n ravenpost --show-labels
+  - kubectl get pods -n ravenpost -l app=ravenpost-worker
+  - answer count 2
