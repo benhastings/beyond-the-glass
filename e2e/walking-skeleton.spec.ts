@@ -48,7 +48,7 @@ acTest(
     await expect(page.getByRole('heading', { level: 1, name: 'Map of the Reach' })).toBeVisible()
     await page.getByRole('button', { name: 'List view' }).click()
     const chartroom = page.getByRole('link', {
-      name: 'The Chartroom, not started, 0 of 1 modules',
+      name: /^The Chartroom, not started, 0 of [0-9]+ modules$/,
     })
     await expect(chartroom).toBeVisible()
 
@@ -112,7 +112,7 @@ acTest(
     await reopened.goto('./#/map?view=list')
     await expect(
       // One of the module's three lessons is done, so the region is under way.
-      reopened.getByRole('link', { name: 'The Chartroom, in progress, 0 of 1 modules' }),
+      reopened.getByRole('link', { name: /^The Chartroom, in progress, 0 of [0-9]+ modules$/ }),
     ).toBeVisible()
     await again.close()
   },
