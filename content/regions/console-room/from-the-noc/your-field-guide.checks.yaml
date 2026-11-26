@@ -1,0 +1,44 @@
+checks:
+  - id: guide-rosetta
+    type: matching
+    required: true
+    prompt: Match each practice from the NOC to what it's called in the cluster.
+    explanation: The Rosetta Stone in the Field Guide has these and more, each with why it changed.
+    pairs:
+      - id: server
+        left: A server
+        right: A node
+      - id: ticket
+        left: A change ticket
+        right: A merge request
+      - id: vip
+        left: A VIP on a load balancer
+        right: A Service
+  - id: guide-depth
+    type: single
+    prompt: A lesson's Operator layer feels like too much for a first look. What can you do?
+    explanation: Every depth layer is a choice. Switch to the plain-words layer, and come back up when you're ready.
+    options:
+      - id: skip
+        text: Skip the lesson and come back later
+        feedback: You can, but you don't need to. Changing the layer keeps you moving.
+      - id: switch
+        text: Switch to the plain-words layer for this topic
+        correct: true
+      - id: retake
+        text: Retake the Threshold to lower your level
+        feedback: That works too, but it's more than you need. The layer can be changed right in the lesson.
+  - id: guide-find
+    type: single
+    prompt: You meet the word "OOMKilled" and want its meaning. Where is the quickest place to look?
+    explanation: The Field Guide's search knows aliases and acronyms, so "OOM" finds it.
+    options:
+      - id: web
+        text: A search engine
+        feedback: That works, but the Field Guide's answer is written for this course and links to the lessons.
+      - id: chat
+        text: Ask in the team chat
+        feedback: Your team can help, but the Field Guide is quicker and always there.
+      - id: guide
+        text: The Field Guide's search
+        correct: true
