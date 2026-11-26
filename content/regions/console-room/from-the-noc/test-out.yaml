@@ -1,0 +1,62 @@
+# Test out of "From the NOC to the cluster" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-noc-desired-state
+    type: single
+    review: { lesson: what-changed, step: desired-state }
+    prompt: What keeps a Deployment's pods matching what it says?
+    explanation: Controllers compare the desired state with what's running, and fix the difference.
+    options:
+      - id: you
+        text: An operator who checks the pods every hour
+        feedback: Nobody has to. A controller does this all the time.
+      - id: controller
+        text: A controller that keeps comparing and fixing
+        correct: true
+      - id: cron
+        text: A cron job on each node
+        feedback: There's no cron job. It's a controller in the cluster.
+  - id: test-out-noc-handfix
+    type: single
+    review: { lesson: what-changed, step: teammate }
+    prompt: You fix a running pod by hand, but not the desired state. What is likely to happen?
+    explanation: The controller puts the running state back to match the desired state, undoing the hand fix.
+    options:
+      - id: kept
+        text: The fix stays until the next release
+        feedback: It's usually undone sooner, when the controller next compares.
+      - id: undone
+        text: The fix is undone, because the desired state hasn't changed
+        correct: true
+      - id: copied
+        text: The cluster copies the fix into the desired state
+        feedback: It never does. Changes flow from the desired state to the cluster, not back.
+  - id: test-out-noc-symptom
+    type: single
+    review: { lesson: watching-to-told, step: symptoms }
+    prompt: Which alert should page someone at night?
+    explanation: Page on symptoms users feel, such as failing requests.
+    options:
+      - id: disk
+        text: A disk on one node is 85% full
+        feedback: That's a cause to look at in the morning, unless it's hurting users.
+      - id: latency
+        text: Most send requests are taking ten times longer than usual
+        correct: true
+      - id: restart
+        text: One pod restarted and recovered
+        feedback: That's the cluster doing its job.
+  - id: test-out-noc-rosetta
+    type: single
+    review: { lesson: your-field-guide, step: rosetta }
+    prompt: Where do you find what a change ticket is called in the cluster, and why it changed?
+    explanation: The Rosetta Stone, in the Field Guide.
+    options:
+      - id: rosetta
+        text: The Rosetta Stone, in the Field Guide
+        correct: true
+      - id: map
+        text: The map of the Reach
+        feedback: The map shows the regions. Translations are in the Field Guide.
+      - id: settings
+        text: Settings
+        feedback: Settings holds display and progress options.
