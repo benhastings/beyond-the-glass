@@ -1,0 +1,47 @@
+checks:
+  - id: what-changed-desired-state
+    type: single
+    required: true
+    prompt: You delete one of ravenpost-api's three pods by hand. What happens next?
+    explanation: The Deployment still says three copies, so its controller creates a new pod to match.
+    options:
+      - id: gone
+        text: Ravenpost runs on two pods until someone adds one back
+        feedback: Nobody has to add it back. The desired state still says three, and a controller acts on that.
+      - id: back
+        text: A new pod is created, because the desired state still says three
+        correct: true
+      - id: alert
+        text: The cluster stops and asks you to confirm
+        feedback: The cluster doesn't ask. It keeps the running state matched to what's written down.
+  - id: what-changed-cattle
+    type: single
+    prompt: A node in the cluster fails at night. Which is closest to what happens?
+    explanation: Nodes are cattle. The cluster reschedules their pods onto other nodes, and the node is repaired or replaced later.
+    options:
+      - id: page
+        text: You're paged to log in and restart it before anything else can run
+        feedback: That was the pet-server way. Here the cluster moves the work first.
+      - id: lost
+        text: The pods on it are lost until the node returns
+        feedback: Pods managed by a Deployment are recreated on other nodes.
+      - id: moved
+        text: Its pods are started again on other nodes, and the node is dealt with later
+        correct: true
+  - id: what-changed-habits
+    type: multiple
+    prompt: Which of these habits from the NOC still apply in a cluster?
+    explanation: All three do. Careful change, calm under pressure, and knowing what normal looks like matter as much as ever.
+    options:
+      - id: change
+        text: Make changes carefully, with a record of what changed
+        correct: true
+      - id: calm
+        text: Stay calm and work from evidence during an incident
+        correct: true
+      - id: normal
+        text: Know what "normal" looks like, so you notice what isn't
+        correct: true
+      - id: ssh
+        text: Log in to the machine and fix it by hand
+        feedback: In a cluster, a hand fix is usually undone. You change the desired state instead.

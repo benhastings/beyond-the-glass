@@ -1,0 +1,105 @@
+---
+id: what-changed
+title: What changed, and what didn't
+order: 0
+objectives:
+  - Say what "desired state" means, and who keeps a system in it
+  - Tell a pet server from cattle, and say why clusters treat machines as cattle
+  - Name three operations habits that still apply in a cluster
+estimatedMinutes: 12
+domain: foundations
+level: wayfarer
+terms: [desired-state, controller, node, deployment]
+---
+
+<Step id="what-stays" title="What you bring with you">
+
+You already know how to keep a service up at three in the morning. You know what "normal" looks like on
+a Tuesday, you change things carefully, and you stay calm when the wall turns red. None of that is
+out of date.
+
+What's changed is where the work happens. Ravenpost, the mail service you'll look after in this course,
+doesn't run on servers you know by name. It runs in a cluster that places, restarts and replaces its
+programs for you. Your job moves from doing those things by hand to telling the cluster what you want,
+and checking that it did.
+
+<Callout kind="habit">
+  Four habits run through the whole course: **check your context, look before you touch, change
+  through Git, and correlate signals.** You'll see each of them again and again.
+</Callout>
+
+</Step>
+
+<Step id="pets-and-cattle" title="Pets and cattle">
+
+<Analogy
+  then="mail-02 was a server with a name, a history and a runbook page of its own. When it misbehaved, you logged in and nursed it back."
+  now="A node is one of many identical machines. When one goes wrong, the cluster moves its work elsewhere and the node is replaced."
+/>
+
+<Depth>
+  <ELI5>
+    A pet has a name and you care for it. Cattle are a herd. If one gets sick, the herd carries on.
+    A cluster treats its machines like a herd, so no single machine matters much.
+  </ELI5>
+  <Operator>
+    Clusters assume machines fail. Work isn't tied to one host, so a failed or drained
+    <Term id="node">node</Term> is an event the cluster handles by rescheduling, not an outage you
+    fix by hand. You still care about nodes in aggregate (capacity, pressure, drains), but rarely
+    about one by name.
+  </Operator>
+</Depth>
+
+<Rosetta id="server-node" />
+
+</Step>
+
+<Step id="desired-state" title="Desired state">
+
+On a server, you ran commands to make things so: start this, copy that, restart the other. If something
+changed afterwards, it stayed changed until someone noticed.
+
+In a cluster, you write down how things **should** be: "three copies of ravenpost-api, version 1.14.2".
+That written-down version is the <Term id="desired-state">desired state</Term>. Programs called
+
+<Term id="controller">controllers</Term> compare it with what's really running, over and over, and
+fix any difference they find.
+
+<Depth>
+  <ELI5>
+    You write a list of what you want. A helper reads the list again and again. If what it sees
+    doesn't match the list, it fixes it. You don't have to ask twice.
+  </ELI5>
+  <Operator>
+    A <Term id="deployment">Deployment</Term> records the desired state for a service. Its
+    controller creates and removes pods until the actual state matches, and keeps doing so. This is
+    why a pod you delete comes back, and why a hand-made change can be quietly undone.
+  </Operator>
+</Depth>
+
+<Rosetta id="init-script-deployment" />
+
+</Step>
+
+<Step id="teammate" title="Automation as a teammate">
+
+The cluster now does some of what you used to do at night: restarting a program that died, replacing a
+failed machine, keeping the right number of copies running. That's help, not a threat to your job.
+
+It also means two new skills matter more than before. You read what the automation is doing (its events
+and history), and you change the desired state rather than the running system. Fixing the running system
+by hand is like correcting the screen instead of the source: the next refresh puts it back.
+
+<Rosetta id="dying-service-restarts" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="what-changed-desired-state" />
+
+<Check id="what-changed-cattle" />
+
+<Check id="what-changed-habits" />
+
+</Step>

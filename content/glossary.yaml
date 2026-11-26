@@ -147,3 +147,19 @@ terms:
     eli5: Which cluster your commands go to.
     operator: >-
       A kubeconfig entry naming a cluster, a user and a default namespace. kubectl uses the current one unless told otherwise.
+  - id: desired-state
+    term: Desired state
+    aliases: [declarative, declared state]
+    eli5: A written list of how things should be. The cluster keeps making it true.
+    operator: >-
+      What you've declared a system should look like (a Deployment's replicas and image, say), as opposed to
+      what's running right now. Controllers keep reconciling the actual state toward it.
+    related: [controller, deployment, gitops]
+  - id: controller
+    term: Controller
+    aliases: [controllers, reconcile, reconciliation]
+    eli5: A helper in the cluster that checks things again and again, and fixes what doesn't match.
+    operator: >-
+      A loop that watches one kind of object, compares its desired state with what's real, and acts to close
+      the gap: the Deployment controller makes ReplicaSets, the ReplicaSet controller makes pods.
+    related: [desired-state, deployment]

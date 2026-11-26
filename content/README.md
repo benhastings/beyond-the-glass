@@ -33,6 +33,7 @@ Lessons can use these without importing them (registry: `src/app/lesson/componen
 | `<Analogy then="…" now="…">` | What the learner did on servers, and what the cluster does instead |
 | `<Callout kind="info\|warn\|habit\|eli5">` | An aside with a visible label |
 | `<Term id>` | A Field Guide link; its plain-words definition is the link's description |
+| `<Rosetta id>` | One Rosetta Stone row (then, now, why) from `content/rosetta.yaml`. The build fails on an unknown id |
 | `<Diagram alt="…">` around a ```` ```mermaid ```` block | Rendered to SVG ahead of time. `alt` is required (the build fails without it). After adding or changing one, run `npm run diagrams` and commit `content/diagrams/` |
 | `<CodeBlock language caption code>`, `<Kbd>` | Code and keys |
 | `<Terminal scenario challenge?>` | A simulator terminal, with the challenge's checklist when one is given |
