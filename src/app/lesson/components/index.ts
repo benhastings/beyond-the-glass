@@ -10,6 +10,7 @@ import { ELI5 } from './ELI5'
 import { LessonCallout } from './LessonCallout'
 import { LessonTerminal } from './LessonTerminal'
 import { Operator } from './Operator'
+import { LessonOtelPipeline } from './OtelPipelineLazy'
 import { Step } from './Step'
 import { Term } from './Term'
 
@@ -32,4 +33,5 @@ export const LESSON_COMPONENTS: Readonly<Record<string, ComponentType<any>>> = {
   ELI5,
   Operator,
   DeepDive,
+  OtelPipeline: LessonOtelPipeline,
 }

@@ -12,6 +12,7 @@ import { PromqlExplorer } from '../o11y/PromqlExplorer'
 import { DashboardView } from '../o11y/dashboards/DashboardView'
 import { TraceExplorer } from '../o11y/traces/TraceExplorer'
 import { ObservabilityWorkspace } from '../o11y/ObservabilityWorkspace'
+import { LessonOtelPipeline } from '../lesson/components/OtelPipelineLazy'
 import { TraceView } from '../o11y/traces/TraceView'
 import { sampleTrace } from '../o11y/traces/sample'
 import { telemetryGitopsScenario, telemetryScenario } from '@/sim/telemetry/testing'
@@ -220,6 +221,10 @@ function Demo() {
         <TraceDemo />
 
         <WorkspaceDemo />
+
+        <Card id="otel" title="OpenTelemetry pipeline">
+          <LessonOtelPipeline />
+        </Card>
 
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />

@@ -39,6 +39,8 @@ A lesson is one MDX file with front matter (`id`, `title`, `objectives`, `estima
    complete without it. Give feedback for each wrong option that says *why* it's wrong.
 5. **Depth:** where people with different backgrounds need different detail, use `<Depth>` with
    `<ELI5>`, `<Operator>` and `<DeepDive>`. Always include an ELI5 layer; the build warns without one.
+6. **Interactive explainers:** `<OtelPipeline />` shows the OpenTelemetry pipeline (SDK → OTLP → Collector →
+   stores), with switches that break it and the Collector config to match. It loads only when a lesson uses it.
 
 ## Writing an analogy
 
