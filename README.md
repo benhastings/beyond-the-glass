@@ -4,9 +4,24 @@
 
 A self-paced, interactive journey for operators moving from on-prem, eyes-on-glass operations into Kubernetes, GitOps and modern observability. Learners take a short placement quiz, then follow a personalized trail from ELI5 foundations to troubleshooting a failing microservice with `kubectl`, Argo CD, Grafana/Prometheus and OpenTelemetry. All hands-on practice runs in a browser simulation, so there's nothing to install.
 
-- **Runs on:** GitHub Pages (static; no backend)
+- **The site:** <https://benhastings.github.io/beyond-the-glass/>
+- **Runs on:** GitHub Pages (static; no backend), or the container image below, on your own network
 - **Your progress:** saved in your browser; export/import with a progress code
-- **Status:** planning. See the [roadmap](docs/plan/ROADMAP.md).
+- **Status:** curriculum in review before launch. See the [roadmap](docs/plan/ROADMAP.md).
+
+## Privacy
+
+Beyond the Glass has no server, no accounts and no analytics. It makes no requests to anything but the site
+it's served from: fonts and assets are self-hosted. Your progress stays in your browser's storage. It leaves
+only when you export a progress code and give it to someone (a lead, say), and a code holds your progress and
+settings, never your name. The lead view reads codes in the browser and stores nothing.
+
+## For leads and maintainers
+
+- [Facilitator guide](docs/facilitator-guide.md): rolling it out to a team, the lead view, and a tabletop
+  exercise with the capstone.
+- [Maintainer guide](docs/maintainer-guide.md): adding a lesson, a scenario or a kubectl command,
+  regenerating fixtures, and releasing.
 
 ## Getting started
 
