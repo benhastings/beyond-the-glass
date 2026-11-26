@@ -114,6 +114,7 @@ describe('buildManifest on the fixture content', () => {
     expect(files).toHaveLength(10)
     expect(manifest.rosetta).toEqual([
       {
+        id: 'process-container',
         then: 'A process',
         now: 'A container',
         why: 'It ships with what it needs.',
@@ -289,6 +290,30 @@ describe('buildManifest errors', () => {
       ['entries.0.terms.0', 'unknown glossary term "contianer"'],
     ])
   })
+
+  acTest(
+    'E9-01.AC2',
+    'a lesson’s <Rosetta id> must name a real Rosetta Stone entry, and entry ids are unique',
+    () => {
+      const lesson = 'regions/alpha/basics/first-steps.mdx'
+      const root = variant({
+        [lesson]: (t) =>
+          `${t}\n<Rosetta id="process-container" />\n\n<Rosetta id="no-such-entry" />\n`,
+      })
+      const issues = issuesOf(root).filter((i) => i.field === '<Rosetta id>')
+      expect(issues.map((i) => [i.file, i.message])).toEqual([
+        [lesson, 'unknown Rosetta Stone entry "no-such-entry"'],
+      ])
+      expect(issues[0]?.line).toBeGreaterThan(1)
+      const dup = variant({
+        'rosetta.yaml': (t) =>
+          `${t}  - id: process-container\n    then: B\n    now: C\n    why: D\n`,
+      })
+      expect(issuesOf(dup).map((i) => i.message)).toEqual([
+        'duplicate Rosetta Stone id "process-container"',
+      ])
+    },
+  )
 
   it('test-outs need 3–5 questions, each pointing at a real lesson step in the module', () => {
     const q = (id: string, lesson: string, step: string) =>
