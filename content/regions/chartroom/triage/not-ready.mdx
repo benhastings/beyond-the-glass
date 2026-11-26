@@ -1,0 +1,58 @@
+---
+id: not-ready
+title: Running, but not Ready
+order: 3
+objectives:
+  - Explain why a Service can have no endpoints while its pods are Running
+  - Find a readiness probe that checks the wrong path, from describe and the events
+  - Fix the probe, and see the endpoints come back
+estimatedMinutes: 16
+domain: kubernetes
+level: deckhand
+scenario: triage
+terms: [probe, service, pod]
+prerequisites: [resources-and-scheduling]
+---
+
+<Step id="quiet" title="The quiet failure">
+
+<Rosetta id="lb-health-check-probes" />
+
+Nothing is crashing, nothing is Pending, and every pod says Running. But READY reads `0/1`, and every
+request to the service fails. A Service sends traffic only to **Ready** pods, so with none Ready its
+endpoints list is empty: `<none>`.
+
+The probe is the usual suspect: a readiness check on a path or port the program doesn't serve fails every
+time, and the events say so: `Readiness probe failed: HTTP probe failed with statuscode: 404`.
+
+</Step>
+
+<Step id="find" title="Find it">
+
+<Terminal scenario="triage" challenge="triage-not-ready" required />
+
+</Step>
+
+<Step id="fix" title="The fix">
+
+The api's probe was changed to `/readyz`; the api serves `/ready`. And because the api uses the Recreate
+strategy, there were no old pods left to keep answering. `fixes/api.yaml` puts the path back: apply it,
+and the endpoints return as the pods turn Ready.
+
+<Callout kind="info">
+  Here you fix it with kubectl, so you can see the cluster respond. In our world, Ravenpost is
+  deployed from Git, and a kubectl fix is put back at the next sync: the real fix goes through Git,
+  as you will do in Mirror Lake.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="triage-ready-endpoints" />
+
+<Check id="triage-ready-recreate" />
+
+<Check id="triage-six" />
+
+</Step>

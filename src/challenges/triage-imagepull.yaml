@@ -1,0 +1,55 @@
+id: triage-imagepull
+title: The web release that never arrived
+scenario: triage
+brief: >-
+  The web's new pods never start. Find out why, say what's wrong with the release, then point it at the
+  image CI did publish (registry.example/ravenpost/web:2.3.2).
+questions:
+  - id: cause
+    prompt: Why can't the new web pods start?
+objectives:
+  - id: events
+    text: Find the pull error
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(describe\s+(po|pod|pods)|get\s+(ev|events)|events)\b'
+  - id: cause
+    text: Say what's wrong
+    check:
+      {
+        type: answered,
+        question: cause,
+        matcher: { matches: '(v2\.3\.2|tag|not found|doesn.?t exist|no such)' },
+      }
+  - id: fix
+    text: Every web pod runs 2.3.2
+    check:
+      type: all
+      of:
+        - {
+            type: answered,
+            question: cause,
+            matcher: { matches: '(v2\.3\.2|tag|not found|doesn.?t exist|no such)' },
+          }
+        - type: resourceState
+          resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-web } }
+          path: 'spec.containers[0].image'
+          equals: registry.example/ravenpost/web:2.3.2
+          quantifier: all
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-web }
+          path: status.availableReplicas
+          equals: '2'
+hints:
+  - level: nudge
+    text: The pods never ran, so there are no logs. The events say what the kubelet tried.
+  - level: pointer
+    text: '`kubectl describe pod` shows the image it asked for and the pull error.'
+  - level: command
+    text: 'Run `kubectl describe pod ravenpost-web -n ravenpost`, then `answer cause <what the image reference gets wrong>`.'
+expertPath:
+  - kubectl get pods -n ravenpost -l app=ravenpost-web
+  - kubectl get events -n ravenpost --sort-by=.lastTimestamp
+  - answer cause the tag v2.3.2 does not exist, CI publishes 2.3.2
+  - kubectl set image deploy/ravenpost-web web=registry.example/ravenpost/web:2.3.2 -n ravenpost
+  - kubectl rollout status deploy/ravenpost-web -n ravenpost

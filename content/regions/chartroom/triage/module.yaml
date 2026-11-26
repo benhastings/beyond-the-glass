@@ -1,0 +1,5 @@
+id: triage
+title: The triage flow and common failures
+order: 1
+summary: One flow from symptom to cause, then six failures you'll meet on call, each found, named and fixed.
+domain: kubernetes

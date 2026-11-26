@@ -1,0 +1,47 @@
+checks:
+  - id: triage-order
+    type: ordering
+    required: true
+    prompt: Put the triage flow in order.
+    explanation: Know where you are, see what's wrong, read its state, then the cluster's events, then the program's logs, then what changed.
+    items:
+      - id: context
+        text: Check the context and namespace
+      - id: get
+        text: List the pods and find the unhealthy ones
+      - id: describe
+        text: Describe the pod
+      - id: events
+        text: Read the events
+      - id: logs
+        text: Read the logs (--previous for a crashed run)
+      - id: changes
+        text: Check what changed shortly before it started
+  - id: triage-crash-where
+    type: single
+    prompt: A pod is in CrashLoopBackOff. Where is the reason most likely written?
+    explanation: The crashed run's logs, which --previous shows.
+    options:
+      - id: events
+        text: In the events
+        feedback: The events say it's backing off, not why the program exits.
+      - id: previous
+        text: In the logs of the crashed run (kubectl logs --previous)
+        correct: true
+      - id: node
+        text: In the node's description
+        feedback: The node is fine; the program exits.
+  - id: triage-crash-fix
+    type: single
+    prompt: A release crashes on start, and the previous version worked. What's the quickest safe fix?
+    explanation: Go back to the version that worked, then tell the team what you found.
+    options:
+      - id: restart
+        text: Restart the pods
+        feedback: They'd run the same release, and crash the same way.
+      - id: delete
+        text: Delete the Deployment
+        feedback: That takes the service away entirely.
+      - id: undo
+        text: Roll back to the previous version
+        correct: true

@@ -13,6 +13,9 @@ at build time (`src/challenges/vite-plugin.ts`); the schema is `src/sim/challeng
 | `hints` | The ladder, in order: `nudge`, `pointer`, `command`. `hint` (or the button) reveals the next; the count is saved in progress |
 | `expertPath` | Commands that solve it. CI runs them (`src/sim/challenges/engine.test.ts`) to prove the challenge is solvable |
 
+A `forbidden` entry may set `cluster`: its pattern is then matched against the changes the learner actually
+made on that cluster, so a change made while pointed at the wrong context is flagged with its message.
+
 ## Predicates
 
 - `ranCommand { pattern }`: a command in the history matches the regex.
@@ -22,7 +25,9 @@ at build time (`src/challenges/vite-plugin.ts`); the schema is `src/sim/challeng
   `labels`, `where`).
 - `answered { question, matcher }`: the latest answer `equals` text, `matches` a regex, or names a `resource`.
   For `resource`, a unique prefix such as `ravenpost-notifier` also counts.
-- `mutated { verb, kind?, name? }`: the learner made that change (from the audit log; for example `rollout-undo`).
+- `mutated { verb, kind?, name?, cluster? }`: the learner made that change (from the audit log; for example
+  `rollout-undo`). With `cluster`, only a change made on that cluster counts: the right context (E9-05).
+- `noMutation { cluster?, kind?, name? }`: the learner changed nothing there, such as "leave prod alone".
 - `changedVia { via: mr | kubectl, kind, name, only? }`: how an object was changed (E7-03). `mr` means Argo CD
   synced it from a revision that includes one of the learner's merged merge requests. `kubectl` means the learner
   changed it directly. With `only: true`, the other way must not have been used too, so "fixed through Git, not by

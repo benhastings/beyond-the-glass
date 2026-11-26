@@ -1,0 +1,56 @@
+id: triage-pending
+title: The reports runner that never starts
+scenario: triage
+brief: >-
+  The reports runner's new pod has been Pending for minutes. Find out why it isn't placed, say why, then ask
+  for what it needs (`fixes/reports.yaml`).
+questions:
+  - id: cause
+    prompt: Why isn't the new reports pod placed on a node?
+objectives:
+  - id: describe
+    text: Find the scheduling message
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(describe\s+(po|pod|pods)|get\s+(ev|events)|events)\b'
+  - id: cause
+    text: Say why it isn't placed
+    check:
+      {
+        type: answered,
+        question: cause,
+        matcher: { matches: '(memory|request|20Gi|insufficient|resources)' },
+      }
+  - id: fix
+    text: The reports runner is running its new template
+    check:
+      type: all
+      of:
+        - {
+            type: answered,
+            question: cause,
+            matcher: { matches: '(memory|request|20Gi|insufficient|resources)' },
+          }
+        - type: resourceState
+          resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-reports } }
+          path: 'spec.containers[0].resources.requests.memory'
+          equals: 256Mi
+          quantifier: all
+        - type: resourceState
+          resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-reports } }
+          path: status.phase
+          equals: Running
+          quantifier: all
+hints:
+  - level: nudge
+    text: Pending means no node was chosen. The scheduler says why.
+  - level: pointer
+    text: '`kubectl describe pod` ends with the FailedScheduling event, which says what no node had enough of.'
+  - level: command
+    text: 'Run `kubectl describe pod ravenpost-reports -n ravenpost`, then `answer cause <what it asks for too much of>`.'
+expertPath:
+  - kubectl get pods -n ravenpost -l app=ravenpost-reports
+  - kubectl get events -n ravenpost --sort-by=.lastTimestamp
+  - answer cause it requests 20Gi of memory, more than any node has
+  - kubectl apply -f fixes/reports.yaml
+  - kubectl rollout status deploy/ravenpost-reports -n ravenpost

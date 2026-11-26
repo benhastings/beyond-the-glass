@@ -157,6 +157,24 @@ export const FIELD_CARDS: readonly FieldCard[] = [
         ],
       },
       {
+        heading: 'Find it fast',
+        items: [
+          {
+            command: 'kubectl get pods -A | grep -v Running',
+            text: 'Everything that isn’t Running.',
+          },
+          {
+            command:
+              'kubectl get pods -A --sort-by=.status.containerStatuses[0].restartCount | tail -3',
+            text: 'The pods restarting most, last.',
+          },
+          {
+            command: 'kubectl get pods -n <namespace> --no-headers | wc -l',
+            text: 'Count them.',
+          },
+        ],
+      },
+      {
         heading: 'Where am I',
         items: [
           {

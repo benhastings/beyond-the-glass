@@ -74,9 +74,7 @@ function CardView({ card }: { card: FieldCard }) {
               {s.items.map((i) => (
                 <li key={`${i.command ?? ''}${i.text}`}>
                   {i.command && (
-                    <code
-                      className={`block font-mono font-bold print:text-[9.5pt] ${card.kind === 'promql' ? '[overflow-wrap:anywhere]' : 'break-words'}`}
-                    >
+                    <code className="block font-mono font-bold [overflow-wrap:anywhere] print:text-[9.5pt]">
                       {i.command}
                     </code>
                   )}
