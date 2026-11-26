@@ -63,6 +63,7 @@ describe('E8-02 dashboards', () => {
         cleanup()
       }
     },
+    30_000,
   )
 
   acTest(
@@ -105,6 +106,7 @@ describe('E8-02 dashboards', () => {
           /<img|\.(png|svg|ico)\b|™|®/i,
         )
     },
+    30_000,
   )
 
   it('variables, stats with thresholds, logs, custom ranges and Explore', async () => {

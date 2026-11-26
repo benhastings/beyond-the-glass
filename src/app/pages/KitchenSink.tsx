@@ -10,6 +10,9 @@ import { ArgoConsole } from '../gitops/argo/ArgoConsole'
 import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
 import { PromqlExplorer } from '../o11y/PromqlExplorer'
 import { DashboardView } from '../o11y/dashboards/DashboardView'
+import { TraceExplorer } from '../o11y/traces/TraceExplorer'
+import { TraceView } from '../o11y/traces/TraceView'
+import { sampleTrace } from '../o11y/traces/sample'
 import { telemetryGitopsScenario, telemetryScenario } from '@/sim/telemetry/testing'
 import { InlineEditor } from '../terminal/InlineEditor'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
@@ -213,6 +216,8 @@ function Demo() {
 
         <DashboardDemo />
 
+        <TraceDemo />
+
         <Card id="lesson" title="Lesson components">
           <MdxContent Body={LessonSample} checks={SAMPLE_CHECKS} />
         </Card>
@@ -360,6 +365,35 @@ function DashboardDemo() {
   return (
     <Card id="dashboards" title="Dashboards">
       <DashboardView sim={sim} />
+    </Card>
+  )
+}
+
+/** The trace explorer (E8-05): ledger fails half its requests from 10 minutes in; and a 200-span trace. */
+function TraceDemo() {
+  const [sim] = useState(() => {
+    const { sim: s } = telemetryScenario([
+      { at: '+10m', type: 'injectErrors', namespace: 'ravenpost', service: 'ledger', rate: 0.5 },
+    ])
+    s.advance(20 * 60_000)
+    return s
+  })
+  const [big, setBig] = useState(false)
+  return (
+    <Card id="traces" title="Traces">
+      <div className="grid gap-4">
+        <TraceExplorer sim={sim} level={3} />
+        <div>
+          <Button
+            onClick={() => {
+              setBig((b) => !b)
+            }}
+          >
+            {big ? 'Hide' : 'Show'} a 200-span trace
+          </Button>
+        </div>
+        {big && <TraceView trace={sampleTrace(200)} epochMs={sim.clock.epochMs} />}
+      </div>
     </Card>
   )
 }
