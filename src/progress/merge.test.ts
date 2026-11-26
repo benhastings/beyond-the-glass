@@ -1,4 +1,4 @@
-import { describe, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { acTest } from '@/test/ac'
 import { mergeChallenge, mergeCheck, mergeLesson, mergeProgress, mergeScenario } from './merge'
 import { emptyProgress, type Progress } from './schema'
@@ -158,4 +158,13 @@ describe('merging an imported record', () => {
       expect(mergeScenario({}, {})).toEqual({})
     },
   )
+
+  it('a scenario finished in either browser stays finished, at the earlier time', () => {
+    const early = '2026-01-01T00:00:00.000Z'
+    const late = '2026-02-01T00:00:00.000Z'
+    expect(mergeScenario({ completedAt: late }, { completedAt: early })).toEqual({
+      completedAt: early,
+    })
+    expect(mergeScenario({}, { completedAt: late })).toEqual({ completedAt: late })
+  })
 })

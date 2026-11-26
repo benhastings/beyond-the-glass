@@ -2,6 +2,7 @@
 import pipelines from '@/scenarios/pipelines.yaml'
 import ravenpost from '@/scenarios/ravenpost.yaml'
 import stormwatch from '@/scenarios/stormwatch.yaml'
+import theLongNight from '@/scenarios/the-long-night.yaml'
 import triage from '@/scenarios/triage.yaml'
 import type { Scenario } from '@/sim/core/scenario'
 import { FRAGMENT_SCENARIO_LIST } from './fragments'
@@ -10,6 +11,7 @@ import { FRAGMENT_SCENARIO_LIST } from './fragments'
 export const SCENARIOS: Readonly<Record<string, Scenario>> = {
   [ravenpost.id]: ravenpost,
   [stormwatch.id]: stormwatch,
+  [theLongNight.id]: theLongNight,
   [triage.id]: triage,
   [pipelines.id]: pipelines,
   // Built from the GitOps fragments (E9-08), in code rather than YAML.
