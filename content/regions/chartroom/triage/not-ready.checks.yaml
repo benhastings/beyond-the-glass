@@ -1,0 +1,53 @@
+checks:
+  - id: triage-ready-endpoints
+    type: single
+    required: true
+    prompt: Pods are Running but 0/1 Ready, and the Service's endpoints are `<none>`. What's the likeliest cause?
+    explanation: The readiness probe fails, so no pod is Ready, so the Service has nowhere to send traffic.
+    options:
+      - id: probe
+        text: The readiness probe fails on every pod
+        correct: true
+      - id: dns
+        text: Cluster DNS is down
+        feedback: DNS would still resolve the Service; it has no Ready pods behind it.
+      - id: image
+        text: The image can't be pulled
+        feedback: Then the pods wouldn't be Running.
+  - id: triage-ready-recreate
+    type: single
+    prompt: Why did the bad probe take the api down, rather than stall a rollout?
+    explanation: Recreate removes every old pod first, so nothing was left serving while the new ones failed their probe.
+    options:
+      - id: rolling
+        text: Rolling updates always take services down
+        feedback: A rolling update keeps old pods until new ones are Ready.
+      - id: recreate
+        text: The api uses Recreate, so no old pods were left
+        correct: true
+      - id: liveness
+        text: The liveness probe restarted the pods
+        feedback: The pods weren't restarting; they never became Ready.
+  - id: triage-six
+    type: matching
+    prompt: Match each status to its likeliest cause.
+    explanation: Each of the six failures has a usual cause, and a place to read it.
+    pairs:
+      - id: crash
+        left: CrashLoopBackOff
+        right: The program exits at start
+      - id: pull
+        left: ImagePullBackOff
+        right: The image reference names something that doesn't exist
+      - id: config
+        left: CreateContainerConfigError
+        right: A ConfigMap or Secret key is missing
+      - id: oom
+        left: OOMKilled
+        right: The memory limit is below what it uses
+      - id: pending
+        left: Pending
+        right: Its requests fit no node
+      - id: ready
+        left: Running, 0/1 Ready
+        right: The readiness probe fails

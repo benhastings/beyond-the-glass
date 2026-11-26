@@ -122,6 +122,7 @@ export class Simulator {
     })
     sim.reconcile()
     sim.advanceTo(0)
+    if (scenario.warmUp !== undefined) sim.advance(parseDuration(scenario.warmUp))
     return sim
   }
 

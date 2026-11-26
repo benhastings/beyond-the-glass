@@ -1,0 +1,85 @@
+---
+id: triage-flow
+title: The triage flow
+order: 0
+objectives:
+  - Follow the triage flow from context to recent changes, in order
+  - Find why a pod is in CrashLoopBackOff, from the logs of its crashed run
+  - State the root cause before changing anything, then fix it and check
+estimatedMinutes: 18
+domain: kubernetes
+level: deckhand
+scenario: triage
+terms: [crashloopbackoff, logs, rollback]
+prerequisites: [finding-things-fast]
+---
+
+<Step id="flow" title="One flow for every failure">
+
+<Rosetta id="runbook-binder" />
+
+Most failures you'll meet are found the same way. Each step narrows what's wrong, and none of them changes
+anything:
+
+1. **Context**: which cluster and namespace am I in?
+2. **get**: which pods aren't Running and Ready?
+3. **describe**: what state is the container in, and how did its last run end?
+4. **events**: what has the cluster tried, and what did it say?
+5. **logs**, with `--previous` for a crashed run: what did the program say?
+6. **Recent changes**: what was released or edited shortly before it started?
+
+<Callout kind="habit">
+  Look before you touch, and say the cause out loud before you fix anything. A fix for the wrong
+  cause costs time, and sometimes makes things worse.
+</Callout>
+
+</Step>
+
+<Step id="order" title="Put it in order">
+
+<Check id="triage-order" />
+
+</Step>
+
+<Step id="crashloop" title="CrashLoopBackOff">
+
+<Depth>
+  <ELI5>
+    The program starts, then stops, again and again. The cluster waits a bit longer each time before
+    trying again. The program usually says why it stopped, right before it stops.
+  </ELI5>
+  <Operator>
+    The container exits soon after starting, and the kubelet restarts it with a growing back-off (10
+    s, 20 s, 40 s… up to five minutes). `describe` shows Last State with the exit code; `logs
+    --previous` shows what the crashed run printed. A crash right after a release usually means the
+    release.
+  </Operator>
+</Depth>
+
+Six releases went out at the start of your shift. Start with the notifier.
+
+<Terminal scenario="triage" challenge="triage-crashloop" required />
+
+</Step>
+
+<Step id="crashloop-fix" title="The fix">
+
+0.10.0 ships without its templates, so it can't start. The quickest safe fix is to go back to the version
+that worked, `kubectl rollout undo deploy/ravenpost-notifier -n ravenpost`, and tell the team that built
+0.10.0 what you found.
+
+<Callout kind="info">
+  Here you fix it with kubectl, so you can see the cluster respond. In our world, Ravenpost is
+  deployed from Git, and a kubectl fix is put back at the next sync: the real fix goes through Git,
+  as you will do in Mirror Lake.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="triage-crash-where" />
+
+<Check id="triage-crash-fix" />
+
+</Step>

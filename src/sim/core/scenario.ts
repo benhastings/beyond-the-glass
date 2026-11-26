@@ -308,6 +308,14 @@ export const scenarioSchema = z
     description: z.string().optional(),
     seed: z.union([z.number().int(), z.string()]).default(1998),
     startTime: z.iso.datetime().optional(),
+    /**
+     * Plays the timeline for this long before the learner arrives (E9-06), so faults timed early on are
+     * already showing, with their history (restarts, events, logs). A positive duration such as +3m.
+     */
+    warmUp: z
+      .string()
+      .refine((t) => /^\+/.test(t) && isDuration(t), 'must be a positive duration like +3m')
+      .optional(),
     currentContext: z.string(),
     contexts: z.array(context).min(1),
     clusters: z.array(cluster).min(1),

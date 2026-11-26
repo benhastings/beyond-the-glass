@@ -1,0 +1,46 @@
+id: triage-not-ready
+title: Running, but nobody answers
+scenario: triage
+brief: >-
+  The api's pods are Running, but every request to the api fails. Follow the Service to its endpoints and
+  the pods to their probe, say why, then fix the probe (`fixes/api.yaml`).
+questions:
+  - id: cause
+    prompt: Why does the api Service have no endpoints?
+objectives:
+  - id: endpoints
+    text: Look at the Service's endpoints
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(get\s+(ep|endpoints)\b|describe\s+(svc|service)\b).*ravenpost-api'
+  - id: probe
+    text: Find why the pods aren't Ready
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(describe\s+(po|pod|pods)|get\s+(ev|events)|events)\b'
+  - id: cause
+    text: Say why
+    check: { type: answered, question: cause, matcher: { matches: '(readyz|probe|path|404)' } }
+  - id: fix
+    text: The api has endpoints again
+    check:
+      type: all
+      of:
+        - { type: answered, question: cause, matcher: { matches: '(readyz|probe|path|404)' } }
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-api }
+          path: status.availableReplicas
+          equals: '2'
+hints:
+  - level: nudge
+    text: A Service sends traffic only to pods that are Ready.
+  - level: pointer
+    text: '`kubectl get endpoints ravenpost-api`, then `kubectl describe pod ravenpost-api` for the probe and its failures.'
+  - level: command
+    text: 'Run `kubectl describe pod ravenpost-api -n ravenpost`, then `answer cause <what the readiness probe checks>`.'
+expertPath:
+  - kubectl get endpoints ravenpost-api -n ravenpost
+  - kubectl describe pod ravenpost-api -n ravenpost
+  - answer cause the readiness probe checks /readyz, which the api does not serve (404)
+  - kubectl apply -f fixes/api.yaml
+  - kubectl rollout status deploy/ravenpost-api -n ravenpost

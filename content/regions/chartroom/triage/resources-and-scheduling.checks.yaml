@@ -1,0 +1,41 @@
+checks:
+  - id: triage-oom-sign
+    type: single
+    required: true
+    prompt: Which shows that a container was killed for using too much memory?
+    explanation: describe pod shows Last State Terminated, Reason OOMKilled, Exit Code 137.
+    options:
+      - id: logs
+        text: An "out of memory" line in its logs
+        feedback: It's killed from outside, so it rarely gets to log anything.
+      - id: describe
+        text: Last State Terminated, Reason OOMKilled, exit code 137, in describe pod
+        correct: true
+      - id: pending
+        text: The pod shows Pending
+        feedback: Pending is about scheduling, before anything runs.
+  - id: triage-pending-why
+    type: single
+    prompt: A pod has been Pending for ten minutes. Where does the scheduler say why?
+    explanation: The FailedScheduling event, at the end of describe pod or in the events.
+    options:
+      - id: logs
+        text: In the pod's logs
+        feedback: Nothing has run, so there are no logs.
+      - id: node
+        text: In the node's logs
+        feedback: No node was chosen.
+      - id: event
+        text: In the FailedScheduling event
+        correct: true
+  - id: triage-requests-limits
+    type: matching
+    prompt: Match each to what it causes when it's wrong.
+    explanation: Requests too big leave a pod unplaced; a memory limit too small gets it killed.
+    pairs:
+      - id: request
+        left: A memory request bigger than any node has free
+        right: Pending, with FailedScheduling
+      - id: limit
+        left: A memory limit smaller than the program uses
+        right: OOMKilled, exit code 137

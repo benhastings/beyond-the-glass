@@ -1,0 +1,81 @@
+---
+id: pulls-and-config
+title: Images that won't pull, config that isn't there
+order: 1
+objectives:
+  - Find why a pod is in ImagePullBackOff, and name what's wrong with its image reference
+  - Find why a pod is in CreateContainerConfigError, and name the missing key
+  - Fix each with kubectl, and check it took
+estimatedMinutes: 18
+domain: kubernetes
+level: deckhand
+scenario: triage
+terms: [configmap, image]
+prerequisites: [triage-flow]
+---
+
+<Step id="imagepull" title="ImagePullBackOff">
+
+You met this in the Harbor: the node can't fetch the image, so the container never starts. There are no
+logs, because nothing ran. The events say why: `not found` (a wrong tag or name) or `unauthorized`.
+
+<Terminal scenario="triage" challenge="triage-imagepull" required />
+
+</Step>
+
+<Step id="imagepull-fix" title="The fix">
+
+The release asked for `web:v2.3.2`; CI publishes `web:2.3.2`. Point it at the tag that exists:
+`kubectl set image deploy/ravenpost-web web=registry.example/ravenpost/web:2.3.2 -n ravenpost`. The old
+web pods kept serving throughout, because the rollout never got a new pod Ready.
+
+<Callout kind="info">
+  Here you fix it with kubectl, so you can see the cluster respond. In our world, Ravenpost is
+  deployed from Git, and a kubectl fix is put back at the next sync: the real fix goes through Git,
+  as you will do in Mirror Lake.
+</Callout>
+
+</Step>
+
+<Step id="config" title="CreateContainerConfigError">
+
+<Depth>
+  <ELI5>
+    The program needs a setting before it can start. The setting is missing, so the cluster won't
+    even make the box. It says which setting it couldn't find.
+  </ELI5>
+  <Operator>
+    The kubelet can't build the container's environment: a `configMapKeyRef` or `secretKeyRef` names
+    a key (or object) that isn't there. The pod waits in CreateContainerConfigError, and the events
+    say `couldn't find key KEY in ConfigMap NAMESPACE/NAME`. Once the key exists, the kubelet's next
+    try succeeds.
+  </Operator>
+</Depth>
+
+<Terminal scenario="triage" challenge="triage-config" required />
+
+</Step>
+
+<Step id="config-fix" title="The fix">
+
+A clean-up removed `QUEUE_URL` from `ravenpost-config`, and the worker's new release reads it. Put it
+back: `kubectl diff -f fixes/ravenpost-config.yaml` shows the key returning, and `kubectl apply -f
+fixes/ravenpost-config.yaml` makes it so. The waiting pod starts on the kubelet's next try.
+
+<Callout kind="info">
+  Here you fix it with kubectl, so you can see the cluster respond. In our world, Ravenpost is
+  deployed from Git, and a kubectl fix is put back at the next sync: the real fix goes through Git,
+  as you will do in Mirror Lake.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="triage-pull-logs" />
+
+<Check id="triage-config-start" />
+
+<Check id="triage-pull-vs-config" />
+
+</Step>

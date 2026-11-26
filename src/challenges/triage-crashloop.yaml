@@ -1,0 +1,47 @@
+id: triage-crashloop
+title: The notifier keeps restarting
+scenario: triage
+brief: >-
+  The notifier went to 0.10.0 a few minutes ago and has been restarting since. Follow the triage flow to the
+  cause, say what it is, then put the notifier back on the version that worked.
+questions:
+  - id: cause
+    prompt: Why does the notifier exit?
+objectives:
+  - id: look
+    text: Look at the notifier pod's state
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(describe\s+(po|pod|pods)|get\s+(po|pod|pods))\b.*ravenpost'
+  - id: logs
+    text: Read the crashed run's logs
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+logs\b.*(\s-p\b|--previous)'
+  - id: cause
+    text: Say why it exits
+    check: { type: answered, question: cause, matcher: { matches: 'template' } }
+  - id: fix
+    text: Put the notifier back on the version that worked
+    check:
+      type: all
+      of:
+        - { type: answered, question: cause, matcher: { matches: 'template' } }
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-notifier }
+          path: status.availableReplicas
+          equals: '1'
+hints:
+  - level: nudge
+    text: A container that exits on start says why on its way out.
+  - level: pointer
+    text: '`kubectl logs` with `--previous` shows the run that crashed.'
+  - level: command
+    text: 'Run `kubectl logs deploy/ravenpost-notifier -n ravenpost --previous`, then `answer cause <what it says is missing>`.'
+expertPath:
+  - kubectl get pods -n ravenpost
+  - kubectl describe pod ravenpost-notifier -n ravenpost
+  - kubectl logs deploy/ravenpost-notifier -n ravenpost --previous
+  - answer cause the template directory is missing from 0.10.0
+  - kubectl rollout undo deploy/ravenpost-notifier -n ravenpost
+  - kubectl rollout status deploy/ravenpost-notifier -n ravenpost
