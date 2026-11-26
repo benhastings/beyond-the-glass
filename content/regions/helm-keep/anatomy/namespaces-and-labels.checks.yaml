@@ -1,0 +1,44 @@
+checks:
+  - id: labels-selector
+    type: single
+    required: true
+    prompt: Which command lists only the worker pods, whatever they're called today?
+    explanation: A label selector picks pods by their labels, so it keeps working as pods are replaced and renamed.
+    options:
+      - id: name
+        text: kubectl get pod ravenpost-worker-794f477b59-jp8ml -n ravenpost
+        feedback: That names one pod. It stops working when the pod is replaced.
+      - id: grep
+        text: kubectl get pods -A
+        feedback: That lists everything in every namespace.
+      - id: label
+        text: kubectl get pods -n ravenpost -l app=ravenpost-worker
+        correct: true
+  - id: labels-namespace
+    type: single
+    prompt: You run `kubectl get pods` and see no Ravenpost pods. What's the first thing to check?
+    explanation: Which namespace (and cluster) you're pointed at. Without -n, kubectl uses your context's default namespace.
+    options:
+      - id: ns
+        text: Which namespace your context points at
+        correct: true
+      - id: down
+        text: Whether Ravenpost has gone down
+        feedback: Check where you're looking first. The pods may be fine, in another namespace.
+      - id: restart
+        text: Whether the API server needs a restart
+        feedback: It answered your command, so it's up.
+  - id: labels-deployment
+    type: single
+    prompt: Someone removes the app label from one ravenpost-api pod by hand. What does the Deployment do?
+    explanation: It no longer counts that pod, so it sees one too few and creates a replacement.
+    options:
+      - id: nothing
+        text: Nothing; it still knows the pod by name
+        feedback: Deployments don't track pods by name. They count the pods their selector matches.
+      - id: fixes
+        text: Puts the label back
+        feedback: It doesn't edit pods. It creates and deletes them to match the count.
+      - id: replace
+        text: Creates a new pod, because it now counts one too few
+        correct: true

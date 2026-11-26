@@ -1,0 +1,5 @@
+id: anatomy
+title: Cluster anatomy, pods and namespaces
+order: 0
+summary: What runs a cluster, what a pod is, and how namespaces and labels keep a cluster's things in order.
+domain: kubernetes
