@@ -1,0 +1,44 @@
+checks:
+  - id: containers-share
+    type: single
+    required: true
+    prompt: What does a container share with the node it runs on?
+    explanation: Containers share the node's kernel. Each has its own filesystem view, process list and network.
+    options:
+      - id: fs
+        text: Its filesystem
+        feedback: Each container sees its own files, from its image.
+      - id: kernel
+        text: The kernel
+        correct: true
+      - id: nothing
+        text: Nothing at all
+        feedback: That's closer to a virtual machine. A container is a process on the node, using its kernel.
+  - id: containers-vm
+    type: single
+    prompt: A library in a running container has a security fix. What do you do?
+    explanation: You rebuild the image with the fixed library, then replace the containers with ones from the new image.
+    options:
+      - id: patch
+        text: Log in to each container and update the package
+        feedback: The fix would be lost the next time a container is replaced, and every copy would drift.
+      - id: node
+        text: Patch the node's operating system
+        feedback: The library is inside the image, not on the node.
+      - id: rebuild
+        text: Build a new image with the fix, and replace the containers
+        correct: true
+  - id: containers-writes
+    type: single
+    prompt: A container writes a report to /tmp, then is replaced. What happens to the report?
+    explanation: A container's own writable layer is thrown away when it's replaced. Data that matters goes to storage outside it.
+    options:
+      - id: gone
+        text: It's gone, along with the container's writable layer
+        correct: true
+      - id: kept
+        text: The new container finds it in /tmp
+        feedback: The new container starts from the image, which doesn't have the report.
+      - id: node
+        text: It's copied to the node's /tmp
+        feedback: Nothing is copied out unless you set up storage for it.

@@ -8,6 +8,7 @@ import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ArgoConsole } from '../gitops/argo/ArgoConsole'
 import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
 import { PipelinesPanel } from '../gitops/PipelinesPanel'
+import { SmallScreenNote } from '../ui/SmallScreenNote'
 
 export type LessonView = 'pipelines' | 'changes' | 'argo'
 
@@ -49,6 +50,15 @@ export default function TerminalForLesson({
       </Callout>
     )
   const panel = view ? VIEWS[view] : undefined
-  if (c) return <ChallengeTerminal challenge={c} scenario={s} {...(panel ? { view: panel } : {})} />
-  return <ScenarioTerminal scenario={s} />
+  const terminal = c ? (
+    <ChallengeTerminal challenge={c} scenario={s} {...(panel ? { view: panel } : {})} />
+  ) : (
+    <ScenarioTerminal scenario={s} />
+  )
+  return (
+    <>
+      <SmallScreenNote what="The terminal" />
+      {terminal}
+    </>
+  )
 }
