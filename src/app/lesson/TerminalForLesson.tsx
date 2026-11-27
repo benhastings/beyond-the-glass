@@ -8,12 +8,9 @@ import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { ArgoConsole } from '../gitops/argo/ArgoConsole'
 import { MergeRequestFlow } from '../gitops/MergeRequestFlow'
 import { PipelinesPanel } from '../gitops/PipelinesPanel'
-<<<<<<< ours
 import { DashboardView } from '../o11y/dashboards/DashboardView'
 import { PromqlExplorer } from '../o11y/PromqlExplorer'
-=======
 import { SmallScreenNote } from '../ui/SmallScreenNote'
->>>>>>> theirs
 
 export type LessonView = 'pipelines' | 'changes' | 'argo' | 'dashboards' | 'promql'
 
