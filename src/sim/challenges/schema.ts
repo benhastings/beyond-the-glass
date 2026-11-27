@@ -87,6 +87,15 @@ const base = {
     verb: z.string(),
     kind: z.string().optional(),
     name: z.string().optional(),
+    /** Only changes made on this cluster count (E9-05: the right context). */
+    cluster: z.string().optional(),
+  }),
+  /** The learner changed nothing on `cluster` (with `kind`/`name`, nothing of that kind or name). */
+  noMutation: z.strictObject({
+    type: z.literal('noMutation'),
+    cluster: z.string().optional(),
+    kind: z.string().optional(),
+    name: z.string().optional(),
   }),
 }
 
@@ -104,6 +113,21 @@ export const predicateSchema: z.ZodType<Predicate> = z.lazy(
     ] as unknown as [z.ZodObject, ...z.ZodObject[]]) as unknown as z.ZodType<Predicate>,
 )
 
+/** One step of a challenge's expert path (the same shape as a GitOps fragment's ExpertStep). */
+const expertStep = z.union([
+  z.string().min(1),
+  z.strictObject({
+    mr: z.strictObject({
+      repo: z.string(),
+      file: z.string(),
+      replace: z.tuple([z.string(), z.string()]),
+      message: z.string().min(1),
+    }),
+  }),
+  z.strictObject({ revertMr: z.strictObject({ repo: z.string() }) }),
+  z.strictObject({ wait: z.string() }),
+])
+
 export const HINT_LEVELS = ['nudge', 'pointer', 'command'] as const
 
 export const challengeSchema = z.strictObject({
@@ -117,7 +141,19 @@ export const challengeSchema = z.strictObject({
     .array(z.strictObject({ id: slug, text: z.string().min(1), check: predicateSchema }))
     .min(1),
   /** Commands that would do harm here; running one is flagged (never blocks completion). */
-  forbidden: z.array(z.strictObject({ pattern: regex, message: z.string().min(1) })).default([]),
+  /**
+   * Commands that would do harm, each with why. With `cluster`, the pattern is matched against changes the
+   * learner actually made on that cluster, so a change made in the wrong context is flagged (E9-05).
+   */
+  forbidden: z
+    .array(
+      z.strictObject({
+        pattern: regex,
+        message: z.string().min(1),
+        cluster: z.string().optional(),
+      }),
+    )
+    .default([]),
   /** The hint ladder, in order: nudge, then pointer, then the exact command. */
   hints: z
     .array(z.strictObject({ level: z.enum(HINT_LEVELS), text: z.string().min(1) }))
@@ -132,7 +168,11 @@ export const challengeSchema = z.strictObject({
       'hints go from nudge to pointer to command',
     ),
   /** A solution, run in CI to prove the challenge can be completed (E6-10.AC4). */
-  expertPath: z.array(z.string().min(1)).min(1),
+  /**
+   * How an expert solves it: shell lines, or (for GitOps, E9-08) a change through a merge request
+   * (`mr`, `revertMr`) or time passing (`wait`), as the E7-06 fragments describe their expert paths.
+   */
+  expertPath: z.array(expertStep).min(1),
 })
 
 export type Challenge = z.output<typeof challengeSchema>

@@ -1,0 +1,41 @@
+id: right-context
+title: Restart the gate, on stage
+scenario: stormwatch
+brief: >-
+  A config change for the gate has been tested on stage, and the stage gate needs a restart to pick it up.
+  Your terminal is pointed at prod. Restart the gate on stage, and leave prod alone.
+objectives:
+  - id: where
+    text: Check which context you're in
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+config\s+(current-context|get-contexts)\b'
+  - id: switch
+    text: Point your terminal at stage
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(config\s+use-context\s+stage\b|.*--context[=\s]stage\b)'
+  - id: restart
+    text: Restart the gate on stage
+    check: { type: mutated, verb: rollout-restart, kind: Deployment, name: gate, cluster: stage }
+  - id: prod-untouched
+    text: Change nothing on prod
+    check: { type: noMutation, cluster: prod }
+forbidden:
+  - pattern: '^kubectl\b'
+    cluster: prod
+    message: >-
+      That change went to prod. Check your context before you change anything: the prompt says which cluster
+      you're pointed at.
+hints:
+  - level: nudge
+    text: Before changing anything, check where your terminal is pointed. The prompt says, and so does kubectl.
+  - level: pointer
+    text: '`kubectl config get-contexts` lists them; `kubectl config use-context stage` switches. Then `kubectl rollout restart`.'
+  - level: command
+    text: 'Run `kubectl config use-context stage`, then `kubectl rollout restart deploy/gate`.'
+expertPath:
+  - kubectl config current-context
+  - kubectl config get-contexts
+  - kubectl config use-context stage
+  - kubectl rollout restart deploy/gate

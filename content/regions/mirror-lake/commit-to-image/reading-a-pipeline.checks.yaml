@@ -1,0 +1,45 @@
+checks:
+  - id: pipeline-order
+    type: ordering
+    required: true
+    prompt: Put the pipeline's stages in order.
+    explanation: Build it, test it, scan it, push it, then record the new tag in the deploy repo.
+    items:
+      - id: build
+        text: build
+      - id: test
+        text: test
+      - id: scan
+        text: scan
+      - id: package
+        text: package
+      - id: manifests
+        text: update-manifests
+  - id: pipeline-tag
+    type: single
+    prompt: Production runs api:0720046a. How do you find the code it was built from?
+    explanation: The tag is the commit's short hash, so commit 0720046a is the code.
+    options:
+      - id: commit
+        text: Look up commit 0720046a in the api's repository
+        correct: true
+      - id: ask
+        text: Ask whoever deployed it
+        feedback: You don't need to ask. The tag names the commit.
+      - id: latest
+        text: It's whatever is on main now
+        feedback: main may have moved on since. The tag names one commit.
+  - id: pipeline-typed
+    type: single
+    prompt: Why aren't image tags typed into deploy files by hand?
+    explanation: CI writes the tag it pushed, so the deployed image always exists and points back to its commit.
+    options:
+      - id: slow
+        text: Typing is slower
+        feedback: Speed isn't the issue. A typed tag can name an image that doesn't exist.
+      - id: exists
+        text: CI writes the exact tag it pushed, so it always exists and traces to its commit
+        correct: true
+      - id: secret
+        text: Tags are secret
+        feedback: Tags aren't secret.

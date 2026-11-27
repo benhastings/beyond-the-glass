@@ -46,3 +46,33 @@ checks:
       - id: fine
         text: It is starting up normally
         feedback: A container that's starting shows ContainerCreating, not a back-off.
+  - id: test-out-first-look-context
+    type: single
+    review: { lesson: know-where-you-are, step: contexts }
+    prompt: Which command tells you which cluster your next command will go to?
+    explanation: current-context names the context in use; get-contexts marks it with a star.
+    options:
+      - id: nodes
+        text: kubectl get nodes
+        feedback: That lists the nodes of whichever cluster you're on, without naming it.
+      - id: current
+        text: kubectl config current-context
+        correct: true
+      - id: ns
+        text: kubectl get ns
+        feedback: That lists namespaces, not which cluster you're on.
+  - id: test-out-first-look-sort
+    type: single
+    review: { lesson: finding-things-fast, step: sort }
+    prompt: How do you list the ravenpost events with the newest last?
+    explanation: --sort-by=.lastTimestamp sorts them oldest first, so the newest is last.
+    options:
+      - id: sort
+        text: kubectl get events -n ravenpost --sort-by=.lastTimestamp
+        correct: true
+      - id: plain
+        text: kubectl get events -n ravenpost
+        feedback: Without sorting, events come in no useful order.
+      - id: wide
+        text: kubectl get events -n ravenpost -o wide
+        feedback: -o wide adds columns; it doesn't sort.

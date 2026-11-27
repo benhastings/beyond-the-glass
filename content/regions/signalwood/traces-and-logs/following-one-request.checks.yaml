@@ -1,0 +1,44 @@
+checks:
+  - id: trace-span
+    type: matching
+    required: true
+    prompt: Match each term to what it is.
+    explanation: A trace is the whole request; a span is one service's part of it; the parent is the span that called it.
+    pairs:
+      - id: trace
+        left: Trace
+        right: One request's whole journey, across every service
+      - id: span
+        left: Span
+        right: One service's part of that journey, with a start and an end
+      - id: parent
+        left: Parent span
+        right: The span that made the call
+  - id: trace-own-time
+    type: single
+    prompt: In the waterfall above, which service spent the most time on its own work?
+    explanation: The ledger's span is 398 ms, and its only child, postgres, took 4 ms. The others mostly waited for their calls.
+    options:
+      - id: gate
+        text: The gate
+        feedback: Its bar is longest, but almost all of it is waiting for the api.
+      - id: ledger
+        text: The ledger
+        correct: true
+      - id: postgres
+        text: postgres
+        feedback: It took 4 ms.
+  - id: trace-waterfall
+    type: single
+    prompt: What do all the spans of one trace share?
+    explanation: The trace ID.
+    options:
+      - id: service
+        text: The same service
+        feedback: Each span can be a different service.
+      - id: id
+        text: The same trace ID
+        correct: true
+      - id: duration
+        text: The same duration
+        feedback: Each span has its own duration.

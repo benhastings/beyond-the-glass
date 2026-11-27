@@ -1,0 +1,61 @@
+---
+id: when-a-pipeline-fails
+title: When a pipeline fails
+order: 2
+objectives:
+  - Find the job that failed, and read why from its log
+  - Tell a failed test, a failed scan and a registry error apart
+  - Say whether a failed pipeline produced an image, and what that means for production
+estimatedMinutes: 16
+domain: delivery
+level: deckhand
+scenario: pipelines
+terms: [image, logs]
+prerequisites: [reading-a-pipeline]
+---
+
+<Step id="stop" title="A pipeline stops at the first failure">
+
+When a job fails, its stage fails, and every later stage is **skipped**. So a failed pipeline in Ravenpost's
+app never reaches `push-image`: no new tag, no change to the deploy repo, and production keeps running
+what it ran before. A failed pipeline is the system protecting you.
+
+</Step>
+
+<Step id="kinds" title="Three ways to fail">
+
+| Failed job   | What the log ends with                                          | Who fixes it                                                       |
+| ------------ | --------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `unit-tests` | A failing test: expected one result, got another                | The developers: the code is wrong, or the test is                  |
+| `image-scan` | A vulnerability over the threshold, and the fixed version       | Rebuild on a patched base image                                    |
+| `push-image` | An error from the registry: `unauthorized`, `denied`, a timeout | Usually the platform team: credentials, quota, the registry itself |
+
+<Depth>
+  <ELI5>
+    Read the end of the red job's notes. A test that failed means the code is wrong. A scan that
+    failed means a known weakness. A push that failed means the parts store said no.
+  </ELI5>
+  <Operator>
+    The last lines of the failed job's log say what failed; the earlier lines say what it was doing.
+    Read from the bottom up. Your job on call is to say which kind it is and route it: a test
+    failure isn't yours to fix at 3 a.m., but a registry outage blocking every team might be.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="read" title="Read the failures">
+
+<Terminal scenario="pipelines" challenge="read-the-pipelines" view="pipelines" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="pipeline-fail-skip" />
+
+<Check id="pipeline-fail-kinds" />
+
+<Check id="pipeline-fail-prod" />
+
+</Step>

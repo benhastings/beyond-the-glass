@@ -308,6 +308,14 @@ export const scenarioSchema = z
     description: z.string().optional(),
     seed: z.union([z.number().int(), z.string()]).default(1998),
     startTime: z.iso.datetime().optional(),
+    /**
+     * Plays the timeline for this long before the learner arrives (E9-06), so faults timed early on are
+     * already showing, with their history (restarts, events, logs). A positive duration such as +3m.
+     */
+    warmUp: z
+      .string()
+      .refine((t) => /^\+/.test(t) && isDuration(t), 'must be a positive duration like +3m')
+      .optional(),
     currentContext: z.string(),
     contexts: z.array(context).min(1),
     clusters: z.array(cluster).min(1),
@@ -438,6 +446,23 @@ export const scenarioSchema = z
               kind: z.enum(['http', 'db', 'queue', 'worker']).default('http'),
               /** The route or statement its spans are named after. */
               operation: z.string().optional(),
+              /**
+               * Whether it passes trace context on to the services it calls (E9-10). Without it, each call
+               * starts a new trace, so traces stop here and its callees' spans have no parent.
+               */
+              propagates: z.boolean().default(true),
+              /**
+               * A feature flag that makes it slow (E10-02): while the ConfigMap key has this value, each
+               * request takes `latencyMs` longer (an N+1 query behind the flag, say).
+               */
+              slowWhen: z
+                .strictObject({
+                  configMap: z.string(),
+                  key: z.string(),
+                  equals: z.string(),
+                  latencyMs: z.number().positive(),
+                })
+                .optional(),
             }),
           )
           .default([]),
@@ -458,6 +483,13 @@ export const scenarioSchema = z
       .optional(),
     /** How each image behaves when it runs (healthy if absent): crashes, memory use, log lines (E6-03). */
     images: z.record(z.string(), behaviourSchema).default({}),
+    /**
+     * The capstone's acts (E10-02), in order. Validated in full by the capstone engine
+     * (src/sim/capstone/script.ts); here only their identity is checked.
+     */
+    acts: z.array(z.looseObject({ id: slug, title: z.string().min(1) })).default([]),
+    /** The capstone debrief's example incident note, shown beside the learner's (E10-05). */
+    exemplarNote: z.string().min(1).optional(),
     /** Challenge IDs that use this scenario (resolved by the content build, E5-01/E6-10). */
     objectives: z.array(slug).default([]),
     /**

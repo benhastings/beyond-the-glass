@@ -1,6 +1,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { FRAGMENT_SCENARIO_IDS } from '../../scenarios/fragment-ids.ts'
+import { LESSON_COMPONENT_NAMES } from '../components.ts'
 import {
   glossaryFile,
   rosettaFile,
@@ -51,6 +53,7 @@ interface LessonSource {
   bodyTerms: Ref[]
   bodyScenarios: Ref[]
   bodyChecks: Ref[]
+  bodyRosetta: Ref[]
   bodyChallenges: (Ref & { required: boolean })[]
   checks: Check[]
   checksFile: string
@@ -87,8 +90,44 @@ function splitFrontMatter(
   return { yaml, yamlLine: 1, body: text.slice(m[0].length), bodyLine: m[0].split('\n').length }
 }
 
-const TAG = /<(Step|Term|Terminal|Check)\b([^>]*)>/g
+const TAG = /<(Step|Term|Terminal|Check|Rosetta)\b([^>]*)>/g
 const ATTR = /(\w+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g
+
+/**
+ * Capitalised tags in an MDX body that aren't lesson components, with their lines. Code is skipped: fenced
+ * blocks, inline code, and `code={`…`}` template strings.
+ */
+export function unknownComponents(
+  body: string,
+  firstLine: number,
+): { name: string; line: number }[] {
+  const known = new Set<string>(LESSON_COMPONENT_NAMES)
+  const found: { name: string; line: number }[] = []
+  let fenced = false
+  let template = false
+  body.split('\n').forEach((text, i) => {
+    if (/^\s*```/.test(text)) {
+      fenced = !fenced
+      return
+    }
+    if (fenced) return
+    let scan = text
+    if (template) {
+      const end = scan.indexOf('`')
+      if (end < 0) return
+      template = false
+      scan = scan.slice(end + 1)
+    }
+    const open = /code=\{`/.exec(scan)
+    if (open) {
+      if (!scan.slice(open.index + open[0].length).includes('`')) template = true
+      scan = scan.slice(0, open.index)
+    }
+    for (const m of scan.replace(/`[^`]*`/g, '').matchAll(/<([A-Z][A-Za-z0-9]*)\b/g))
+      if (!known.has(m[1] ?? '')) found.push({ name: m[1] ?? '', line: firstLine + i })
+  })
+  return found
+}
 
 /** `<Step id title>`, `<Term id>` and `<Terminal scenario>` uses in an MDX body, with positions. */
 function scanBody(body: string, firstLine: number) {
@@ -96,6 +135,7 @@ function scanBody(body: string, firstLine: number) {
   const terms: Ref[] = []
   const scenarios: Ref[] = []
   const checks: Ref[] = []
+  const rosetta: Ref[] = []
   const challenges: (Ref & { required: boolean })[] = []
   const lineStarts = [0]
   for (let i = 0; i < body.length; i++) if (body[i] === '\n') lineStarts.push(i + 1)
@@ -123,8 +163,10 @@ function scanBody(body: string, firstLine: number) {
       })
     if (m[1] === 'Check' && attrs.id !== undefined)
       checks.push({ id: attrs.id, ...at, field: '<Check id>' })
+    if (m[1] === 'Rosetta' && attrs.id !== undefined)
+      rosetta.push({ id: attrs.id, ...at, field: '<Rosetta id>' })
   }
-  return { steps, terms, scenarios, checks, challenges }
+  return { steps, terms, scenarios, checks, challenges, rosetta }
 }
 
 /**
@@ -140,7 +182,12 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
     files.push(p)
     return readFileSync(p, 'utf8')
   }
-  const scenarioIds = new Set(opts.scenarioIds ?? scenarioIdsIn(join(root, '../src/scenarios')))
+  const scenarioIds = new Set(
+    opts.scenarioIds ?? [
+      ...scenarioIdsIn(join(root, '../src/scenarios')),
+      ...FRAGMENT_SCENARIO_IDS,
+    ],
+  )
   const challengeIds = new Set(opts.challengeIds ?? scenarioIdsIn(join(root, '../src/challenges')))
 
   // Glossary
@@ -157,7 +204,11 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
   if (existsSync(rosettaPath)) {
     const ry = new YamlSource(read(rosettaPath), rel(rosettaPath))
     rosetta = ry.parse(rosettaFile, issues)?.entries ?? []
+    const seen = new Set<string>()
     rosetta.forEach((e, i) => {
+      if (seen.has(e.id))
+        issues.push(ry.issue(['entries', i, 'id'], `duplicate Rosetta Stone id "${e.id}"`))
+      seen.add(e.id)
       e.terms.forEach((t, j) => {
         if (!termIds.has(t))
           issues.push(ry.issue(['entries', i, 'terms', j], `unknown glossary term "${t}"`))
@@ -246,6 +297,14 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
         if (fm.id !== name.replace(/\.mdx$/, ''))
           issues.push(ly.issue(['id'], `must match its file name "${name}"`))
         const body = scanBody(parts.body, parts.bodyLine)
+        for (const u of unknownComponents(parts.body, parts.bodyLine))
+          issues.push({
+            file: rel(path),
+            line: u.line,
+            column: 1,
+            field: `<${u.name}>`,
+            message: `unknown component <${u.name}> (lessons can use ${LESSON_COMPONENT_NAMES.join(', ')})`,
+          })
         // A <Depth> without an ELI5 layer is allowed, but newcomers then get no plain-words version (E5-05).
         for (const d of parts.body.matchAll(/<Depth\b[^>]*>([\s\S]*?)<\/Depth>/g))
           if (!/<ELI5\b/.test(d[1] ?? '')) {
@@ -267,6 +326,7 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
           bodyTerms: body.terms,
           bodyScenarios: body.scenarios,
           bodyChecks: body.checks,
+          bodyRosetta: body.rosetta,
           bodyChallenges: body.challenges,
           checks,
           checksFile: rel(checksPath),
@@ -411,6 +471,15 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
           field: r.field,
           message: `unknown glossary term "${r.id}"`,
         })
+    for (const r of l.bodyRosetta)
+      if (!rosetta?.some((e) => e.id === r.id))
+        issues.push({
+          file: l.file,
+          line: r.line,
+          column: r.column,
+          field: r.field,
+          message: `unknown Rosetta Stone entry "${r.id}"`,
+        })
     for (const r of l.bodyScenarios)
       if (!scenarioIds.has(r.id))
         issues.push({
@@ -516,3 +585,28 @@ export function buildManifest(root: string, opts: BuildOptions = {}): BuildResul
 }
 
 export { ContentError, type ContentIssue }
+
+/**
+ * "Practice next" links (E10-05.AC2): every lesson a scenario act names in `practice` must exist. Returns
+ * one message per missing lesson, naming the scenario file and the act; the content plugin fails the
+ * build on any.
+ */
+export function practiceLinkErrors(lessonIds: readonly string[], scenariosDir: string): string[] {
+  if (!isDir(scenariosDir)) return []
+  const known = new Set(lessonIds)
+  const errors: string[] = []
+  for (const f of readdirSync(scenariosDir).filter((n) => /\.ya?ml$/.test(n))) {
+    const doc = parseYaml(readFileSync(join(scenariosDir, f), 'utf8')) as { acts?: unknown } | null
+    const acts = Array.isArray(doc?.acts) ? (doc.acts as unknown[]) : []
+    for (const act of acts) {
+      const { id, practice } = (act ?? {}) as { id?: unknown; practice?: unknown }
+      if (!Array.isArray(practice)) continue
+      for (const lesson of practice as unknown[])
+        if (typeof lesson !== 'string' || !known.has(lesson))
+          errors.push(
+            `src/scenarios/${f}: act "${String(id)}" suggests practising lesson "${String(lesson)}", which doesn't exist`,
+          )
+    }
+  }
+  return errors
+}

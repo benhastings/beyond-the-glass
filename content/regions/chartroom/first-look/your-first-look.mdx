@@ -1,31 +1,35 @@
 ---
 id: your-first-look
-title: Your first look at the cluster
-order: 0
+title: Look before you touch
+order: 1
 objectives:
-  - List the pods in a namespace with kubectl
-  - List the pods in every namespace at once
+  - List the pods in a namespace, and in every namespace at once
   - Find the pod that isn't running, and say which it is
-estimatedMinutes: 15
+  - Read a failing pod's state, events and the logs of its last crashed run
+  - Use `-o wide` and `-o yaml` to see more of an object
+estimatedMinutes: 20
 domain: kubernetes
 level: wayfarer
 scenario: ravenpost
-terms: [pod, namespace]
+terms: [pod, namespace, crashloopbackoff, logs]
+prerequisites: [know-where-you-are]
 ---
 
-<Step id="where-you-are" title="Where you are">
+<Step id="where-you-are" title="Read-only first">
 
 <Analogy
-  then="You opened the monitoring console and scanned the host list for anything red."
-  now="You ask the cluster for its pods, and read the STATUS column."
+  then="You opened the monitoring console and scanned the host list for anything red, before you touched a thing."
+  now="You ask the cluster for its pods and read their status, before you change anything."
 />
 
-Ravenpost, the mail service you'll look after, runs in a Kubernetes cluster. Each part of it runs in
+Ravenpost, the mail service you look after, runs in a Kubernetes cluster. Each part of it runs in
 
 <Term id="pod">pods</Term>, and Ravenpost's pods are grouped in a
-<Term id="namespace">namespace</Term> called `ravenpost`.
+<Term id="namespace">namespace</Term>
+called `ravenpost`.
 
-You talk to the cluster with `kubectl`. It asks the cluster's API and prints the answer as a table.
+The commands in this lesson only read. You can run them as often as you like, anywhere, and change
+nothing. That's what makes them the right first move.
 
 </Step>
 
@@ -39,7 +43,8 @@ You talk to the cluster with `kubectl`. It asks the cluster's API and prints the
   <Operator>
     `kubectl get pods -n ravenpost` lists the pods in one namespace; `-A` (all namespaces) lists
     every pod in the cluster, with a NAMESPACE column. READY shows ready containers out of the
-    total, and STATUS shows where each pod is in its life.
+    total, and STATUS shows where each pod is in its life. `-o wide` adds the node and IP; `-o yaml`
+    prints the whole object.
   </Operator>
   <DeepDive>
     kubectl sends `GET /api/v1/namespaces/ravenpost/pods` (or `/api/v1/pods` for `-A`) and prints
@@ -50,8 +55,10 @@ You talk to the cluster with `kubectl`. It asks the cluster's API and prints the
 
 <CodeBlock
   language="console"
-  caption="List Ravenpost's pods"
-  code="kubectl get pods -n ravenpost"
+  caption="Ravenpost's pods, and everything else's"
+  code={`kubectl get pods -n ravenpost
+kubectl get pods -A
+kubectl get pods -n ravenpost -o wide`}
 />
 
 <Callout kind="habit">
@@ -70,10 +77,35 @@ When you know which it is, answer with `answer failing-pod <name>` (the start of
 
 </Step>
 
+<Step id="why" title="Then find out why">
+
+A pod in <Term id="crashloopbackoff">CrashLoopBackOff</Term> keeps starting and exiting. Three
+read-only commands tell you why:
+
+<CodeBlock
+  language="console"
+  caption="State, events, and the last crashed run's logs"
+  code={`kubectl describe pod ravenpost-notifier -n ravenpost
+kubectl get events -n ravenpost --sort-by=.lastTimestamp
+kubectl logs deploy/ravenpost-notifier -n ravenpost --previous`}
+/>
+
+`describe` shows **State** and **Last State** (with the exit code) and the pod's events. `--previous`
+shows the <Term id="logs">logs</Term> of the run that crashed, not the one that's starting, which is
+where the reason usually is.
+
+<Terminal scenario="ravenpost" challenge="why-is-it-crashing" />
+
+</Step>
+
 <Step id="check" title="Check your understanding">
 
 <Check id="first-look-status" />
 
-Next time, you'll find out _why_ that pod keeps restarting.
+<Check id="first-look-previous" />
+
+<Check id="first-look-readonly" />
+
+Next, you'll find what you need in a busy cluster, fast.
 
 </Step>

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { acTest } from '@/test/ac'
 import { loadSimulation, restoreSimulation } from '../controllers'
 import { createShell } from '../commands'
-import { attach, ChallengeRun } from './engine'
+import { attach, ChallengeRun, playChallengePath } from './engine'
 import { challengeSchema, type ChallengeInput, type Predicate } from './schema'
 
 const base: ChallengeInput = {
@@ -216,6 +216,8 @@ describe('E6-10 engine', () => {
         expect(Number(process.hrtime.bigint() - start) / 1e6 / n, c.id).toBeLessThan(5)
       }
     },
+    // Loading every scenario (some warm up for an hour of sim time) takes longer than 5 s; each evaluation is timed.
+    60_000,
   )
 
   acTest(
@@ -255,29 +257,36 @@ describe('E6-10 engine', () => {
 })
 
 describe('E6-10 challenges', () => {
-  acTest('E6-10.AC4', 'every challenge is solvable: its expert path completes it', () => {
-    expect(Object.keys(CHALLENGES).length).toBeGreaterThan(0)
-    for (const c of Object.values(CHALLENGES)) {
-      const scenario = SCENARIOS[c.scenario]
-      expect(scenario, `${c.id}: scenario ${c.scenario}`).toBeDefined()
-      if (!scenario) continue
-      const sim = loadSimulation(scenario)
-      const session = { history: [] as string[] }
-      const sh = createShell(sim, session)
-      const run = new ChallengeRun(sim, c, session.history)
-      attach(run, session)
-      expect(run.evaluate().complete, `${c.id} complete before starting`).toBe(false)
-      for (const line of c.expertPath) {
-        const out = sh.run(line)
-        expect(out.exitCode, `${c.id}: ${line}\n${out.stderr}`).toBe(0)
+  acTest(
+    'E6-10.AC4',
+    'every challenge is solvable: its expert path completes it',
+    () => {
+      expect(Object.keys(CHALLENGES).length).toBeGreaterThan(0)
+      for (const c of Object.values(CHALLENGES)) {
+        const scenario = SCENARIOS[c.scenario]
+        expect(scenario, `${c.id}: scenario ${c.scenario}`).toBeDefined()
+        if (!scenario) continue
+        const sim = loadSimulation(scenario)
+        const session = { history: [] as string[] }
+        const sh = createShell(sim, session)
+        const run = new ChallengeRun(sim, c, session.history)
+        attach(run, session)
+        expect(run.evaluate().complete, `${c.id} complete before starting`).toBe(false)
+        for (const { step, exitCode } of playChallengePath(sim, sh, c.expertPath))
+          // A diff exits 1 when there are differences, as diff(1) does; anything else must succeed.
+          expect(exitCode, `${c.id}: ${step}`).toBe(
+            /^(kubectl|argocd app) diff\b/.test(step) ? 1 : 0,
+          )
+        const e = run.evaluate()
+        expect(
+          e.objectives.filter((o) => !o.done).map((o) => o.id),
+          c.id,
+        ).toEqual([])
+        expect(e.warnings, c.id).toEqual([])
+        expect(e.complete).toBe(true)
       }
-      const e = run.evaluate()
-      expect(
-        e.objectives.filter((o) => !o.done).map((o) => o.id),
-        c.id,
-      ).toEqual([])
-      expect(e.warnings, c.id).toEqual([])
-      expect(e.complete).toBe(true)
-    }
-  })
+      // Every challenge, including the GitOps ones that wait for pipelines and syncs: longer than 5 s under coverage.
+    },
+    60_000,
+  )
 })

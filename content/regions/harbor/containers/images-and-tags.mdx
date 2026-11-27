@@ -1,0 +1,85 @@
+---
+id: images-and-tags
+title: Images, layers, tags and registries
+order: 1
+objectives:
+  - Read an image reference and name its registry, repository and tag
+  - Find the image and digest a pod is running
+  - Say why a tag can change but a digest can't, and why `latest` is a trap
+  - Predict what happens when a pod asks for a tag the registry doesn't have
+estimatedMinutes: 15
+domain: containers
+level: wayfarer
+scenario: ravenpost
+terms: [image, pod, digest, imagepullbackoff]
+prerequisites: [shipping-containers]
+---
+
+<Step id="reference" title="Reading an image reference">
+
+An image is named like this:
+
+<CodeBlock
+  language="text"
+  caption="An image reference"
+  code="registry.example/ravenpost/api:1.14.0"
+/>
+
+- `registry.example` is the **registry**: the server images are pulled from.
+- `ravenpost/api` is the **repository**: one service's images, every version.
+- `1.14.0` is the **tag**: a label for one version.
+
+<Rosetta id="golden-image" />
+
+</Step>
+
+<Step id="layers" title="Layers, and why images don't change">
+
+<Depth>
+  <ELI5>
+    An image is built in layers, like a stack of sheets. Each step of the build adds a sheet. Once
+    the stack is made, nobody changes it. To change something, you build a new stack.
+  </ELI5>
+  <Operator>
+    Each build step adds a read-only layer. Layers are shared between images, so pulling a new
+    version downloads only the layers that changed. Because layers never change, an image built once
+    runs the same everywhere, and rolling back means running the previous image.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="tags-digests" title="Tags and digests">
+
+A **tag** is a name someone chose, and it can be moved to a different image. A **digest** is a fingerprint of
+the image's contents, such as `sha256:77f3…`. If the contents change, so does the digest.
+
+So a tag tells you what someone meant to run, and the digest tells you what is running. `latest` is a tag
+like any other: it means "whatever was pushed last", which can change under you between two pod starts.
+
+<Callout kind="warn">
+  A pod that asks for a tag the registry doesn't have can't start: its STATUS shows `ErrImagePull`,
+  then `ImagePullBackOff`, and the events say "not found". A missing `v`, a typo or the wrong
+  registry are all it takes. You'll fix one in the Chartroom.
+</Callout>
+
+</Step>
+
+<Step id="look" title="Look it up">
+
+`kubectl describe pod` shows the image a container asked for (**Image**) and the digest it is running
+(**Image ID**). Find what ravenpost-api runs.
+
+<Terminal scenario="ravenpost" challenge="read-the-image" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="images-tag-digest" />
+
+<Check id="images-latest" />
+
+<Check id="images-pull" />
+
+</Step>

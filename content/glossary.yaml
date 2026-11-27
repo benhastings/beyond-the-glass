@@ -147,3 +147,36 @@ terms:
     eli5: Which cluster your commands go to.
     operator: >-
       A kubeconfig entry naming a cluster, a user and a default namespace. kubectl uses the current one unless told otherwise.
+  - id: imagepullbackoff
+    term: ImagePullBackOff
+    aliases: [ErrImagePull, image pull back-off]
+    eli5: The cluster can't fetch the program's package, so it waits and tries again, slower each time.
+    operator: >-
+      A container can't start because its image can't be pulled: the tag or registry doesn't exist, or the
+      node can't reach or log in to the registry. The pod shows ErrImagePull, then ImagePullBackOff; the
+      events say why ("not found", "unauthorized").
+    related: [image, crashloopbackoff]
+  - id: digest
+    term: Image digest
+    aliases: [digest, sha256, image ID]
+    eli5: A fingerprint of an image. If anything inside changes, the fingerprint changes too.
+    operator: >-
+      The sha256 of an image's manifest, shown as Image ID in kubectl describe pod. Unlike a tag, it can't be
+      moved to other contents, so it says exactly what is running.
+    related: [image]
+  - id: desired-state
+    term: Desired state
+    aliases: [declarative, declared state]
+    eli5: A written list of how things should be. The cluster keeps making it true.
+    operator: >-
+      What you've declared a system should look like (a Deployment's replicas and image, say), as opposed to
+      what's running right now. Controllers keep reconciling the actual state toward it.
+    related: [controller, deployment, gitops]
+  - id: controller
+    term: Controller
+    aliases: [controllers, reconcile, reconciliation]
+    eli5: A helper in the cluster that checks things again and again, and fixes what doesn't match.
+    operator: >-
+      A loop that watches one kind of object, compares its desired state with what's real, and acts to close
+      the gap: the Deployment controller makes ReplicaSets, the ReplicaSet controller makes pods.
+    related: [desired-state, deployment]

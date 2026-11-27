@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ComponentProps } from 'react'
 import type { Simulator } from '@/sim/core/simulator'
 import {
   DASHBOARDS,
@@ -32,12 +32,16 @@ export function DashboardView({
   sim,
   initial = 'service-overview',
   onOpenTrace,
+  headingLevel = 2,
 }: {
   sim: Simulator
   initial?: string
+  /** The dashboard title's heading level (3 inside a war room pane). */
+  headingLevel?: 2 | 3
   /** Opens a trace from a latency panel's slowest sampled requests. */
   onOpenTrace?: (traceId: string) => void
 }) {
+  const DashboardHeading = headingLevel === 3 ? 'h3' : 'h2'
   const [id, setId] = useState(initial)
   const [range, setRange] = useState<(typeof RANGES)[number]['id']>('1h')
   const [custom, setCustom] = useState({ from: 60, to: 0 })
@@ -56,18 +60,11 @@ export function DashboardView({
         variableValues(src, v.from.metric, v.from.label, start, end),
       ]),
     )
-    const panels = (d?.panels ?? []).map((p) => {
-      const query = interpolate(p.query, vars)
-      return {
-        panel: p,
-        query,
-        result:
-          p.type === 'logs' ? { ok: true as const, series: [] } : runPanel(src, query, start, end),
-        ...(p.type === 'logs' ? { logs: errorLogs(sim, vars.namespace ?? '', start, end) } : {}),
-      }
-    })
+    // Each panel runs its own query when it renders (PanelWithData), so a big dashboard renders in
+    // pieces React can interleave with input, instead of one long task (E11-02).
+    const panels = (d?.panels ?? []).map((p) => ({ panel: p, query: interpolate(p.query, vars) }))
     const exemplars = onOpenTrace ? slowTraces(sim, vars.service ?? '', start, end) : []
-    return { choices, panels, annotations: deployAnnotations(sim, start, end), exemplars }
+    return { choices, panels, src, annotations: deployAnnotations(sim, start, end), exemplars }
     // `start` and `end` follow `now`, which Refresh moves to the simulation's time.
   }, [sim, d, start, end, vars, onOpenTrace])
   if (!d) return null
@@ -186,28 +183,68 @@ export function DashboardView({
           Refresh
         </Button>
       </div>
-      <h2 className="text-xl font-bold">{d.title}</h2>
+      <DashboardHeading className="text-xl font-bold">{d.title}</DashboardHeading>
       <p className="max-w-prose text-sm">
         {d.description} Showing {clockTime(sim.clock.epochMs, start)}–
         {clockTime(sim.clock.epochMs, end)}.
       </p>
-      <div className="grid grid-cols-12 gap-3">
-        {data.panels.map((x) => (
-          <PanelView
-            key={`${d.id}/${x.panel.id}`}
-            sim={sim}
-            panel={x.panel}
-            query={x.query}
-            result={x.result}
-            {...(x.logs ? { logs: x.logs } : {})}
-            annotations={data.annotations}
-            range={[start, end]}
-            onExplore={setExploring}
-            exemplars={data.exemplars}
-            {...(onOpenTrace ? { onOpenTrace } : {})}
-          />
-        ))}
+      {/* Panels size to the dashboard's own width, so a narrow war room pane stacks them. */}
+      <div className="@container">
+        <div className="grid grid-cols-12 gap-3">
+          {data.panels.map((x) => (
+            <PanelWithData
+              key={`${d.id}/${x.panel.id}`}
+              sim={sim}
+              src={data.src}
+              namespace={vars.namespace ?? ''}
+              panel={x.panel}
+              query={x.query}
+              annotations={data.annotations}
+              range={[start, end]}
+              headingLevel={headingLevel === 3 ? 4 : 3}
+              onExplore={setExploring}
+              exemplars={data.exemplars}
+              {...(onOpenTrace ? { onOpenTrace } : {})}
+            />
+          ))}
+        </div>
       </div>
     </section>
+  )
+}
+
+/** One panel, running its own query (memoised), then drawn by PanelView. */
+function PanelWithData({
+  sim,
+  src,
+  namespace,
+  panel,
+  query,
+  range,
+  ...rest
+}: Omit<ComponentProps<typeof PanelView>, 'result' | 'logs'> & {
+  src: ReturnType<typeof windowSource>
+  namespace: string
+}) {
+  const [start, end] = range
+  const result = useMemo(
+    () =>
+      panel.type === 'logs' ? { ok: true as const, series: [] } : runPanel(src, query, start, end),
+    [panel, src, query, start, end],
+  )
+  const logs = useMemo(
+    () => (panel.type === 'logs' ? errorLogs(sim, namespace, start, end) : undefined),
+    [panel, sim, namespace, start, end],
+  )
+  return (
+    <PanelView
+      sim={sim}
+      panel={panel}
+      query={query}
+      range={range}
+      result={result}
+      {...(logs ? { logs } : {})}
+      {...rest}
+    />
   )
 }

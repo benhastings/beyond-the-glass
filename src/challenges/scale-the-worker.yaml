@@ -1,0 +1,32 @@
+id: scale-the-worker
+title: Three workers for the busy season
+scenario: ravenpost
+brief: >-
+  Mail is piling up. Scale ravenpost-worker from two pods to three, and check that the third is running.
+objectives:
+  - id: scale
+    text: Scale ravenpost-worker to 3
+    check: { type: mutated, verb: scale, kind: Deployment, name: ravenpost-worker }
+  - id: three
+    text: Three worker pods are available
+    check:
+      type: resourceState
+      resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-worker }
+      path: status.availableReplicas
+      equals: '3'
+  - id: look
+    text: Check the pods
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(get\s+(po|pod|pods|deploy|deployment)|rollout\s+status)\b.*ravenpost-worker'
+hints:
+  - level: nudge
+    text: The Deployment says how many copies to run.
+  - level: pointer
+    text: '`kubectl scale deploy NAME --replicas=N` changes the count.'
+  - level: command
+    text: 'Run `kubectl scale deploy ravenpost-worker -n ravenpost --replicas=3`, then `kubectl get pods -n ravenpost -l app=ravenpost-worker`.'
+expertPath:
+  - kubectl scale deploy ravenpost-worker -n ravenpost --replicas=3
+  - kubectl rollout status deploy/ravenpost-worker -n ravenpost
+  - kubectl get pods -n ravenpost -l app=ravenpost-worker

@@ -1,0 +1,41 @@
+checks:
+  - id: lake-statuses
+    type: matching
+    required: true
+    prompt: Match each status to the question it answers.
+    explanation: Sync compares Git with the cluster; health says whether what runs works.
+    pairs:
+      - id: sync
+        left: Sync status
+        right: Does the cluster match Git?
+      - id: health
+        left: Health status
+        right: Is what's running working?
+  - id: lake-synced-degraded
+    type: single
+    prompt: An app shows Synced and Degraded. What does that tell you?
+    explanation: The cluster matches Git, and what Git asks for isn't working. Look at the latest change in Git.
+    options:
+      - id: argo
+        text: Argo CD is broken
+        feedback: Argo CD did its job; the cluster matches Git.
+      - id: git
+        text: Git asks for something that doesn't work, and the cluster runs exactly that
+        correct: true
+      - id: drift
+        text: Someone changed the cluster by hand
+        feedback: Then it would be OutOfSync.
+  - id: lake-what
+    type: single
+    prompt: What does Argo CD compare?
+    explanation: The manifests in Git (at the app's path and revision) with the live objects in the cluster.
+    options:
+      - id: compare
+        text: The manifests in Git with the live objects in the cluster
+        correct: true
+      - id: images
+        text: Images in the registry with images on the nodes
+        feedback: Images are part of the manifests, but it compares whole objects.
+      - id: logs
+        text: Today's logs with yesterday's
+        feedback: Argo CD doesn't read logs.

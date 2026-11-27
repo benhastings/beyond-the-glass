@@ -1,0 +1,40 @@
+id: read-the-page
+title: Read the page
+scenario: signals
+brief: >-
+  You've been paged. In the Alerts tab below, find the alert that's firing, which service it's on, and
+  whether it's a symptom (what users feel) or a cause. Then say where you'd look next.
+questions:
+  - id: alert
+    prompt: Which alert is firing?
+  - id: service
+    prompt: Which service is it on?
+  - id: kind
+    prompt: Is it a symptom alert or a cause alert?
+  - id: next
+    prompt: Which service would you look at next, and why?
+objectives:
+  - id: alert
+    text: Name the alert
+    check: { type: answered, question: alert, matcher: { matches: 'RavenpostHighErrorRate' } }
+  - id: service
+    text: Name the service it's on
+    check: { type: answered, question: service, matcher: { matches: '^\s*gate\s*$' } }
+  - id: kind
+    text: Say whether it's a symptom or a cause
+    check: { type: answered, question: kind, matcher: { matches: '^\s*symptom' } }
+  - id: next
+    text: Say where to look next
+    check: { type: answered, question: next, matcher: { matches: 'ravenpost-api|\bapi\b' } }
+hints:
+  - level: nudge
+    text: The Alerts tab lists what's firing, with its labels. The gate is where senders meet Ravenpost.
+  - level: pointer
+    text: 'An alert on what users feel is a symptom. The Service Overview shows which service behind the gate went wrong first.'
+  - level: command
+    text: '`answer alert RavenpostHighErrorRate`, `answer service gate`, `answer kind symptom`, then `answer next ravenpost-api, whose errors rose first`.'
+expertPath:
+  - answer alert RavenpostHighErrorRate
+  - answer service gate
+  - answer kind symptom
+  - answer next ravenpost-api, because its error rate rose first

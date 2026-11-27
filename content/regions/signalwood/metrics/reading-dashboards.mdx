@@ -1,0 +1,54 @@
+---
+id: reading-dashboards
+title: Reading dashboards
+order: 2
+objectives:
+  - Choose a time range that shows the change you're looking for
+  - Read deploy annotations, and line a change up with one
+  - Use each panel's table view when the exact numbers matter
+estimatedMinutes: 16
+domain: observability
+level: deckhand
+scenario: signals
+terms: [metrics]
+prerequisites: [red-and-use]
+---
+
+<Step id="range" title="Time ranges">
+
+A dashboard shows one time range. Too short, and the start of the trouble is off the left edge; too long,
+and a sharp change is squashed flat. Start with the last hour; widen it until the line looks normal at the
+left.
+
+</Step>
+
+<Step id="annotations" title="What changed?">
+
+**Annotations** are vertical markers for events, here every Argo CD sync: when it happened, and which
+revision went out. The first question on any graph that changed is _what changed shortly before?_ A deploy
+annotation a minute or two before the turn is the strongest lead you'll get.
+
+<Callout kind="habit">
+  Correlate signals. A spike on its own says something is wrong; a spike right after a deploy says
+  where to look.
+</Callout>
+
+Every panel has **View as table**, with the same numbers and annotations as text.
+
+</Step>
+
+<Step id="find" title="Find it">
+
+<Terminal scenario="signals" challenge="when-did-it-break" view="dashboards" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="dash-range" />
+
+<Check id="dash-annotation" />
+
+<Check id="dash-correlate" />
+
+</Step>

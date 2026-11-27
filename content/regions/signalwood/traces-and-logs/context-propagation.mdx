@@ -1,0 +1,62 @@
+---
+id: context-propagation
+title: Context propagation and the Collector
+order: 1
+objectives:
+  - Say how a trace ID travels from one service to the next
+  - Recognise traces broken by a service that doesn't pass context on
+  - Trace the path from the SDK, through the Collector, to the stores
+estimatedMinutes: 18
+domain: observability
+level: navigator
+scenario: broken-traces
+terms: [trace]
+prerequisites: [following-one-request]
+---
+
+<Step id="propagation" title="How the trace ID travels">
+
+When a service calls another, its OpenTelemetry SDK adds the trace's context to the request, in the
+`traceparent` header: the trace ID, and the calling span's ID. The next service's SDK reads it and makes its
+span a child. Every service on the path has to do this. If one doesn't, the trace stops there, and what it
+calls starts a new trace with no parent.
+
+<Depth>
+  <ELI5>
+    Each depot writes the parcel's tracking number on the label for the next depot. If one depot
+    forgets, the next depot starts a new tracking number, and the parcel's history splits in two.
+  </ELI5>
+  <Operator>
+    Symptoms of broken propagation: traces that end at one service, and orphan traces rooted at its
+    callees, at the same moments. The usual causes: an HTTP client that isn't instrumented, a new
+    SDK version, a proxy that strips headers, or two services using different propagation formats.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="pipeline" title="SDK, Collector, stores">
+
+Spans leave each service through its SDK, travel over OTLP to the **Collector**, which batches, filters
+and sends them on to the trace store. Logs and metrics can take the same road. Switch parts of the
+pipeline off below and see what breaks:
+
+<OtelPipeline />
+
+</Step>
+
+<Step id="diagnose" title="Diagnose it">
+
+<Terminal scenario="broken-traces" challenge="broken-traces" view="observability" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="prop-header" />
+
+<Check id="prop-symptom" />
+
+<Check id="prop-collector" />
+
+</Step>

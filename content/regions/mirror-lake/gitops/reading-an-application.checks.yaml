@@ -1,0 +1,44 @@
+checks:
+  - id: app-diff-first
+    type: single
+    required: true
+    prompt: An app is OutOfSync. What do you run before syncing it?
+    explanation: The diff shows exactly what a sync would change, so you know what you're applying.
+    options:
+      - id: sync
+        text: argocd app sync, straight away
+        feedback: Look first. The diff shows what the sync would change.
+      - id: diff
+        text: argocd app diff
+        correct: true
+      - id: delete
+        text: argocd app delete
+        feedback: That removes the app and, possibly, everything it manages.
+  - id: app-failed
+    type: single
+    prompt: A sync failed with "field is immutable" on a Deployment's selector. What's the fix?
+    explanation: The selector can't change in place, so the commit can never apply. Revert it in Git, through a merge request.
+    options:
+      - id: retry
+        text: Sync again
+        feedback: It will fail the same way; the field can't change.
+      - id: kubectl
+        text: Delete the Deployment with kubectl, then sync
+        feedback: That takes the service down. Undo the change in Git instead.
+      - id: revert
+        text: Revert the commit in Git, through a merge request
+        correct: true
+  - id: app-views
+    type: matching
+    prompt: Match each question to the view that answers it.
+    explanation: get for status and the tree, diff for what would change, history for past syncs, events for what Argo CD did.
+    pairs:
+      - id: get
+        left: Which objects are unhealthy?
+        right: argocd app get
+      - id: diff
+        left: What would a sync change?
+        right: argocd app diff
+      - id: history
+        left: Which revision was synced yesterday?
+        right: argocd app history

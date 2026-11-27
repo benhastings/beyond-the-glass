@@ -1,0 +1,83 @@
+---
+id: resources-and-scheduling
+title: Out of memory, out of room
+order: 2
+objectives:
+  - Recognise OOMKilled in describe output, and say what it means
+  - Find why a pod is Pending, from the scheduler's message
+  - Fix each by giving the container the right requests and limits
+estimatedMinutes: 18
+domain: kubernetes
+level: deckhand
+scenario: triage
+terms: [oom, pod, node]
+prerequisites: [pulls-and-config]
+---
+
+<Step id="oom" title="OOMKilled">
+
+<Rosetta id="out-of-memory" />
+
+A container that goes over its memory limit is killed by the kernel. Its logs stop mid-sentence, with no
+error, because the program never got to write one. `describe pod` shows it: **Last State: Terminated,
+Reason: OOMKilled, Exit Code: 137**. With a limit below what the program needs, every new pod is killed
+soon after it starts.
+
+<Terminal scenario="triage" challenge="triage-oom" required />
+
+</Step>
+
+<Step id="oom-fix" title="The fix">
+
+Someone trimmed the archive's limit to 128Mi; it uses about 300Mi. `fixes/archive.yaml` gives it 512Mi:
+diff it, then apply it. `kubectl top pod` afterwards shows how close it runs to the limit.
+
+<Callout kind="info">
+  Here you fix it with kubectl, so you can see the cluster respond. In our world, Ravenpost is
+  deployed from Git, and a kubectl fix is put back at the next sync: the real fix goes through Git,
+  as you will do in Mirror Lake.
+</Callout>
+
+</Step>
+
+<Step id="pending" title="Pending">
+
+<Depth>
+  <ELI5>
+    The program asked for more room than any machine has free. So it waits, and nothing starts. The
+    cluster says how many machines it checked and why none fit.
+  </ELI5>
+  <Operator>
+    The scheduler can't find a node that fits the pod's **requests** (and its other constraints,
+    such as taints). The pod stays Pending with no node, and the FailedScheduling event reads like
+    `0/3 nodes are available: 2 Insufficient memory, 1 node(s) had untolerated taint`. Requests, not
+    real use, decide this.
+  </Operator>
+</Depth>
+
+<Terminal scenario="triage" challenge="triage-pending" required />
+
+</Step>
+
+<Step id="pending-fix" title="The fix">
+
+The reports runner now asks for 20Gi; no node has that much. `fixes/reports.yaml` asks for 256Mi, what it
+needs: apply it, and the new pod is placed.
+
+<Callout kind="info">
+  Here you fix it with kubectl, so you can see the cluster respond. In our world, Ravenpost is
+  deployed from Git, and a kubectl fix is put back at the next sync: the real fix goes through Git,
+  as you will do in Mirror Lake.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="triage-oom-sign" />
+
+<Check id="triage-pending-why" />
+
+<Check id="triage-requests-limits" />
+
+</Step>

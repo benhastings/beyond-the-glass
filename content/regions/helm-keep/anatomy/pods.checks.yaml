@@ -1,0 +1,44 @@
+checks:
+  - id: pods-shared
+    type: single
+    required: true
+    prompt: Two containers in the same pod. What do they share?
+    explanation: Containers in a pod share its network address and its volumes, and are always scheduled onto the same node.
+    options:
+      - id: image
+        text: One image
+        feedback: Each container has its own image.
+      - id: network
+        text: An IP address and volumes, and they always run on the same node
+        correct: true
+      - id: nothing
+        text: Nothing; they're scheduled separately
+        feedback: A pod is scheduled as one unit, so its containers always land together.
+  - id: pods-pending
+    type: single
+    prompt: A new pod has shown Pending for ten minutes. What's the most likely meaning?
+    explanation: Pending means it hasn't been placed on a node yet (no node has room, for example), or its image is still on the way.
+    options:
+      - id: crash
+        text: Its program keeps crashing
+        feedback: A crashing program shows CrashLoopBackOff, after the pod is placed and started.
+      - id: done
+        text: It finished its work
+        feedback: That shows Succeeded (or Completed).
+      - id: unplaced
+        text: It hasn't been given a node, or its image hasn't arrived
+        correct: true
+  - id: pods-wide
+    type: single
+    prompt: Which command shows the node each pod in the ravenpost namespace runs on?
+    explanation: -o wide adds the IP and NODE columns.
+    options:
+      - id: wide
+        text: kubectl get pods -n ravenpost -o wide
+        correct: true
+      - id: nodes
+        text: kubectl get nodes
+        feedback: That lists nodes, not which pods are on them.
+      - id: labels
+        text: kubectl get pods -n ravenpost --show-labels
+        feedback: That adds the labels column, not the node.

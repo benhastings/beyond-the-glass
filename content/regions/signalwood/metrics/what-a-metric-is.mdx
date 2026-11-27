@@ -1,0 +1,74 @@
+---
+id: what-a-metric-is
+title: What a metric is
+order: 0
+objectives:
+  - Tell a counter, a gauge and a histogram apart, with an example of each
+  - Read a metric's labels, and say what one series is
+  - Say how Prometheus collects metrics, and how that compares with SNMP polling
+estimatedMinutes: 14
+domain: observability
+level: wayfarer
+terms: [metrics, label]
+---
+
+<Step id="scrape" title="Polled, every few seconds">
+
+<Analogy
+  then="Your NMS polled each device over SNMP every few minutes and kept the counters it read."
+  now="Prometheus scrapes each service's /metrics page every few seconds and keeps every value, with a timestamp."
+/>
+
+A <Term id="metrics">metric</Term> is a number that a program keeps about itself, such as requests served
+or memory in use. Prometheus reads them by **scraping**: it fetches each target's metrics page on a
+schedule and stores the values as time series.
+
+</Step>
+
+<Step id="types" title="Counters, gauges, histograms">
+
+| Type      | It…                              | Example                                       | You usually look at                  |
+| --------- | -------------------------------- | --------------------------------------------- | ------------------------------------ |
+| Counter   | only goes up (until a restart)   | `http_server_requests_total`                  | how fast it goes up: `rate()`        |
+| Gauge     | goes up and down                 | `container_memory_working_set_bytes`          | its value now                        |
+| Histogram | counts observations into buckets | `http_server_request_duration_seconds_bucket` | a percentile: `histogram_quantile()` |
+
+<Depth>
+  <ELI5>
+    A counter is like a car's odometer: it only goes up. A gauge is like the speedometer: up and
+    down. A histogram sorts things into bins, like how many trips were short, medium or long.
+  </ELI5>
+  <Operator>
+    A counter's raw value means little (it depends on when the process started); its rate per second
+    is the signal. Histograms store cumulative bucket counts by upper bound (`le`), so percentiles
+    are estimated, not exact: good enough to see a change, as long as the buckets fit the range.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="labels" title="Labels make series">
+
+Every metric carries <Term id="label">labels</Term>: `service="ledger"`, `http_response_status_code="500"`.
+Each combination of label values is its own **series**. That's what lets one query ask about every service
+at once, or narrow to one.
+
+<CodeBlock
+  language="promql"
+  caption="Requests to the ledger, by status code"
+  code={`http_server_requests_total{service="ledger"}`}
+/>
+
+<Rosetta id="nagios-alert-rule" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="metric-types" />
+
+<Check id="metric-counter" />
+
+<Check id="metric-series" />
+
+</Step>

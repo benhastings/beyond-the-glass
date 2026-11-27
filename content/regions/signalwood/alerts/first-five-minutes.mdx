@@ -1,0 +1,54 @@
+---
+id: first-five-minutes
+title: The first five minutes
+order: 2
+objectives:
+  - Follow the first-five-minutes sequence after a page, in order
+  - Write an incident note with impact, timeline, evidence, hypothesis and next step
+estimatedMinutes: 16
+domain: observability
+level: navigator
+terms: [runbook, alert-rule]
+prerequisites: [slos-and-budgets]
+---
+
+<Step id="sequence" title="Understanding before fixing">
+
+Five minutes, in this order:
+
+1. **Acknowledge** the page, and say you're on it.
+2. **Assess the impact**: who, how many, since when.
+3. **Check what changed** recently: `argocd app history`. A deploy is the usual suspect.
+4. **Read the dashboards**: which service went first.
+5. **Open a trace**: which span, on which pod.
+6. **Read that service's logs.**
+7. **Check the pods and events** with kubectl (after confirming the cluster).
+
+<Callout kind="habit">
+  All four habits in five minutes: check your context, look before you touch, correlate signals, and
+  change through Git when you do act.
+</Callout>
+
+The printable **First 5 minutes** field card has the same steps, with the commands.
+
+<Check id="first-five-order" />
+
+</Step>
+
+<Step id="note" title="A note someone can use">
+
+Then write down what you know. A good incident note has five parts: **impact**, **timeline**,
+**evidence**, **hypothesis** and **next step**. Try one for the evening's error spike you found in
+_Reading dashboards_.
+
+<IncidentNote example />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="first-five-changes" />
+
+<Check id="first-five-note" />
+
+</Step>

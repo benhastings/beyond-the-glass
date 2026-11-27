@@ -2,7 +2,8 @@ import { auditLog } from '../core/audit.ts'
 import type { Resource } from '../core/resources.ts'
 import { readPath } from '../core/path.ts'
 import { application, compareApp } from '../gitops/argo.ts'
-import { mergeRequests, repo } from '../gitops/git.ts'
+import { mergeRequests, repo, repos } from '../gitops/git.ts'
+import { playExpertPath } from '../gitops/fragments/define.ts'
 import { ancestors, LEARNER } from '../gitops/mr.ts'
 import type { Simulator } from '../core/simulator.ts'
 import type { Session } from '../commands/types.ts'
@@ -133,7 +134,7 @@ export class ChallengeRun {
           (m) => m.state === 'merged' && m.author === LEARNER,
         )
       case 'argoApp': {
-        const now = compareApp(this.sim, p.app)
+        const now = this.compared(p.app)
         const op = application(this.sim, p.app)?.status.operationState
         return (
           now !== undefined &&
@@ -148,6 +149,15 @@ export class ChallengeRun {
             e.actor === 'learner' &&
             e.verb === p.verb &&
             (p.kind === undefined || e.kind === p.kind) &&
+            (p.name === undefined || e.name === p.name) &&
+            (p.cluster === undefined || e.cluster === p.cluster),
+        )
+      case 'noMutation':
+        return !auditLog(this.sim).some(
+          (e) =>
+            e.actor === 'learner' &&
+            (p.cluster === undefined || e.cluster === p.cluster) &&
+            (p.kind === undefined || e.kind === p.kind) &&
             (p.name === undefined || e.name === p.name),
         )
       case 'all':
@@ -157,14 +167,41 @@ export class ChallengeRun {
     }
   }
 
+  /**
+   * compareApp for one app, remembered while nothing has changed: the same sim time, cluster versions and
+   * Git heads. Comparing renders every manifest, and the checklist is evaluated after every command.
+   */
+  private readonly comparisons = new Map<string, ReturnType<typeof compareApp>>()
+  private compared(app: string): ReturnType<typeof compareApp> {
+    const key = [
+      app,
+      this.sim.now,
+      ...this.sim.clusters().map((c) => c.revision),
+      ...repos(this.sim).map((r) => r.branches[r.defaultBranch] ?? ''),
+    ].join('|')
+    if (!this.comparisons.has(key)) {
+      this.comparisons.clear()
+      this.comparisons.set(key, compareApp(this.sim, app))
+    }
+    return this.comparisons.get(key)
+  }
+
   evaluate(): Evaluation {
     const objectives = this.challenge.objectives.map((o) => ({
       id: o.id,
       text: o.text,
       done: this.check(o.check),
     }))
+    const learnerChanges = (cluster: string) =>
+      auditLog(this.sim)
+        .filter((e) => e.actor === 'learner' && e.cluster === cluster)
+        .map((e) => e.command ?? '')
     const warnings = this.challenge.forbidden
-      .filter((f) => this.history.some((l) => new RegExp(f.pattern).test(l)))
+      .filter((f) =>
+        (f.cluster === undefined ? this.history : learnerChanges(f.cluster)).some((l) =>
+          new RegExp(f.pattern).test(l),
+        ),
+      )
       .map((f) => f.message)
     const complete = objectives.every((o) => o.done)
     if (complete && this.state.completedAt === undefined) this.state.completedAt = this.sim.now
@@ -200,4 +237,25 @@ export class ChallengeRun {
 export function attach(run: ChallengeRun, session: Session): void {
   session.hint = () => run.nextHint()
   session.answer = (q, t) => run.answer(q, t)
+}
+
+/**
+ * Plays a challenge's expert path in a terminal session (tests, and the E9-08 GitOps challenges): shell
+ * lines run in `run`'s session, so they count as the learner's commands; merge requests and waits go
+ * through the GitOps machinery as the fragments' expert paths do. Returns each shell line's exit code.
+ */
+export function playChallengePath(
+  sim: Simulator,
+  shell: { run: (line: string) => { exitCode: number } },
+  steps: Challenge['expertPath'],
+): { step: string; exitCode: number }[] {
+  const out: { step: string; exitCode: number }[] = []
+  for (const step of steps) {
+    if (typeof step === 'string') out.push({ step, exitCode: shell.run(step).exitCode })
+    else {
+      playExpertPath(sim, [step])
+      out.push({ step: JSON.stringify(step), exitCode: 0 })
+    }
+  }
+  return out
 }

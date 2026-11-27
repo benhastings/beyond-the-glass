@@ -78,7 +78,9 @@ export function PipelineView({
             </>
           )}
           <dt className="text-ink-muted">Image pushed</dt>
-          <dd>{p.image ? <code>{p.image}</code> : 'None yet'}</dd>
+          <dd>
+            {p.image ? <code>{p.image}</code> : p.finishedAt === undefined ? 'None yet' : 'None'}
+          </dd>
           {p.deployedImage && (
             <>
               <dt className="text-ink-muted">Deploy repo now runs</dt>

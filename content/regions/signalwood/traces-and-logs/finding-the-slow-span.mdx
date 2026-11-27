@@ -1,0 +1,47 @@
+---
+id: finding-the-slow-span
+title: Finding the slow span
+order: 3
+objectives:
+  - Go from a latency panel to the trace of one of its slowest requests
+  - Find the span responsible, and its service and operation
+  - Find the log line that explains it
+estimatedMinutes: 18
+domain: observability
+level: navigator
+scenario: slow-ledger
+terms: [trace, logs, metrics]
+prerequisites: [logs-with-traces]
+---
+
+<Step id="path" title="Panel, exemplar, trace, span, logs">
+
+Five hops, each one click in the workspace below:
+
+1. The **p99 latency** panel shows it got slow, and when.
+2. Its **slowest sampled requests** (exemplars) link to their traces.
+3. In the **trace**, the widest span with little below it is where the time went.
+4. The span names the **service and operation**.
+5. **Logs for this span**, or that service's logs from when it got slow, say why.
+
+<Callout kind="habit">
+  Correlate signals. Metrics say when and how much; traces say where; logs say why.
+</Callout>
+
+</Step>
+
+<Step id="find" title="Find it">
+
+<Terminal scenario="slow-ledger" challenge="slow-request" view="observability" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="slow-order" />
+
+<Check id="slow-which" />
+
+<Check id="slow-why" />
+
+</Step>

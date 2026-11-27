@@ -1,0 +1,44 @@
+checks:
+  - id: triage-pull-logs
+    type: single
+    required: true
+    prompt: A pod is in ImagePullBackOff. Why does `kubectl logs` show nothing useful?
+    explanation: The container never started, so it has written nothing. The events have the pull error.
+    options:
+      - id: never
+        text: The container never started, so there are no logs; the events have the error
+        correct: true
+      - id: rotated
+        text: The logs were rotated away
+        feedback: There were never any. The image wasn't pulled.
+      - id: previous
+        text: You need --previous
+        feedback: There's no previous run either. Nothing has run.
+  - id: triage-config-start
+    type: single
+    prompt: You add the missing key to the ConfigMap. What happens to the pod in CreateContainerConfigError?
+    explanation: The kubelet keeps trying; once the key exists, its next try creates the container.
+    options:
+      - id: delete
+        text: You have to delete it first
+        feedback: You don't need to. The kubelet tries again.
+      - id: retry
+        text: The kubelet's next try creates the container
+        correct: true
+      - id: nothing
+        text: Nothing, until the next release
+        feedback: The kubelet retries on its own.
+  - id: triage-pull-vs-config
+    type: matching
+    prompt: Match each status to where you'd find its cause.
+    explanation: Neither container ever ran, so both causes are in the events or describe; a crash's cause is in the previous logs.
+    pairs:
+      - id: pull
+        left: ImagePullBackOff
+        right: The pull error in the events
+      - id: config
+        left: CreateContainerConfigError
+        right: The missing key named in the events
+      - id: crash
+        left: CrashLoopBackOff
+        right: The crashed run's logs

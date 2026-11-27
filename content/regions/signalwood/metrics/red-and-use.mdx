@@ -1,0 +1,60 @@
+---
+id: red-and-use
+title: RED and USE
+order: 1
+objectives:
+  - Name the RED signals for a service, and the USE signals for a resource
+  - Choose which to check first for a given symptom
+  - Say why RED is where on-call usually starts
+estimatedMinutes: 12
+domain: observability
+level: deckhand
+terms: [metrics, slo]
+prerequisites: [what-a-metric-is]
+---
+
+<Step id="red" title="RED, for services">
+
+For anything that serves requests, three numbers say how it's doing for its users:
+
+- **Rate**: requests per second.
+- **Errors**: the share that fail.
+- **Duration**: how long they take (a percentile, such as p99).
+
+Ravenpost's _Service Overview_ dashboard is exactly these three, per service.
+
+</Step>
+
+<Step id="use" title="USE, for resources">
+
+For a resource (a node, a disk, a pool of connections), three different numbers:
+
+- **Utilisation**: how busy it is.
+- **Saturation**: how much work is queued waiting for it.
+- **Errors**: how often it fails.
+
+<Depth>
+  <ELI5>
+    RED asks: are people being served well? USE asks: is a machine or part running out of room?
+    Start with the people, then look at the parts.
+  </ELI5>
+  <Operator>
+    RED describes the symptom users feel; USE explains it. Start on-call work with RED for the
+    service that paged, then use USE on what it depends on: a saturated database connection pool, a
+    node under memory pressure, a disk at 100% utilisation.
+  </Operator>
+</Depth>
+
+<Rosetta id="noc-dashboards" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="red-match" />
+
+<Check id="red-first" />
+
+<Check id="red-use" />
+
+</Step>

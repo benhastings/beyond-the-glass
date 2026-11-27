@@ -1,0 +1,43 @@
+checks:
+  - id: watching-symptom
+    type: single
+    required: true
+    prompt: Which of these is a symptom alert?
+    explanation: The share of failed send requests at the gate is what users feel. The others are possible causes.
+    options:
+      - id: cpu
+        text: CPU on a node is over 90%
+        feedback: High CPU might hurt, or might not. It's a cause to look at once something hurts.
+      - id: restart
+        text: A pod restarted once in the last hour
+        feedback: One restart is often the cluster recovering by itself. Users may never notice.
+      - id: errors
+        text: More than 5% of send requests at the gate are failing
+        correct: true
+  - id: watching-slo
+    type: single
+    prompt: Ravenpost's SLO is "99.5% of sends succeed over 30 days". What is the error budget?
+    explanation: The error budget is the share allowed to fail, here 0.5% of sends over the 30 days.
+    options:
+      - id: half
+        text: 0.5% of sends over 30 days
+        correct: true
+      - id: all
+        text: 99.5% of sends
+        feedback: That's the target itself. The budget is what's left over.
+      - id: time
+        text: 30 days
+        feedback: That's the window the SLO is measured over.
+  - id: watching-page
+    type: ordering
+    prompt: Put these in the order you'd usually work through them, from the page to the cause.
+    explanation: A symptom pages you, the runbook says where to start, and cause signals tell you why.
+    items:
+      - id: page
+        text: The symptom alert pages you
+      - id: runbook
+        text: You open the runbook linked from the alert
+      - id: dashboards
+        text: You check the dashboards for the affected service
+      - id: causes
+        text: You look at cause signals, such as restarts and saturation

@@ -1,0 +1,76 @@
+---
+id: know-where-you-are
+title: Know where you are
+order: 0
+objectives:
+  - Say which cluster and namespace your commands will go to, from the prompt and from kubectl
+  - List your contexts and switch between them
+  - Make a change on the right cluster, and leave the wrong one alone
+estimatedMinutes: 14
+domain: kubernetes
+level: wayfarer
+scenario: stormwatch
+terms: [context, namespace, kubectl]
+---
+
+<Step id="contexts" title="Which cluster am I talking to?">
+
+<Rosetta id="which-datacentre-context" />
+
+`kubectl` can talk to more than one cluster. Each one it knows is a <Term id="context">context</Term>: a
+cluster, a user, and a default namespace. One context is current, and every command goes there unless
+you say otherwise.
+
+<CodeBlock
+  language="console"
+  caption="Where am I, and where else could I be?"
+  code={`kubectl config current-context
+kubectl config get-contexts`}
+/>
+
+In `get-contexts`, the `*` marks the current one.
+
+</Step>
+
+<Step id="prompt" title="Read the prompt">
+
+The terminal's prompt shows the context and namespace before every command, and `prod` is shown in the
+warning colour and spelled out, so it's hard to miss. Read it before every change, the way you'd glance
+at a server's hostname before typing `reboot`.
+
+<Callout kind="habit">
+  Check your context. Before any command that changes something, say the cluster's name to yourself.
+</Callout>
+
+</Step>
+
+<Step id="switch" title="Switching, and why prod is scary">
+
+`kubectl config use-context NAME` switches, and stays switched until you switch again. For a one-off
+command, `--context NAME` sends that one command elsewhere.
+
+<Depth>
+  <ELI5>
+    Prod is where real people's mail goes. A mistake there hurts them. Stage is a copy for trying
+    things. Always know which one you are in.
+  </ELI5>
+  <Operator>
+    Production carries real traffic, and a change there is immediate and shared. Stage exists so a
+    change is tried first. The classic incident starts with a command meant for stage that ran on
+    prod because the terminal was still pointed there from earlier.
+  </Operator>
+</Depth>
+
+<Terminal scenario="stormwatch" challenge="right-context" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="context-star" />
+
+<Check id="context-once" />
+
+<Check id="context-first" />
+
+</Step>

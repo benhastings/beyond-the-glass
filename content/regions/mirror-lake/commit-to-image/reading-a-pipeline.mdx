@@ -1,0 +1,74 @@
+---
+id: reading-a-pipeline
+title: Reading a pipeline
+order: 1
+objectives:
+  - Name a build pipeline's stages and what each produces
+  - Find the image tag a pipeline pushed, and the job that pushed it
+  - Say where an image tag comes from, and why it isn't edited by hand
+estimatedMinutes: 15
+domain: delivery
+level: deckhand
+scenario: pipelines
+terms: [image, merge-request]
+prerequisites: [git-for-operators]
+---
+
+<Step id="stages" title="Stages and jobs">
+
+A pipeline runs every time code is merged. It's a series of **stages**, each with one or more **jobs**;
+a stage starts when the one before it passes. Ravenpost's app pipeline:
+
+| Stage            | Job                  | What it does                               |
+| ---------------- | -------------------- | ------------------------------------------ |
+| build            | `compile`            | Builds the image from the Dockerfile       |
+| test             | `unit-tests`, `lint` | Runs the tests and style checks            |
+| scan             | `image-scan`         | Checks the image for known vulnerabilities |
+| package          | `push-image`         | Pushes the image to the registry           |
+| update-manifests | `update-manifests`   | Commits the new tag to the deploy repo     |
+
+<Analogy
+  then="A release checklist: build, test on the bench, check for known issues, ship, update the inventory."
+  now="The pipeline is that checklist, run by a machine on every change, stopping at the first failure."
+/>
+
+</Step>
+
+<Step id="tag" title="Where a tag comes from">
+
+The image is tagged with the commit's short hash, so `api:0720046a` is exactly the code in commit
+`0720046a`. Nobody types it: `push-image` pushes it, and `update-manifests` writes it into the deploy repo,
+which Argo CD then deploys. A tag in production always points back to a commit, and a commit always to its
+review.
+
+<Depth>
+  <ELI5>
+    Each finished build gets a name from the change it came from. That name is written down for you,
+    so nobody can get it wrong.
+  </ELI5>
+  <Operator>
+    Tags come from CI, never from a person: a typed tag (`v1.15.0` for `1.15.0`) is how an
+    ImagePullBackOff starts. A build that stops before `push-image` produces no tag at all, even
+    though `compile` built an image locally.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="read" title="Read one">
+
+The pipelines are below the terminal; open a job to read its log.
+
+<Terminal scenario="pipelines" challenge="which-tag-shipped" view="pipelines" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="pipeline-order" />
+
+<Check id="pipeline-tag" />
+
+<Check id="pipeline-typed" />
+
+</Step>

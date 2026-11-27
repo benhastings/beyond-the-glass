@@ -1,0 +1,43 @@
+id: make-it-stick
+title: Four gates, for good
+scenario: gitops-drift
+brief: >-
+  Tonight's traffic needs four gate replicas instead of two. The ravenpost app is managed by Argo CD with
+  self-heal on. Make the change so that it stays.
+objectives:
+  - id: look
+    text: Look at the application first
+    check: { type: ranCommand, pattern: '^argocd\s+app\s+(get|diff|history)\s+ravenpost\b' }
+  - id: four
+    text: Four gate replicas, changed through a merge request
+    check:
+      type: all
+      of:
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: gate }
+          path: spec.replicas
+          equals: '4'
+          quantifier: all
+        - { type: changedVia, via: mr, kind: Deployment, name: gate, only: false }
+forbidden:
+  - pattern: '^kubectl\s+(scale|edit|set|apply|patch|annotate|label)\b'
+    cluster: prod
+    message: >-
+      That change was made with kubectl, and Argo CD's self-heal will put it back within minutes (watch the
+      replicas, or `kubectl get events -n argocd`). Nothing's broken: make the same change in Git, through a
+      merge request to ravenpost-deploy, and it will stay.
+hints:
+  - level: nudge
+    text: With self-heal on, the cluster always ends up matching Git. Where does the replica count live?
+  - level: pointer
+    text: 'Open a merge request to ravenpost-deploy that changes prod/deployment-gate.yaml, wait for its pipeline, then merge.'
+  - level: command
+    text: 'In the merge request panel, change `replicas: 2` to `replicas: 4` in prod/deployment-gate.yaml, then merge once the pipeline passes. Argo CD syncs it within three minutes.'
+expertPath:
+  - argocd app get ravenpost
+  - mr:
+      repo: ravenpost-deploy
+      file: prod/deployment-gate.yaml
+      replace: ['replicas: 2', 'replicas: 4']
+      message: Scale gate to 4
+  - wait: +3m

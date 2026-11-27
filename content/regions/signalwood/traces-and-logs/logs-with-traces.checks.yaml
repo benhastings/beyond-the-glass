@@ -1,0 +1,44 @@
+checks:
+  - id: logs-traceid
+    type: single
+    required: true
+    prompt: A log line has a trace_id. What can you do with it?
+    explanation: Open the trace it was written in, and see the whole request around it.
+    options:
+      - id: trace
+        text: Open the trace the line was written in
+        correct: true
+      - id: restart
+        text: Restart that request
+        feedback: Requests can't be replayed from a log.
+      - id: nothing
+        text: Nothing; it's for the developers
+        feedback: It's the link from a line to the whole request.
+  - id: logs-logql
+    type: single
+    prompt: Which LogQL keeps only the ledger's warning lines?
+    explanation: Pick the ledger's streams, parse the JSON, then filter on level.
+    options:
+      - id: all
+        text: '{namespace="ravenpost"}'
+        feedback: That's every Ravenpost service, at every level.
+      - id: right
+        text: '{namespace="ravenpost", app="ledger"} | json | level="warn"'
+        correct: true
+      - id: errors
+        text: '{app="ledger"} |= "error"'
+        feedback: That keeps lines containing the word error, not warnings.
+  - id: logs-why
+    type: single
+    prompt: Why log JSON rather than free text?
+    explanation: Named fields can be filtered and joined on, such as level, status and trace_id.
+    options:
+      - id: fields
+        text: So every field can be filtered on, and lines linked to traces
+        correct: true
+      - id: small
+        text: It's smaller
+        feedback: It's usually larger. The point is the fields.
+      - id: required
+        text: Kubernetes requires it
+        feedback: Kubernetes doesn't care what a program writes.

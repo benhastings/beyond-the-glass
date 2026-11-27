@@ -1,0 +1,5 @@
+id: commit-to-image
+title: From commit to image
+order: 0
+summary: Git for operators, how a pipeline turns a commit into an image, and how to read one that failed.
+domain: delivery

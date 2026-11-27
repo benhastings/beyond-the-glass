@@ -1,0 +1,57 @@
+---
+id: rolling-back
+title: Rolling back
+order: 3
+objectives:
+  - Roll back a bad release with a git revert through a merge request
+  - Roll back with `argocd app rollback`, and say what it leaves behind
+  - Choose between them for a given situation
+estimatedMinutes: 16
+domain: delivery
+level: navigator
+scenario: gitops-bad-release
+terms: [rollback, gitops, merge-request]
+prerequisites: [drift]
+---
+
+<Step id="two-ways" title="Two ways back">
+
+<Rosetta id="rollback" />
+
+|                | `git revert`, through a merge request                  | `argocd app rollback`                                         |
+| -------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
+| How            | A new commit that undoes the bad one; Argo CD syncs it | Argo CD deploys an earlier revision from its history          |
+| Git afterwards | True: it says what's running                           | Still asks for the bad release                                |
+| Needs          | A pipeline run and a merge                             | Auto-sync off first (`argocd app set APP --sync-policy none`) |
+| Speed          | Minutes                                                | Seconds                                                       |
+
+</Step>
+
+<Step id="choose" title="When each fits">
+
+<Depth>
+  <ELI5>
+    Fixing the plan is the careful way back. Pressing Argo CD's undo button is the quick way, but
+    the plan still says the wrong thing, so someone must fix the plan after.
+  </ELI5>
+  <Operator>
+    Prefer the revert: it keeps Git true and goes through the same review as any change. Use
+    rollback when every minute counts and the pipeline is slow or broken, and then revert in Git
+    straight after and turn auto-sync back on; until you do, the next sync redeploys the bad
+    release.
+  </Operator>
+</Depth>
+
+<Terminal scenario="gitops-bad-release" challenge="roll-back-the-release" view="changes" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="rollback-git" />
+
+<Check id="rollback-after" />
+
+<Check id="rollback-choose" />
+
+</Step>

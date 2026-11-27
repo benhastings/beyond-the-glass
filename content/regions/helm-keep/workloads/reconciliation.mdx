@@ -1,0 +1,95 @@
+---
+id: reconciliation
+title: Desired state and reconciliation
+order: 0
+objectives:
+  - Follow a Deployment to its ReplicaSet and its pods
+  - Delete a pod and watch the Deployment replace it
+  - Scale a Deployment, and roll out a new version while watching its progress
+  - Read a Deployment's rollout history
+estimatedMinutes: 18
+domain: kubernetes
+level: deckhand
+scenario: ravenpost
+terms: [deployment, pod, controller, rollback]
+prerequisites: [namespaces-and-labels]
+---
+
+<Step id="chain" title="Deployment, ReplicaSet, pods">
+
+<Rosetta id="init-script-deployment" />
+
+A <Term id="deployment">Deployment</Term> says what should run: which image, how many copies. It doesn't
+make pods itself. It makes a **ReplicaSet** for each version, and the ReplicaSet keeps the right number of
+pods. That's why a pod's name has two random parts: `ravenpost-web-74d9fdfcd5-252jk` is a pod of
+ReplicaSet `ravenpost-web-74d9fdfcd5`.
+
+<CodeBlock
+  language="console"
+  caption="The whole chain, in one list"
+  code="kubectl get deploy,rs,pods -n ravenpost -l app=ravenpost-web"
+/>
+
+</Step>
+
+<Step id="replace" title="Pull one out, and watch">
+
+<Analogy
+  then="A service died at night; someone noticed, logged in and restarted it."
+  now="A pod disappears; its ReplicaSet sees one too few, and makes another within seconds."
+/>
+
+Try it. It's safe: the web has two pods, and the Service keeps sending traffic to the other one.
+
+<Terminal scenario="ravenpost" challenge="replace-a-pod" required />
+
+</Step>
+
+<Step id="scale" title="Scaling">
+
+`kubectl scale` changes the number of copies. The ReplicaSet adds or removes pods to match.
+
+<Rosetta id="busy-season-scaling" />
+
+<Callout kind="habit">
+  On a GitOps-managed cluster, Git holds the desired state, so a hand-made scale is put back at the
+  next sync. Here, in Helm Keep, nothing syncs from Git; in Mirror Lake you'll change it the lasting
+  way.
+</Callout>
+
+<Terminal scenario="ravenpost" challenge="scale-the-worker" required />
+
+</Step>
+
+<Step id="rollout" title="Rolling updates">
+
+Change the image, and the Deployment makes a new ReplicaSet. It brings new pods up a few at a time, and
+takes old ones down only as new ones become ready, so the service keeps answering throughout.
+`kubectl rollout status` waits and reports progress; `kubectl rollout history` lists the versions, and
+`kubectl rollout undo` goes back one.
+
+<Depth>
+  <ELI5>
+    The cluster swaps old copies for new ones a few at a time. There is always a copy ready to
+    answer. If the new version is bad, you can switch back.
+  </ELI5>
+  <Operator>
+    The default strategy is RollingUpdate, with `maxSurge` and `maxUnavailable` at 25%. A new pod
+    counts only once it's Ready, so a version that never gets Ready stalls the rollout instead of
+    finishing it. The `Recreate` strategy removes every old pod first, which means downtime.
+  </Operator>
+</Depth>
+
+<Terminal scenario="ravenpost" challenge="roll-out-web" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="reconcile-chain" />
+
+<Check id="reconcile-rollout" />
+
+<Check id="reconcile-recreate" />
+
+</Step>

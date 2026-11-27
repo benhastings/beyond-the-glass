@@ -1,0 +1,44 @@
+checks:
+  - id: services-endpoints
+    type: single
+    required: true
+    prompt: The gate's Service has endpoints `<none>`, but its pods show Running. What does that tell you?
+    explanation: Endpoints list only Ready pods that the selector matches. Running but not Ready, or a selector that matches nothing, leaves the list empty.
+    options:
+      - id: ready
+        text: None of the pods is Ready, or the selector doesn't match them
+        correct: true
+      - id: dns
+        text: DNS is broken
+        feedback: DNS would still resolve the Service. The problem is it has no pods to send to.
+      - id: fine
+        text: Nothing; endpoints fill in later
+        feedback: Endpoints update within seconds. An empty list means no pod qualifies.
+  - id: services-dns
+    type: single
+    prompt: A pod in the monitoring namespace needs ravenpost-api. Which name works?
+    explanation: 'From another namespace, add the namespace: ravenpost-api.ravenpost (or the full svc.cluster.local name).'
+    options:
+      - id: short
+        text: ravenpost-api
+        feedback: That works only from inside the ravenpost namespace.
+      - id: ip
+        text: The IP of one ravenpost-api pod
+        feedback: Pod IPs change whenever pods are replaced.
+      - id: ns
+        text: ravenpost-api.ravenpost
+        correct: true
+  - id: services-ready
+    type: single
+    prompt: How does a Service decide which pods to send a request to?
+    explanation: Pods its label selector matches, that are Ready.
+    options:
+      - id: names
+        text: A list of pod names written in the Service
+        feedback: Services don't list names; they select by label.
+      - id: selector
+        text: Pods its label selector matches that are Ready
+        correct: true
+      - id: all
+        text: Every pod in the namespace
+        feedback: Only the pods its selector matches.

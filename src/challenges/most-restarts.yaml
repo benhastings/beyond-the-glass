@@ -1,0 +1,32 @@
+id: most-restarts
+title: Which pod restarts most?
+scenario: ravenpost
+brief: >-
+  Across every namespace, find the pod that has restarted the most, by sorting rather than reading every
+  line. Answer with its name (the start is enough).
+questions:
+  - id: pod
+    prompt: Which pod has restarted the most?
+objectives:
+  - id: sort
+    text: Sort every pod by restarts
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+get\s+(po|pod|pods)\b.*-A\b.*--sort-by[=\s]\.?status\.containerStatuses\[0\]\.restartCount|^kubectl\s+get\s+(po|pod|pods)\b.*--sort-by[=\s]\.?status\.containerStatuses\[0\]\.restartCount.*-A\b'
+  - id: pod
+    text: Name it
+    check:
+      type: answered
+      question: pod
+      matcher:
+        { resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-notifier } } }
+hints:
+  - level: nudge
+    text: Sorting puts the biggest number last.
+  - level: pointer
+    text: '`--sort-by=.status.containerStatuses[0].restartCount` sorts pods by restarts; `-A` looks everywhere; `| tail -1` shows the last.'
+  - level: command
+    text: 'Run `kubectl get pods -A --sort-by=.status.containerStatuses[0].restartCount | tail -1`, then `answer pod <its name>`.'
+expertPath:
+  - kubectl get pods -A --sort-by=.status.containerStatuses[0].restartCount | tail -1
+  - answer pod ravenpost-notifier

@@ -1,0 +1,65 @@
+---
+id: following-one-request
+title: Following one request
+order: 0
+objectives:
+  - Say what a trace and a span are
+  - Read a trace's waterfall and find which service took the time
+  - Compare a trace with what traceroute showed you
+estimatedMinutes: 14
+domain: observability
+level: deckhand
+terms: [trace]
+prerequisites: [promql-starter]
+---
+
+<Step id="parcel" title="A parcel's tracking history">
+
+<Depth>
+  <ELI5>
+    A trace is like a parcel's tracking page. Each depot it passes adds a line: when it arrived,
+    when it left. If the parcel is late, you can see which depot held it up.
+  </ELI5>
+  <Operator>
+    A <Term id="trace">trace</Term> is one request's journey through every service it touched. Each
+    step is a **span**: a service, an operation (`POST /entries`), a start and an end, a status, and
+    the span that called it (its parent). The spans share one trace ID.
+  </Operator>
+</Depth>
+
+<Rosetta id="ping-traces" />
+
+</Step>
+
+<Step id="waterfall" title="The waterfall">
+
+A trace is drawn as a waterfall: one bar per span, indented under its parent, as long as it took. The
+parent's bar covers its children's, so the time a service spent **itself** is its bar minus its children's.
+The span that's much wider than it should be, with nothing below it to explain it, is usually the answer.
+
+<Analogy
+  then="traceroute showed each hop between two machines and how long it took."
+  now="A trace shows each service a request passed through, and how long each one spent, including the work it did itself."
+/>
+
+<CodeBlock
+  language="text"
+  caption="A trace, as a waterfall"
+  code={`gate            POST /messages   ██████████████████████  412 ms
+  ravenpost-api POST /messages    █████████████████████  405 ms
+    ledger      POST /entries      ████████████████████  398 ms
+      postgres  INSERT entries      █                      4 ms
+    queue       publish deliveries                     █   2 ms`}
+/>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="trace-span" />
+
+<Check id="trace-own-time" />
+
+<Check id="trace-waterfall" />
+
+</Step>

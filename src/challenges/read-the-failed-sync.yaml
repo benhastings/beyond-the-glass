@@ -1,0 +1,33 @@
+id: read-the-failed-sync
+title: A sync that can't apply
+scenario: gitops-sync-failed
+brief: >-
+  Argo CD's last sync of ravenpost failed. Read why, say what it couldn't change, then put Git back the way
+  it was, through a merge request, so the app syncs again.
+questions:
+  - id: cause
+    prompt: What couldn't Argo CD change, and why?
+objectives:
+  - id: cause
+    text: Say why the sync failed
+    check: { type: answered, question: cause, matcher: { matches: '(selector|immutable)' } }
+  - id: fixed
+    text: Reverted in Git; Synced and Healthy
+    check:
+      type: all
+      of:
+        - { type: ranCommand, pattern: '^argocd app (get|sync|history) ravenpost\b' }
+        - { type: mergedRequest, repo: ravenpost-deploy }
+        - { type: argoApp, app: ravenpost, sync: Synced, health: Healthy }
+hints:
+  - level: nudge
+    text: The application keeps the result of its last operation, message and all.
+  - level: pointer
+    text: '`argocd app get ravenpost` shows the operation and its message. The change came from the newest commit to ravenpost-deploy.'
+  - level: command
+    text: 'Run `argocd app get ravenpost`, `answer cause <what it says is immutable>`, then revert the newest commit through a merge request.'
+expertPath:
+  - argocd app get ravenpost
+  - answer cause the Deployment selector is immutable, so the label change cannot apply
+  - revertMr: { repo: ravenpost-deploy }
+  - wait: +3m

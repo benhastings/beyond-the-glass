@@ -1,0 +1,60 @@
+---
+id: alerts-that-mean-something
+title: Alerts that mean something
+order: 0
+objectives:
+  - Tell a symptom alert from a cause alert, in a real alert list
+  - Say what an alert's `for` duration does, and why it's there
+  - Read a page, and say where to look next
+estimatedMinutes: 16
+domain: observability
+level: deckhand
+scenario: signals
+terms: [alert-rule, runbook, slo]
+prerequisites: [finding-the-slow-span]
+---
+
+<Step id="rules" title="An alert is a query with a threshold">
+
+<Rosetta id="nagios-alert-rule" />
+
+An <Term id="alert-rule">alert rule</Term> is a PromQL query, a threshold, and a `for` duration: it fires
+when the query has been over the threshold for that long. Each rule has a severity (**page** wakes someone;
+**ticket** waits for the morning) and a <Term id="runbook">runbook</Term> that says where to start.
+
+</Step>
+
+<Step id="for" title="Why `for`?">
+
+<Depth>
+  <ELI5>
+    The alert waits a few minutes before it rings. If the problem goes away by itself in that time,
+    nobody gets woken up for nothing.
+  </ELI5>
+  <Operator>
+    While the condition holds but `for` hasn't passed, the alert is **pending**; then it's
+    **firing**. Short blips never page. Too long a `for`, and you hear late; too short, and you're
+    woken for noise. Pages are usually 2–5 minutes.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="read" title="Read the page">
+
+Ravenpost pages on symptoms at the gate, where senders meet the service. A page there says users are
+affected; it doesn't say which service behind the gate is to blame.
+
+<Terminal scenario="signals" challenge="read-the-page" view="observability" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="alert-pending" />
+
+<Check id="alert-severity" />
+
+<Check id="alert-symptom" />
+
+</Step>

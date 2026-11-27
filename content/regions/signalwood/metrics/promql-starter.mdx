@@ -1,0 +1,89 @@
+---
+id: promql-starter
+title: The PromQL starter kit
+order: 3
+objectives:
+  - Turn a counter into a per-second rate with `rate()`
+  - Add series up, keeping a label, with `sum by`
+  - Compute a percentile from a histogram with `histogram_quantile`
+  - Write a p99 latency query for each service
+estimatedMinutes: 20
+domain: observability
+level: navigator
+scenario: signals
+terms: [metrics, label]
+prerequisites: [reading-dashboards]
+---
+
+<Step id="rate" title="rate()">
+
+A counter only goes up, so ask how fast: `rate()` gives the per-second increase over a window, and copes
+with counters that reset when a process restarts.
+
+<CodeBlock
+  language="promql"
+  caption="Requests per second, per series, over five minutes"
+  code={`rate(http_server_requests_total[5m])`}
+/>
+
+</Step>
+
+<Step id="sum" title="sum by">
+
+`rate()` returns one series per label combination: per pod, per status code, per route. `sum by (label)`
+adds them up, keeping only the labels you name.
+
+<CodeBlock
+  language="promql"
+  caption="Requests per second, per service"
+  code={`sum by (service) (rate(http_server_requests_total[5m]))`}
+/>
+
+<CodeBlock
+  language="promql"
+  caption="The share of requests that fail, per service"
+  code={`sum by (service) (rate(http_server_requests_total{http_response_status_code=~"5.."}[5m])) / sum by (service) (rate(http_server_requests_total[5m]))`}
+/>
+
+</Step>
+
+<Step id="quantile" title="histogram_quantile()">
+
+<Depth>
+  <ELI5>
+    The buckets count how many requests were faster than each line. The quantile finds the line that
+    99 out of 100 requests beat. That's p99.
+  </ELI5>
+  <Operator>
+    Take the rate of the buckets, sum them keeping `le` (and any label you want per-series), then
+    ask for the quantile. Drop `le` and the function has nothing to work with; keep `pod` and you
+    get a percentile per pod, which is rarely what you want.
+  </Operator>
+</Depth>
+
+<CodeBlock
+  language="promql"
+  caption="p99 latency, across everything"
+  code={`histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_seconds_bucket[5m])))`}
+/>
+
+</Step>
+
+<Step id="write" title="Write one">
+
+The explorer has the starter library under **Starter queries**. Change one to give p99 latency for each
+service.
+
+<Terminal scenario="signals" challenge="p99-by-service" view="promql" required />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="promql-rate" />
+
+<Check id="promql-sum" />
+
+<Check id="promql-le" />
+
+</Step>

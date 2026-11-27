@@ -1,0 +1,36 @@
+id: sync-the-release
+title: A release waiting in Git
+scenario: gitops-manual-sync
+brief: >-
+  A colleague merged gate 2.3.2 to ravenpost-deploy. The app's sync policy is manual, so nothing has
+  happened yet. Read the application, see exactly what would change, then sync it.
+objectives:
+  - id: get
+    text: Read the application's status
+    check: { type: ranCommand, pattern: '^argocd\s+app\s+get\s+ravenpost\b' }
+  - id: diff
+    text: See what a sync would change
+    check: { type: ranCommand, pattern: '^argocd\s+app\s+diff\s+ravenpost\b' }
+  - id: synced
+    text: Synced, and the gate runs 2.3.2
+    check:
+      type: all
+      of:
+        - { type: argoApp, app: ravenpost, sync: Synced }
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: gate }
+          path: 'spec.template.spec.containers[0].image'
+          equals: registry.example/ravenpost/gate:2.3.2
+          quantifier: all
+hints:
+  - level: nudge
+    text: OutOfSync means Git and the cluster differ. Find out how before you sync.
+  - level: pointer
+    text: '`argocd app diff ravenpost` shows the difference; `argocd app sync ravenpost` applies Git.'
+  - level: command
+    text: 'Run `argocd app get ravenpost`, `argocd app diff ravenpost`, then `argocd app sync ravenpost`.'
+expertPath:
+  - argocd app get ravenpost
+  - argocd app diff ravenpost
+  - argocd app sync ravenpost
+  - wait: +2m

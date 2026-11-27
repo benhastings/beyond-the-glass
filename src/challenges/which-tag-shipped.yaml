@@ -1,0 +1,28 @@
+id: which-tag-shipped
+title: What did CI ship?
+scenario: pipelines
+brief: >-
+  Read the pipelines below the terminal. Find the one that passed, and say which image tag it pushed and
+  which job pushed it.
+questions:
+  - id: tag
+    prompt: Which tag did the passing pipeline push?
+  - id: job
+    prompt: Which job pushed it?
+objectives:
+  - id: tag
+    text: Name the tag that shipped
+    check: { type: answered, question: tag, matcher: { matches: '0720046a' } }
+  - id: job
+    text: Name the job that pushed it
+    check: { type: answered, question: job, matcher: { matches: '^\s*push-image\s*$' } }
+hints:
+  - level: nudge
+    text: Only one pipeline passed. Its jobs are listed by stage.
+  - level: pointer
+    text: The package stage's job pushes the image; its log ends with the tag and digest.
+  - level: command
+    text: 'Open "Retry ledger writes once on a timeout", read push-image, then `answer tag 0720046a` and `answer job push-image`.'
+expertPath:
+  - answer tag 0720046a
+  - answer job push-image

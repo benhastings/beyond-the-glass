@@ -1,0 +1,44 @@
+checks:
+  - id: red-match
+    type: matching
+    required: true
+    prompt: Match each RED signal to what it measures.
+    explanation: Rate is how much, Errors how often it fails, Duration how long it takes.
+    pairs:
+      - id: rate
+        left: Rate
+        right: Requests per second
+      - id: errors
+        left: Errors
+        right: The share of requests that fail
+      - id: duration
+        left: Duration
+        right: How long requests take, as a percentile
+  - id: red-first
+    type: single
+    prompt: You're paged for slow sends. What do you look at first?
+    explanation: 'The RED dashboard for the service that paged: its duration, error rate and request rate.'
+    options:
+      - id: cpu
+        text: CPU on every node
+        feedback: That's USE, useful once RED has narrowed it down.
+      - id: red
+        text: The RED signals for the service that paged
+        correct: true
+      - id: logs
+        text: Every log line from the last hour
+        feedback: Too much to read. RED tells you where and when to look.
+  - id: red-use
+    type: single
+    prompt: Which is a USE signal?
+    explanation: How many queries are waiting for a database connection is saturation, a USE signal.
+    options:
+      - id: queue
+        text: Queries waiting for a database connection
+        correct: true
+      - id: rate
+        text: Requests per second to the gate
+        feedback: That's Rate, a RED signal.
+      - id: p99
+        text: p99 duration of sends
+        feedback: That's Duration, a RED signal.

@@ -1,0 +1,44 @@
+checks:
+  - id: fast-sort
+    type: single
+    required: true
+    prompt: You sort events with `--sort-by=.lastTimestamp`. Where is the newest event?
+    explanation: Sorting is ascending, so the newest is last, right above your prompt.
+    options:
+      - id: first
+        text: At the top
+        feedback: Sorting is ascending, oldest first.
+      - id: last
+        text: At the bottom
+        correct: true
+      - id: none
+        text: It depends on the namespace
+        feedback: The order is by time, whatever the namespace.
+  - id: fast-grep
+    type: single
+    prompt: Which shows every pod, in every namespace, that isn't Running?
+    explanation: -A lists everything; grep -v Running drops the Running lines.
+    options:
+      - id: grepv
+        text: kubectl get pods -A | grep -v Running
+        correct: true
+      - id: grep
+        text: kubectl get pods -A | grep Running
+        feedback: That keeps only the Running ones.
+      - id: n
+        text: kubectl get pods -n ravenpost | grep -v Running
+        feedback: That's only one namespace.
+  - id: fast-label
+    type: matching
+    prompt: Match each need to the flag that meets it.
+    explanation: -l narrows by label, -A widens to every namespace, and --sort-by orders the rows.
+    pairs:
+      - id: l
+        left: Only the api's pods
+        right: -l app=ravenpost-api
+      - id: a
+        left: Every namespace at once
+        right: -A
+      - id: sort
+        left: The newest events last
+        right: --sort-by=.lastTimestamp

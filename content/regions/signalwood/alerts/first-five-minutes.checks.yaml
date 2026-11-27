@@ -1,0 +1,52 @@
+checks:
+  - id: first-five-order
+    type: ordering
+    required: true
+    prompt: Put the first five minutes in order.
+    explanation: 'Own it, then how bad and what changed, then where: dashboards, a trace, logs, kubectl.'
+    items:
+      - id: acknowledge
+        text: 'Acknowledge the page, and say you’re on it'
+      - id: impact
+        text: 'Assess the impact: who, how many, since when'
+      - id: changes
+        text: 'Check what changed recently'
+      - id: dashboards
+        text: 'Read the dashboards: which service went first'
+      - id: traces
+        text: 'Open a trace: which span, on which pod'
+      - id: logs
+        text: 'Read that service’s logs'
+      - id: kubectl
+        text: 'Check the pods and events with kubectl'
+  - id: first-five-changes
+    type: single
+    prompt: Why check recent changes so early?
+    explanation: Most incidents follow a change, and a deploy right before the trouble is the strongest lead you'll get.
+    options:
+      - id: lead
+        text: Most incidents follow a change, so it's the strongest early lead
+        correct: true
+      - id: blame
+        text: To find out who to blame
+        feedback: It's about the cause, not a person.
+      - id: rule
+        text: Because the runbook says so
+        feedback: 'The runbook says so for a reason: changes cause most incidents.'
+  - id: first-five-note
+    type: multiple
+    prompt: Which belong in an incident note?
+    explanation: Impact, a timeline with times, the evidence, a hypothesis and the next step.
+    options:
+      - id: impact
+        text: Who is affected, and how much
+        correct: true
+      - id: timeline
+        text: Times of what happened
+        correct: true
+      - id: hypothesis
+        text: What you think the cause is, and why
+        correct: true
+      - id: blame
+        text: Whose change caused it
+        feedback: Name the change, not a person. Notes are blameless.

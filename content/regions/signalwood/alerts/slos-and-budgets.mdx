@@ -1,0 +1,52 @@
+---
+id: slos-and-budgets
+title: SLOs and error budgets
+order: 1
+objectives:
+  - Turn an SLO into an error budget, in minutes per month
+  - Say what burn rate means, and when a burn pages
+  - Use the error budget to decide between shipping and fixing
+estimatedMinutes: 14
+domain: observability
+level: navigator
+terms: [slo]
+prerequisites: [alerts-that-mean-something]
+---
+
+<Step id="budget" title="A budget for failure">
+
+An <Term id="slo">SLO</Term> of 99.9% over 30 days allows 0.1% to fail: that's the **error budget**. As time,
+0.1% of 30 days is about 43 minutes. 99.99% leaves about 4 minutes; 99% leaves about 7 hours.
+
+<Depth>
+  <ELI5>
+    The SLO is a promise. The error budget is how much you're allowed to miss and still keep it.
+    Spend it slowly and you're fine. Spend it fast and someone needs to act.
+  </ELI5>
+  <Operator>
+    **Burn rate** is how fast you're spending it: a burn rate of 1 spends exactly the budget over
+    the window; 14.4 spends 2% of a 30-day budget in an hour. Burn-rate alerts pair a long and a
+    short window (1 hour and 5 minutes, say), so they page fast for a big burn and stop soon after
+    it ends.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="conversations" title="Why 99.9% changes conversations">
+
+Without an SLO, "is it reliable enough?" is an argument. With one, it's a number: if the budget is nearly
+spent, the next release waits and reliability work comes first; if it's mostly left, ship. Nobody has to win
+the argument at 3 a.m.
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="slo-minutes" />
+
+<Check id="slo-burn" />
+
+<Check id="slo-decide" />
+
+</Step>

@@ -1,0 +1,40 @@
+id: read-the-image
+title: What is ravenpost-api running?
+scenario: ravenpost
+brief: >-
+  Describe a ravenpost-api pod, and find the image it asked for and the digest it's running. Then answer
+  with its tag and its registry.
+questions:
+  - id: tag
+    prompt: Which tag is ravenpost-api running?
+  - id: registry
+    prompt: Which registry does it come from?
+objectives:
+  - id: describe
+    text: Describe a ravenpost-api pod
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+describe\s+(po|pod|pods)\b.*ravenpost-api'
+  - id: tag
+    text: Name the tag
+    check:
+      type: answered
+      question: tag
+      matcher: { matches: '^\s*v?1\.14\.0\s*$' }
+  - id: registry
+    text: Name the registry
+    check:
+      type: answered
+      question: registry
+      matcher: { matches: 'registry\.example' }
+hints:
+  - level: nudge
+    text: The pod's description lists each container, with what it asked for and what it's running.
+  - level: pointer
+    text: '`kubectl describe pod ravenpost-api -n ravenpost`, then look under Containers for Image and Image ID.'
+  - level: command
+    text: 'Run `kubectl describe pod ravenpost-api -n ravenpost`, then `answer tag 1.14.0` and `answer registry registry.example`.'
+expertPath:
+  - kubectl describe pod ravenpost-api -n ravenpost
+  - answer tag 1.14.0
+  - answer registry registry.example

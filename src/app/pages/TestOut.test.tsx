@@ -13,7 +13,10 @@ import { readCodes } from '../lead/LeadPanel'
 import { useProgress } from '../progress'
 import TestOut from './TestOut'
 
-const CHECKS: TestOutCheck[] = testOutFile.parse(parseYaml(testOutYaml)).checks
+// The module's first three questions, all on the one lesson this test's manifest has (E9-05 added more).
+const CHECKS: TestOutCheck[] = testOutFile
+  .parse(parseYaml(testOutYaml))
+  .checks.filter((c) => c.review.lesson === 'your-first-look')
 const MANIFEST: Manifest = {
   glossary: [],
   regions: [
