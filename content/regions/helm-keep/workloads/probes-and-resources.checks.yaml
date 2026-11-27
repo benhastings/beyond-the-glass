@@ -1,0 +1,51 @@
+checks:
+  - id: probes-bug
+    type: spot-the-bug
+    required: true
+    prompt: The gate serves its health check at /ready on its http port (8080). Which line keeps every gate pod from becoming Ready?
+    explanation: The probe asks for /readyz, which the gate doesn't serve, so every check gets a 404 and no pod is ever Ready.
+    code: |
+      containers:
+        - name: gate
+          image: registry.example/ravenpost/gate:3.1.0
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+    bugLines: [9]
+    lineFeedback:
+      '6': 8080 is the port the gate listens on, named http.
+      '10': The named port http is 8080, which is right.
+      '11': Checking every five seconds is a usual interval.
+  - id: probes-which
+    type: matching
+    prompt: Match each to what happens when it fails.
+    explanation: Readiness gates traffic, liveness restarts, and the memory limit kills.
+    pairs:
+      - id: ready
+        left: Readiness probe fails
+        right: The pod is taken out of the Service's endpoints
+      - id: live
+        left: Liveness probe fails
+        right: The kubelet restarts the container
+      - id: oom
+        left: Memory goes over the limit
+        right: The container is killed (OOMKilled)
+  - id: probes-oom
+    type: single
+    prompt: What is a CPU or memory request used for?
+    explanation: Requests are for scheduling. The scheduler places a pod only on a node with that much unrequested capacity.
+    options:
+      - id: limit
+        text: It's the most the container may use
+        feedback: That's the limit.
+      - id: alert
+        text: It sets when an alert fires
+        feedback: Requests don't drive alerts.
+      - id: schedule
+        text: The scheduler places the pod only where that much is free
+        correct: true

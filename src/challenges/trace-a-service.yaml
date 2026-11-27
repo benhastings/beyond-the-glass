@@ -1,0 +1,38 @@
+id: trace-a-service
+title: Where does ravenpost-api's traffic go?
+scenario: ravenpost
+brief: >-
+  Follow the ravenpost-api Service to the pods behind it: its selector, then its endpoints. Answer with how
+  many pod addresses it sends traffic to.
+questions:
+  - id: count
+    prompt: How many endpoints does ravenpost-api have?
+objectives:
+  - id: service
+    text: Look at the Service
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(get\s+(svc|service|services)|describe\s+(svc|service))\b.*ravenpost-api'
+  - id: endpoints
+    text: Look at its endpoints
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(get\s+(ep|endpoints)\b.*ravenpost-api|describe\s+(svc|service)\b.*ravenpost-api)'
+  - id: count
+    text: Say how many there are
+    check:
+      type: answered
+      question: count
+      matcher: { matches: '^\s*3\s*$' }
+hints:
+  - level: nudge
+    text: A Service's endpoints are the Ready pods its selector matches.
+  - level: pointer
+    text: '`kubectl get endpoints ravenpost-api -n ravenpost` lists them; `kubectl get pods -o wide` shows which pods have those IPs.'
+  - level: command
+    text: 'Run `kubectl get svc ravenpost-api -n ravenpost`, then `kubectl get endpoints ravenpost-api -n ravenpost`, then `answer count 3`.'
+expertPath:
+  - kubectl get svc ravenpost-api -n ravenpost
+  - kubectl get endpoints ravenpost-api -n ravenpost
+  - kubectl get pods -n ravenpost -l app=ravenpost-api -o wide
+  - answer count 3

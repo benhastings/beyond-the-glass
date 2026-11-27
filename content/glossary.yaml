@@ -147,6 +147,23 @@ terms:
     eli5: Which cluster your commands go to.
     operator: >-
       A kubeconfig entry naming a cluster, a user and a default namespace. kubectl uses the current one unless told otherwise.
+  - id: imagepullbackoff
+    term: ImagePullBackOff
+    aliases: [ErrImagePull, image pull back-off]
+    eli5: The cluster can't fetch the program's package, so it waits and tries again, slower each time.
+    operator: >-
+      A container can't start because its image can't be pulled: the tag or registry doesn't exist, or the
+      node can't reach or log in to the registry. The pod shows ErrImagePull, then ImagePullBackOff; the
+      events say why ("not found", "unauthorized").
+    related: [image, crashloopbackoff]
+  - id: digest
+    term: Image digest
+    aliases: [digest, sha256, image ID]
+    eli5: A fingerprint of an image. If anything inside changes, the fingerprint changes too.
+    operator: >-
+      The sha256 of an image's manifest, shown as Image ID in kubectl describe pod. Unlike a tag, it can't be
+      moved to other contents, so it says exactly what is running.
+    related: [image]
   - id: desired-state
     term: Desired state
     aliases: [declarative, declared state]

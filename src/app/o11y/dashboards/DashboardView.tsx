@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ComponentProps } from 'react'
 import type { Simulator } from '@/sim/core/simulator'
 import {
   DASHBOARDS,
@@ -60,18 +60,11 @@ export function DashboardView({
         variableValues(src, v.from.metric, v.from.label, start, end),
       ]),
     )
-    const panels = (d?.panels ?? []).map((p) => {
-      const query = interpolate(p.query, vars)
-      return {
-        panel: p,
-        query,
-        result:
-          p.type === 'logs' ? { ok: true as const, series: [] } : runPanel(src, query, start, end),
-        ...(p.type === 'logs' ? { logs: errorLogs(sim, vars.namespace ?? '', start, end) } : {}),
-      }
-    })
+    // Each panel runs its own query when it renders (PanelWithData), so a big dashboard renders in
+    // pieces React can interleave with input, instead of one long task (E11-02).
+    const panels = (d?.panels ?? []).map((p) => ({ panel: p, query: interpolate(p.query, vars) }))
     const exemplars = onOpenTrace ? slowTraces(sim, vars.service ?? '', start, end) : []
-    return { choices, panels, annotations: deployAnnotations(sim, start, end), exemplars }
+    return { choices, panels, src, annotations: deployAnnotations(sim, start, end), exemplars }
     // `start` and `end` follow `now`, which Refresh moves to the simulation's time.
   }, [sim, d, start, end, vars, onOpenTrace])
   if (!d) return null
@@ -199,13 +192,13 @@ export function DashboardView({
       <div className="@container">
         <div className="grid grid-cols-12 gap-3">
           {data.panels.map((x) => (
-            <PanelView
+            <PanelWithData
               key={`${d.id}/${x.panel.id}`}
               sim={sim}
+              src={data.src}
+              namespace={vars.namespace ?? ''}
               panel={x.panel}
               query={x.query}
-              result={x.result}
-              {...(x.logs ? { logs: x.logs } : {})}
               annotations={data.annotations}
               range={[start, end]}
               headingLevel={headingLevel === 3 ? 4 : 3}
@@ -217,5 +210,41 @@ export function DashboardView({
         </div>
       </div>
     </section>
+  )
+}
+
+/** One panel, running its own query (memoised), then drawn by PanelView. */
+function PanelWithData({
+  sim,
+  src,
+  namespace,
+  panel,
+  query,
+  range,
+  ...rest
+}: Omit<ComponentProps<typeof PanelView>, 'result' | 'logs'> & {
+  src: ReturnType<typeof windowSource>
+  namespace: string
+}) {
+  const [start, end] = range
+  const result = useMemo(
+    () =>
+      panel.type === 'logs' ? { ok: true as const, series: [] } : runPanel(src, query, start, end),
+    [panel, src, query, start, end],
+  )
+  const logs = useMemo(
+    () => (panel.type === 'logs' ? errorLogs(sim, namespace, start, end) : undefined),
+    [panel, sim, namespace, start, end],
+  )
+  return (
+    <PanelView
+      sim={sim}
+      panel={panel}
+      query={query}
+      range={range}
+      result={result}
+      {...(logs ? { logs } : {})}
+      {...rest}
+    />
   )
 }
