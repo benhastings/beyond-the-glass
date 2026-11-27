@@ -6,10 +6,12 @@ import { SCENARIOS } from '@/scenarios'
 import { acTest } from '@/test/ac'
 import { createShell } from '../commands'
 import { loadSimulation } from '../controllers'
+import { parse } from 'yaml'
 import { attach, ChallengeRun } from './engine'
 
-const LESSONS = join(import.meta.dirname, '../../../content/regions/helm-keep/anatomy')
-const lesson = (id: string) => readFileSync(join(LESSONS, `${id}.mdx`), 'utf8')
+const REGION = join(import.meta.dirname, '../../../content/regions/helm-keep')
+const lesson = (id: string, module = 'anatomy') =>
+  readFileSync(join(REGION, module, `${id}.mdx`), 'utf8')
 
 /** Plays a challenge's expert path in a fresh simulation; returns whether it completed, and the output. */
 function solve(id: string) {
@@ -74,6 +76,56 @@ describe('E9-03 Helm Keep I', () => {
       expect(alt).toMatch(/kubelet/)
       expect(alt.length).toBeGreaterThan(80)
       expect(text).toMatch(/```mermaid\nflowchart/)
+    },
+  )
+})
+
+describe('E9-04 Helm Keep II', () => {
+  acTest(
+    'E9-04.AC1',
+    'challenges: delete a pod and see it replaced, scale a Deployment, trace a Service to its endpoints, watch a rolling update',
+    () => {
+      const placed = (id: string, l: string) => {
+        expect(lesson(l, 'workloads')).toMatch(
+          new RegExp(`<Terminal scenario="ravenpost" challenge="${id}"`),
+        )
+      }
+      placed('replace-a-pod', 'reconciliation')
+      placed('scale-the-worker', 'reconciliation')
+      placed('roll-out-web', 'reconciliation')
+      placed('trace-a-service', 'services')
+      const replaced = solve('replace-a-pod')
+      expect(replaced.complete).toBe(true)
+      // The pod that was deleted isn't in the last listing; a new one is.
+      const last = replaced.out.split('pod "ravenpost-web-74d9fdfcd5-252jk" deleted').at(-1) ?? ''
+      expect(last).not.toMatch(/ravenpost-web-74d9fdfcd5-252jk/)
+      expect(last.match(/^ravenpost-web-\S+\s+1\/1\s+Running/gm)).toHaveLength(2)
+      const scaled = solve('scale-the-worker')
+      expect(scaled.complete).toBe(true)
+      expect(scaled.out).toMatch(/successfully rolled out/)
+      const traced = solve('trace-a-service')
+      expect(traced.complete).toBe(true)
+      expect(traced.out).toMatch(/^ravenpost-api\s+(\d+\.\d+\.\d+\.\d+:8080,?){3}/m)
+      const rolled = solve('roll-out-web')
+      expect(rolled.complete).toBe(true)
+      expect(rolled.out).toMatch(/Waiting for deployment "ravenpost-web" rollout to finish/)
+      expect(rolled.out).toMatch(/^2\s/m)
+    },
+  )
+
+  acTest(
+    'E9-04.AC2',
+    'the probes lesson has a spot-the-bug readiness probe check, on the wrong path',
+    () => {
+      expect(lesson('probes-and-resources', 'workloads')).toMatch(/<Check id="probes-bug" \/>/)
+      const file = parse(
+        readFileSync(join(REGION, 'workloads/probes-and-resources.checks.yaml'), 'utf8'),
+      ) as { checks: { id: string; type: string; code: string; bugLines: number[] }[] }
+      const bug = file.checks.find((c) => c.id === 'probes-bug')
+      expect(bug?.type).toBe('spot-the-bug')
+      const lines = bug?.code.split('\n') ?? []
+      expect(lines[(bug?.bugLines[0] ?? 0) - 1]).toMatch(/path: \/readyz/)
+      expect(bug?.code).toMatch(/readinessProbe:/)
     },
   )
 })

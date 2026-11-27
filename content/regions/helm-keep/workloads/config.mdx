@@ -1,0 +1,73 @@
+---
+id: config
+title: ConfigMaps and Secrets
+order: 2
+objectives:
+  - Say why config lives outside the image
+  - Read a ConfigMap, and find which pods use it
+  - Say why kubectl shows a Secret's values as redacted, and what that does and doesn't protect
+estimatedMinutes: 12
+domain: kubernetes
+level: deckhand
+scenario: ravenpost
+terms: [configmap, image]
+prerequisites: [services]
+---
+
+<Step id="outside" title="Config outside the image">
+
+<Rosetta id="config-files-configmap" />
+
+One image runs in test and in production, so settings that differ between them can't be baked in. A
+
+<Term id="configmap">ConfigMap</Term> holds them: key and value pairs the cluster hands to the pod
+as environment variables or as files. Change the ConfigMap, restart the pods, and the same image
+runs with new settings.
+
+<CodeBlock
+  language="console"
+  caption="Ravenpost's settings"
+  code="kubectl get configmap ravenpost-config -n ravenpost -o yaml"
+/>
+
+</Step>
+
+<Step id="secrets" title="Secrets">
+
+A **Secret** is a ConfigMap for things that must not leak: passwords, tokens, keys. In this course,
+`kubectl get secret -o yaml` shows each value as `<redacted: N bytes>`.
+
+<Depth>
+  <ELI5>
+    A Secret is a locked drawer for passwords. The cluster keeps it apart from other settings and
+    only gives it to the programs that need it.
+  </ELI5>
+  <Operator>
+    Secrets are kept apart so access can be limited (who can read them, which pods mount them). In a
+    real cluster their values are only base64-encoded, which anyone with read access can decode, so
+    the protection is the access rules, not the encoding. Treat Secret output like a password on
+    screen.
+  </Operator>
+</Depth>
+
+<Callout kind="warn">Never paste a Secret's output into a ticket or a chat, even encoded.</Callout>
+
+</Step>
+
+<Step id="missing" title="When a key is missing">
+
+A pod that needs a ConfigMap key that isn't there either fails to start (if the key is referenced in the
+pod spec) or starts and exits with an error (if the program looks for it). The second shows up as
+CrashLoopBackOff, with the missing key named in the logs of the run that crashed.
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="config-why" />
+
+<Check id="config-secret" />
+
+<Check id="config-missing" />
+
+</Step>

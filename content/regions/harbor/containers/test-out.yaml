@@ -1,0 +1,62 @@
+# Test out of "Containers and images" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-harbor-share
+    type: single
+    review: { lesson: shipping-containers, step: isolation }
+    prompt: What do the containers on a node share?
+    explanation: They share the node's kernel, and each has its own filesystem, processes and network.
+    options:
+      - id: files
+        text: One filesystem
+        feedback: Each container sees the files from its own image.
+      - id: kernel
+        text: The node's kernel
+        correct: true
+      - id: os
+        text: A copy of the operating system each
+        feedback: That's a virtual machine. Containers don't bring a kernel of their own.
+  - id: test-out-harbor-tag
+    type: single
+    review: { lesson: images-and-tags, step: reference }
+    prompt: In registry.example/ravenpost/api:1.14.0, which part is the tag?
+    explanation: The tag is after the last colon.
+    options:
+      - id: registry
+        text: registry.example
+        feedback: That's the registry.
+      - id: repo
+        text: ravenpost/api
+        feedback: That's the repository.
+      - id: tag
+        text: '1.14.0'
+        correct: true
+  - id: test-out-harbor-digest
+    type: single
+    review: { lesson: images-and-tags, step: tags-digests }
+    prompt: Which tells you exactly what a pod is running?
+    explanation: The digest is a fingerprint of the image's contents; a tag can be moved.
+    options:
+      - id: digest
+        text: The Image ID's digest
+        correct: true
+      - id: tag
+        text: The tag
+        feedback: A tag can be moved to another image after the pod started.
+      - id: name
+        text: The pod's name
+        feedback: The pod's name doesn't say which image it runs.
+  - id: test-out-harbor-pull
+    type: single
+    review: { lesson: images-and-tags, step: tags-digests }
+    prompt: New pods show ImagePullBackOff, and the events say "not found". What's the likeliest cause?
+    explanation: The image reference asks for a tag (or registry) that doesn't exist.
+    options:
+      - id: memory
+        text: The pods ran out of memory
+        feedback: That shows as OOMKilled, after the container starts.
+      - id: tag
+        text: The release names a tag or registry that doesn't exist
+        correct: true
+      - id: probe
+        text: The readiness probe fails
+        feedback: That needs a running container. These never started.

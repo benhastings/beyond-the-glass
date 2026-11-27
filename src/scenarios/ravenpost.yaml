@@ -71,6 +71,8 @@ files:
       SMTP_PORT: "587"
 images:
   registry.example/ravenpost/web:2.3.1: { cpuMillis: 4, memoryMi: 58, healthPaths: [/healthz] }
+  # The next web release, for the rolling-update challenge (E9-04).
+  registry.example/ravenpost/web:2.3.2: { cpuMillis: 4, memoryMi: 60, healthPaths: [/healthz] }
   registry.example/ravenpost/api:1.14.0:
     { cpuMillis: 22, memoryMi: 174, healthPaths: [/ready, /healthz] }
   registry.example/ravenpost/worker:1.14.0: { cpuMillis: 35, memoryMi: 141 }

@@ -1,0 +1,39 @@
+id: roll-out-web
+title: Roll out web 2.3.2
+scenario: ravenpost
+brief: >-
+  Update ravenpost-web to registry.example/ravenpost/web:2.3.2, watch the rollout until it finishes, then
+  look at the rollout history.
+objectives:
+  - id: set
+    text: Set the web container's image to 2.3.2
+    check: { type: mutated, verb: set-image, kind: Deployment, name: ravenpost-web }
+  - id: watch
+    text: Watch the rollout
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+rollout\s+status\s+(deploy|deployment)/ravenpost-web\b'
+  - id: done
+    text: Every web pod runs 2.3.2
+    check:
+      type: resourceState
+      resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-web } }
+      path: 'spec.containers[0].image'
+      equals: registry.example/ravenpost/web:2.3.2
+      quantifier: all
+  - id: history
+    text: Read the rollout history
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+rollout\s+history\s+(deploy|deployment)/ravenpost-web\b'
+hints:
+  - level: nudge
+    text: Change the image on the Deployment, not on the pods.
+  - level: pointer
+    text: '`kubectl set image deploy/NAME CONTAINER=IMAGE` starts a rollout; `kubectl rollout status` follows it.'
+  - level: command
+    text: 'Run `kubectl set image deploy/ravenpost-web web=registry.example/ravenpost/web:2.3.2 -n ravenpost`, then `kubectl rollout status deploy/ravenpost-web -n ravenpost`, then `kubectl rollout history deploy/ravenpost-web -n ravenpost`.'
+expertPath:
+  - kubectl set image deploy/ravenpost-web web=registry.example/ravenpost/web:2.3.2 -n ravenpost
+  - kubectl rollout status deploy/ravenpost-web -n ravenpost
+  - kubectl rollout history deploy/ravenpost-web -n ravenpost

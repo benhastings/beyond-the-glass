@@ -1,0 +1,87 @@
+---
+id: reading-a-dockerfile
+title: Reading a Dockerfile
+order: 2
+objectives:
+  - Read a Dockerfile and say what each line adds to the image
+  - Spot a Dockerfile line that makes builds unrepeatable
+  - Say what `docker run`, `docker ps` and `docker logs` would show, and their cluster counterparts
+estimatedMinutes: 12
+domain: containers
+level: wayfarer
+terms: [image, container, logs]
+prerequisites: [images-and-tags]
+---
+
+<Step id="recipe" title="An image's recipe">
+
+<Analogy
+  then="Building a server meant a runbook: install these packages, copy these files, set this config, start this service."
+  now="A Dockerfile is that runbook, run by a machine, the same way every time, producing an image."
+/>
+
+Here is the Dockerfile for Ravenpost's notifier:
+
+<CodeBlock
+  language="dockerfile"
+  caption="The notifier's Dockerfile"
+  code={`FROM registry.example/base/python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY notifier/ ./notifier/
+USER 10001
+CMD ["python", "-m", "notifier"]`}
+/>
+
+</Step>
+
+<Step id="lines" title="Line by line">
+
+- `FROM` starts from a base image: here, a slim Python image from the team's registry, pinned to 3.12.
+- `WORKDIR` sets the folder the next lines work in.
+- `COPY requirements.txt` then `RUN pip install` add the libraries. Copying the list first means a code
+  change doesn't reinstall every library: that layer is reused.
+- `COPY notifier/` adds the program itself.
+- `USER 10001` runs it as an ordinary user, not root.
+- `CMD` is the command the container starts with.
+
+<Depth>
+  <ELI5>
+    Each line is one step of the recipe. The first line picks a starting point. The middle lines add
+    what the program needs. The last line says how to start it.
+  </ELI5>
+  <Operator>
+    Every instruction adds a layer, built in order and cached. Put what changes least first (the
+    base, the library list) and what changes most last (the code), so rebuilds are fast. Pin the
+    base image's tag, or better its digest, so two builds a week apart start from the same place.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="docker" title="What docker would show you">
+
+On a laptop, `docker run` starts a container from an image, `docker ps` lists running containers, and
+`docker logs` prints what a container wrote to its output. You won't run docker in the cluster: Kubernetes
+starts containers for you, inside pods. The questions are the same, though, and so are the answers:
+
+| On your laptop          | In the cluster                                                    |
+| ----------------------- | ----------------------------------------------------------------- |
+| `docker run IMAGE`      | A Deployment says which image to run, and the cluster starts pods |
+| `docker ps`             | `kubectl get pods`                                                |
+| `docker logs CONTAINER` | `kubectl logs POD`                                                |
+
+<Rosetta id="tail-logs" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="dockerfile-bug" />
+
+<Check id="dockerfile-order" />
+
+<Check id="dockerfile-logs" />
+
+</Step>
