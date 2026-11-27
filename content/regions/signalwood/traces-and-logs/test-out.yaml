@@ -1,0 +1,47 @@
+# Test out of "OpenTelemetry traces and logs" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-traces-span
+    type: single
+    review: { lesson: following-one-request, step: parcel }
+    prompt: What is a span?
+    explanation: One service's part of a request, with a start, an end and a parent.
+    options:
+      - id: span
+        text: One service's part of a request
+        correct: true
+      - id: trace
+        text: A whole request across every service
+        feedback: That's a trace.
+      - id: log
+        text: A log line
+        feedback: Logs can link to spans, but aren't spans.
+  - id: test-out-traces-prop
+    type: single
+    review: { lesson: context-propagation, step: propagation }
+    prompt: Traces stop at the api, and the ledger's spans have no parent. What's wrong?
+    explanation: The api isn't passing the trace context on to the services it calls.
+    options:
+      - id: ledger
+        text: The ledger is down
+        feedback: Its spans are there, but not linked.
+      - id: prop
+        text: The api doesn't propagate the trace context
+        correct: true
+      - id: sampling
+        text: Sampling is too low
+        feedback: Sampling drops whole traces, not links within them.
+  - id: test-out-traces-logs
+    type: single
+    review: { lesson: logs-with-traces, step: structured }
+    prompt: Which field links a log line to its trace?
+    explanation: trace_id.
+    options:
+      - id: ts
+        text: ts
+        feedback: That's when it was written.
+      - id: trace
+        text: trace_id
+        correct: true
+      - id: level
+        text: level
+        feedback: That's how serious it is.

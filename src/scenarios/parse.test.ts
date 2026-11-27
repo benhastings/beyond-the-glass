@@ -27,6 +27,8 @@ describe('parseScenario', () => {
       'triage',
       'pipelines',
       'signals',
+      'slow-ledger',
+      'broken-traces',
       'gitops-drift',
       'gitops-manual-sync',
       'gitops-sync-failed',

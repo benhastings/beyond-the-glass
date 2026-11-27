@@ -1,0 +1,419 @@
+# Signalwood II (E9-10): the Stormwatch reference system where ravenpost-api doesn't pass trace context on, so
+# every trace stops at the api and its calls start traces of their own. Format: docs/sim/scenarios.md
+id: broken-traces
+title: Ravenpost, with traces that stop short
+description: >-
+  Since this mornings api upgrade, traces of sends stop at ravenpost-api, and the ledgers spans show up on
+  their own. Find out why.
+seed: 2077
+startTime: 2026-03-14T20:00:00Z
+warmUp: +20m
+currentContext: prod
+images:
+  registry.example/ravenpost/gate:2.3.1: { memoryMi: 90, cpuMillis: 40 }
+  registry.example/ravenpost/api:1.14.0: { memoryMi: 200, cpuMillis: 120 }
+  registry.example/ravenpost/ledger:4.2.0: { memoryMi: 180, cpuMillis: 80 }
+  registry.example/library/postgres:16.4: { memoryMi: 600, cpuMillis: 150 }
+  registry.example/library/redis:7.4: { memoryMi: 120, cpuMillis: 30 }
+  registry.example/ravenpost/scribe:1.8.3: { memoryMi: 150, cpuMillis: 60 }
+contexts:
+  - { name: prod, cluster: prod, user: oncall, namespace: ravenpost }
+  - { name: stage, cluster: stage, user: oncall, namespace: ravenpost-stage }
+clusters:
+  - name: prod
+    server: https://prod.ravenpost.example:6443
+    kubernetesVersion: v1.34.0
+    system: none
+    age: -120d
+    nodes:
+      - { name: prod-control-plane, role: control-plane }
+      - { name: prod-worker-1 }
+      - { name: prod-worker-2 }
+      - { name: prod-worker-3 }
+    resources:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          {
+            name: ravenpost,
+            creationTimestamp: -120d,
+            labels: { app.kubernetes.io/part-of: ravenpost },
+          }
+
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata: { name: ravenpost-api-config, namespace: ravenpost, creationTimestamp: -30d }
+        data:
+          LEDGER_URL: http://ledger.ravenpost.svc:8080
+          QUEUE_URL: redis://queue.ravenpost.svc:6379
+          LOG_LEVEL: info
+          FEATURE_BATCH_LOOKUP: 'false'
+
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata: { name: ledger-config, namespace: ravenpost, creationTimestamp: -30d }
+        data:
+          DB_HOST: postgres.ravenpost.svc
+          DB_POOL_SIZE: '20'
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: gate,
+            namespace: ravenpost,
+            creationTimestamp: -30d,
+            labels: { app: gate, app.kubernetes.io/part-of: ravenpost },
+          }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: gate } }
+          template:
+            metadata: { labels: { app: gate, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: gate
+                  image: registry.example/ravenpost/gate:2.3.1
+                  ports: [{ name: http, containerPort: 8080 }]
+                  resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { memory: 256Mi } }
+                  readinessProbe: { httpGet: { path: /ready, port: http }, periodSeconds: 10 }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: ravenpost-api,
+            namespace: ravenpost,
+            creationTimestamp: -30d,
+            labels: { app: ravenpost-api, app.kubernetes.io/part-of: ravenpost },
+          }
+        spec:
+          replicas: 3
+          selector: { matchLabels: { app: ravenpost-api } }
+          template:
+            metadata: { labels: { app: ravenpost-api, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: api
+                  image: registry.example/ravenpost/api:1.14.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  envFrom: [{ configMapRef: { name: ravenpost-api-config } }]
+                  resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { memory: 512Mi } }
+                  readinessProbe: { httpGet: { path: /ready, port: http }, periodSeconds: 10 }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: ledger,
+            namespace: ravenpost,
+            creationTimestamp: -30d,
+            labels: { app: ledger, app.kubernetes.io/part-of: ravenpost },
+          }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: ledger } }
+          template:
+            metadata: { labels: { app: ledger, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: ledger
+                  image: registry.example/ravenpost/ledger:4.2.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  envFrom: [{ configMapRef: { name: ledger-config } }]
+                  resources: { requests: { cpu: 200m, memory: 256Mi }, limits: { memory: 512Mi } }
+                  readinessProbe: { httpGet: { path: /ready, port: http }, periodSeconds: 10 }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: postgres,
+            namespace: ravenpost,
+            creationTimestamp: -120d,
+            labels: { app: postgres, app.kubernetes.io/part-of: ravenpost },
+          }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: postgres } }
+          template:
+            metadata: { labels: { app: postgres, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: postgres
+                  image: registry.example/library/postgres:16.4
+                  ports: [{ name: postgres, containerPort: 5432 }]
+                  resources: { requests: { cpu: 500m, memory: 1Gi }, limits: { memory: 1Gi } }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: queue,
+            namespace: ravenpost,
+            creationTimestamp: -120d,
+            labels: { app: queue, app.kubernetes.io/part-of: ravenpost },
+          }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: queue } }
+          template:
+            metadata: { labels: { app: queue, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: redis
+                  image: registry.example/library/redis:7.4
+                  ports: [{ name: redis, containerPort: 6379 }]
+                  resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: scribe,
+            namespace: ravenpost,
+            creationTimestamp: -30d,
+            labels: { app: scribe, app.kubernetes.io/part-of: ravenpost },
+          }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: scribe } }
+          template:
+            metadata: { labels: { app: scribe, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: scribe
+                  image: registry.example/ravenpost/scribe:1.8.3
+                  envFrom: [{ configMapRef: { name: ravenpost-api-config } }]
+                  resources: { requests: { cpu: 100m, memory: 192Mi }, limits: { memory: 384Mi } }
+
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          { name: gate, namespace: ravenpost, creationTimestamp: -30d, labels: { app: gate } }
+        spec: { selector: { app: gate }, ports: [{ name: http, port: 80, targetPort: http }] }
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: ravenpost-api,
+            namespace: ravenpost,
+            creationTimestamp: -30d,
+            labels: { app: ravenpost-api },
+          }
+        spec:
+          {
+            selector: { app: ravenpost-api },
+            ports: [{ name: http, port: 8080, targetPort: http }],
+          }
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          { name: ledger, namespace: ravenpost, creationTimestamp: -30d, labels: { app: ledger } }
+        spec: { selector: { app: ledger }, ports: [{ name: http, port: 8080, targetPort: http }] }
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: postgres,
+            namespace: ravenpost,
+            creationTimestamp: -120d,
+            labels: { app: postgres },
+          }
+        spec:
+          {
+            selector: { app: postgres },
+            ports: [{ name: postgres, port: 5432, targetPort: postgres }],
+          }
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          { name: queue, namespace: ravenpost, creationTimestamp: -120d, labels: { app: queue } }
+        spec: { selector: { app: queue }, ports: [{ name: redis, port: 6379, targetPort: redis }] }
+
+  - name: stage
+    server: https://stage.ravenpost.example:6443
+    kubernetesVersion: v1.34.0
+    system: none
+    age: -90d
+    nodes:
+      - { name: stage-control-plane, role: control-plane }
+      - { name: stage-worker-1 }
+    resources:
+      - apiVersion: v1
+        kind: Namespace
+        metadata: { name: ravenpost-stage, creationTimestamp: -90d }
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          { name: ravenpost-api-config, namespace: ravenpost-stage, creationTimestamp: -30d }
+        data:
+          LEDGER_URL: http://ledger.ravenpost-stage.svc:8080
+          QUEUE_URL: redis://queue.ravenpost-stage.svc:6379
+          LOG_LEVEL: debug
+          FEATURE_BATCH_LOOKUP: 'true'
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          { name: gate, namespace: ravenpost-stage, creationTimestamp: -30d, labels: { app: gate } }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: gate } }
+          template:
+            metadata: { labels: { app: gate } }
+            spec:
+              containers:
+                - name: gate
+                  image: registry.example/ravenpost/gate:2.3.1
+                  ports: [{ name: http, containerPort: 8080 }]
+                  resources: { requests: { cpu: 50m, memory: 128Mi }, limits: { memory: 256Mi } }
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: ravenpost-api,
+            namespace: ravenpost-stage,
+            creationTimestamp: -30d,
+            labels: { app: ravenpost-api },
+          }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: ravenpost-api } }
+          template:
+            metadata: { labels: { app: ravenpost-api } }
+            spec:
+              containers:
+                - name: api
+                  image: registry.example/ravenpost/api:1.14.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  envFrom: [{ configMapRef: { name: ravenpost-api-config } }]
+                  resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          {
+            name: ledger,
+            namespace: ravenpost-stage,
+            creationTimestamp: -30d,
+            labels: { app: ledger },
+          }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: ledger } }
+          template:
+            metadata: { labels: { app: ledger } }
+            spec:
+              containers:
+                - name: ledger
+                  image: registry.example/ravenpost/ledger:4.2.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+      - apiVersion: v1
+        kind: Service
+        metadata: { name: gate, namespace: ravenpost-stage, creationTimestamp: -30d }
+        spec: { selector: { app: gate }, ports: [{ name: http, port: 80, targetPort: http }] }
+      - apiVersion: v1
+        kind: Service
+        metadata: { name: ravenpost-api, namespace: ravenpost-stage, creationTimestamp: -30d }
+        spec:
+          {
+            selector: { app: ravenpost-api },
+            ports: [{ name: http, port: 8080, targetPort: http }],
+          }
+      - apiVersion: v1
+        kind: Service
+        metadata: { name: ledger, namespace: ravenpost-stage, creationTimestamp: -30d }
+        spec: { selector: { app: ledger }, ports: [{ name: http, port: 8080, targetPort: http }] }
+
+gitops:
+  reconcileInterval: +3m
+  repos:
+    ravenpost-deploy:
+      mirror:
+        - { cluster: prod, namespace: ravenpost, path: prod }
+        - { cluster: stage, namespace: ravenpost-stage, path: stage }
+      files:
+        README.md: |
+          # ravenpost-deploy
+
+          What runs where. Argo CD deploys prod/ to the prod cluster and stage/ to staging.
+          Change it through a merge request: the pipeline checks every manifest first.
+    ravenpost-api:
+      files:
+        README.md: |
+          # ravenpost-api
+
+          Takes messages from the gate, records them in the ledger and queues them for the scribe.
+        package.json: |
+          { "name": "ravenpost-api", "version": "1.14.0" }
+  ci:
+    ravenpost-api:
+      image: registry.example/ravenpost/api
+      deploy: { repo: ravenpost-deploy, file: prod/deployment-ravenpost-api.yaml }
+    ravenpost-deploy:
+      policies: [no-latest-tag, memory-limits]
+  applications:
+    - name: ravenpost
+      source: { repo: ravenpost-deploy, path: prod }
+      destination: { cluster: prod, namespace: ravenpost }
+      syncPolicy: { automated: { prune: true, selfHeal: true } }
+    - name: ravenpost-stage
+      source: { repo: ravenpost-deploy, path: stage }
+      destination: { cluster: stage, namespace: ravenpost-stage }
+      syncPolicy: { automated: { prune: true, selfHeal: false } }
+
+telemetry:
+  dailyAmplitude: 0.3
+  services:
+    - {
+        name: gate,
+        namespace: ravenpost,
+        calls: [ravenpost-api],
+        latencyMs: 6,
+        rps: 60,
+        errorRate: 0.0001,
+        operation: POST /messages,
+      }
+    - {
+        name: ravenpost-api,
+        namespace: ravenpost,
+        propagates: false,
+        calls: [ledger, queue],
+        latencyMs: 22,
+        errorRate: 0.0001,
+        operation: POST /messages,
+      }
+    - {
+        name: ledger,
+        namespace: ravenpost,
+        calls: [postgres],
+        latencyMs: 14,
+        errorRate: 0.0001,
+        operation: POST /entries,
+      }
+    - {
+        name: postgres,
+        namespace: ravenpost,
+        kind: db,
+        latencyMs: 5,
+        errorRate: 0.0001,
+        operation: INSERT entries,
+      }
+    - {
+        name: queue,
+        namespace: ravenpost,
+        kind: queue,
+        latencyMs: 2,
+        errorRate: 0.0001,
+        operation: publish deliveries,
+      }
+    - {
+        name: scribe,
+        namespace: ravenpost,
+        kind: worker,
+        calls: [postgres],
+        latencyMs: 30,
+        rps: 8,
+        errorRate: 0.0001,
+        operation: deliver message,
+      }

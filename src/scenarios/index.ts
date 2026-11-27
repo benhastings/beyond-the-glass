@@ -2,6 +2,8 @@
 import pipelines from '@/scenarios/pipelines.yaml'
 import ravenpost from '@/scenarios/ravenpost.yaml'
 import signals from '@/scenarios/signals.yaml'
+import slowLedger from '@/scenarios/slow-ledger.yaml'
+import brokenTraces from '@/scenarios/broken-traces.yaml'
 import stormwatch from '@/scenarios/stormwatch.yaml'
 import theLongNight from '@/scenarios/the-long-night.yaml'
 import triage from '@/scenarios/triage.yaml'
@@ -16,6 +18,8 @@ export const SCENARIOS: Readonly<Record<string, Scenario>> = {
   [triage.id]: triage,
   [pipelines.id]: pipelines,
   [signals.id]: signals,
+  [slowLedger.id]: slowLedger,
+  [brokenTraces.id]: brokenTraces,
   // Built from the GitOps fragments (E9-08), in code rather than YAML.
   ...Object.fromEntries(FRAGMENT_SCENARIO_LIST.map((s) => [s.id, s])),
 }

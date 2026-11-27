@@ -56,14 +56,26 @@ export function traceIdFor(sim: Simulator, entryIndex: number, bucket: number): 
 const spanIdFor = (traceId: string, path: string) =>
   `${hex(fnv1a32(`${traceId}/${path}`), 8)}${hex(fnv1a32(`${path}/${traceId}`), 8)}`
 
+/**
+ * A new trace ID for a call made without context propagation: a fresh first half, the same bucket and entry
+ * (so `trace()` can still find and rebuild it).
+ */
+const brokenTraceId = (traceId: string, path: string) =>
+  `${hex(fnv1a32(`${traceId}/${path}/new`), 8)}${hex(fnv1a32(`new/${path}/${traceId}`), 8)}${traceId.slice(16)}`
+
+/**
+ * One sampled request from `entry`, as the trace it starts, plus a trace for every call made by a service
+ * that doesn't propagate context (E9-10): those start over, with no parent.
+ */
 function build(
   sim: Simulator,
   entry: ServiceSpec,
   entryIndex: number,
   bucket: number,
   ctx: ModelContext,
-): Trace {
-  const traceId = traceIdFor(sim, entryIndex, bucket)
+): Trace[] {
+  const rootTraceId = traceIdFor(sim, entryIndex, bucket)
+  const traceId = rootTraceId
   const t0 = bucket * STEP_MS + Math.floor(unit(traceId, 'offset') * 1000)
   const model = modelAt(sim, bucket * STEP_MS, ctx)
   const byName = ctx.byName
@@ -75,12 +87,13 @@ function build(
     parent: string | undefined,
     path: string,
     depth: number,
+    tid: string = traceId,
   ): Span => {
     const m = model.get(s.name)
     const pods = runningAt(ctx, s, start)
-    const spanId = spanIdFor(traceId, path)
+    const spanId = spanIdFor(tid, path)
     const span: Span = {
-      traceId,
+      traceId: tid,
       spanId,
       ...(parent ? { parentSpanId: parent } : {}),
       name: s.operation,
@@ -117,7 +130,10 @@ function build(
       for (const [i, c] of s.calls.entries()) {
         const callee = byName.get(c)
         if (!callee) continue
-        const child = serve(callee, cursor, spanId, `${path}/${String(i)}`, depth + 1)
+        const childPath = `${path}/${String(i)}`
+        const child = s.propagates
+          ? serve(callee, cursor, spanId, childPath, depth + 1, tid)
+          : serve(callee, cursor, undefined, childPath, depth + 1, brokenTraceId(tid, childPath))
         cursor = child.end
         if (child.status.code === 'STATUS_CODE_ERROR') {
           failed = { code: 500, message: `${callee.name}: ${child.status.message ?? 'error'}` }
@@ -163,15 +179,21 @@ function build(
     } else span.status = { code: 'STATUS_CODE_UNSET' }
     return span
   }
-  const root = serve(entry, t0, undefined, '0', 0)
-  return {
-    traceId,
-    rootService: entry.name,
-    start: root.start,
-    durationMs: root.end - root.start,
-    error: spans.some((x) => x.status.code === 'STATUS_CODE_ERROR'),
-    spans,
-  }
+  serve(entry, t0, undefined, '0', 0)
+  // One trace per trace ID, in the order they started (the request's own first).
+  const ids = [...new Set(spans.map((x) => x.traceId))]
+  return ids.map((id) => {
+    const own = spans.filter((x) => x.traceId === id)
+    const root = own.find((x) => !x.parentSpanId) ?? own[0]
+    return {
+      traceId: id,
+      rootService: root?.service ?? entry.name,
+      start: root?.start ?? t0,
+      durationMs: (root?.end ?? t0) - (root?.start ?? t0),
+      error: own.some((x) => x.status.code === 'STATUS_CODE_ERROR'),
+      spans: own,
+    }
+  })
 }
 
 /** The failure share a service inherits from its calls. */
@@ -192,9 +214,8 @@ export function trace(sim: Simulator, traceId: string): Trace | undefined {
   const entryIndex = parseInt(traceId.slice(24), 16)
   const ctx = modelContext(sim)
   const entry = ctx.entries[entryIndex]
-  if (!entry || traceIdFor(sim, entryIndex, bucket) !== traceId || bucket * STEP_MS > sim.now)
-    return undefined
-  return build(sim, entry, entryIndex, bucket, ctx)
+  if (!entry || bucket * STEP_MS > sim.now) return undefined
+  return build(sim, entry, entryIndex, bucket, ctx).find((t) => t.traceId === traceId)
 }
 
 /**
@@ -214,7 +235,7 @@ export function tracesInWindow(sim: Simulator, start: number, end: number): Trac
     if (!traces) {
       ctx ??= modelContext(sim)
       const c = ctx
-      traces = c.entries.map((e, i) => build(sim, e, i, b, c))
+      traces = c.entries.flatMap((e, i) => build(sim, e, i, b, c))
       if ((b + 2) * STEP_MS <= sim.now) cache.set(b, traces)
     }
     for (const t of traces)

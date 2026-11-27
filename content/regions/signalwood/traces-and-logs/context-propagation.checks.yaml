@@ -1,0 +1,43 @@
+checks:
+  - id: prop-header
+    type: single
+    required: true
+    prompt: How does the next service learn which trace a request belongs to?
+    explanation: The caller's SDK puts the trace context in the traceparent header, and the next SDK reads it.
+    options:
+      - id: header
+        text: From the traceparent header the caller's SDK added
+        correct: true
+      - id: collector
+        text: The Collector tells it
+        feedback: The Collector only receives spans afterwards.
+      - id: time
+        text: By matching timestamps
+        feedback: Timestamps can't tell concurrent requests apart.
+  - id: prop-symptom
+    type: multiple
+    prompt: Which are signs that a service isn't passing trace context on?
+    explanation: Traces end at that service, and traces start at its callees with no parent, at the same moments.
+    options:
+      - id: stop
+        text: Traces end at that service
+        correct: true
+      - id: orphan
+        text: Its callees' spans appear as traces of their own, with no parent
+        correct: true
+      - id: errors
+        text: Its error rate goes up
+        feedback: Requests still work; only the tracing breaks.
+  - id: prop-collector
+    type: ordering
+    prompt: Put a span's journey in order.
+    explanation: The SDK records it, OTLP carries it, the Collector processes and exports it, and the store keeps it.
+    items:
+      - id: sdk
+        text: The service's SDK records the span
+      - id: otlp
+        text: It's sent over OTLP
+      - id: collector
+        text: The Collector batches and exports it
+      - id: store
+        text: The trace store keeps it for searching

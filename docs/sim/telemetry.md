@@ -21,6 +21,11 @@ telemetry:
 `name` is the Kubernetes Service; `deployment` defaults to the same name. Entry services (with `rps`, or
 called by nobody) receive outside traffic; it flows down `calls`.
 
+`propagates: false` (E9-10) makes a service call its dependencies without passing trace context on: each
+call starts a new trace (a fresh first half of the trace ID, the same bucket and entry, so `trace()` still
+finds it), and the callee's span has no parent. Traces then stop at that service, and its callees' spans turn
+up as traces of their own, as they would with an uninstrumented HTTP client.
+
 ## History
 
 `src/sim/telemetry/history.ts` is the last controller. On every reconcile it records:

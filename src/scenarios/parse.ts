@@ -9,7 +9,7 @@ import {
   type Node as YamlNode,
 } from 'yaml'
 import { scenarioSchema, type Scenario } from '../sim/core/scenario.ts'
-import { Simulator } from '../sim/core/simulator.ts'
+import { loadSimulation } from '../sim/controllers/index.ts'
 
 export interface ScenarioIssue {
   file: string
@@ -166,7 +166,8 @@ export function parseScenario(
     )
   }
   try {
-    Simulator.load(result.data)
+    // With the controllers, so a warm-up (warmUp) plays the timeline as it will in the app.
+    loadSimulation(result.data)
   } catch (e) {
     throw new ScenarioError([
       {
