@@ -1,0 +1,44 @@
+/*
+ * Idle motion for the scenes (E1-04). Every loop, with its start delay, ends within five seconds (WCAG 2.2.2; art direction:
+ * no autoplaying loops longer than 5 s). Nothing flashes: the lights change by under 70 % of a tiny area at
+ * 0.8 Hz, the CRTs by 10 % at 2 Hz. [data-motion='reduce'] (display.css) stops all of it; the glass then
+ * rests at 85 %.
+ */
+.btg-light {
+  animation: btg-light 1.25s steps(1, end) 3;
+}
+@keyframes btg-light {
+  50% {
+    opacity: 0.35;
+  }
+}
+.btg-crt {
+  animation: btg-crt 0.5s ease-in-out 9;
+}
+@keyframes btg-crt {
+  50% {
+    opacity: 0.9;
+  }
+}
+.btg-glass-breath {
+  opacity: 0.85;
+  animation: btg-glass-breath 5s ease-in-out 1 both;
+}
+@keyframes btg-glass-breath {
+  0% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btg-light,
+  .btg-crt,
+  .btg-glass-breath {
+    animation: none;
+  }
+}

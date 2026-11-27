@@ -1,0 +1,100 @@
+---
+id: watching-to-told
+title: From watching to being told
+order: 1
+objectives:
+  - Tell a symptom alert from a cause alert, with an example of each
+  - Say what an SLO is, and why alerts are tied to it
+  - Decide whether a given alert should wake someone up
+estimatedMinutes: 12
+domain: foundations
+level: wayfarer
+terms: [metrics, alert-rule, slo]
+prerequisites: [what-changed]
+---
+
+<Step id="the-wall" title="The wall of screens">
+
+<Analogy
+  then="You watched the wall: host graphs, ping checks, a red light for every disk over 90%."
+  now="Rules watch the metrics for you, and page a person only when users are affected."
+/>
+
+The wall worked when there were dozens of servers you knew by name. A cluster runs hundreds of pods that
+come and go every day. Nobody can watch all of that, and most of it doesn't need watching: a pod that
+restarts once and recovers is the cluster doing its job.
+
+So the work changes from watching everything to being told about the things that matter.
+
+<Rosetta id="watching-the-wall" />
+
+</Step>
+
+<Step id="symptoms" title="Symptoms, not causes">
+
+A **cause** alert fires on something that might hurt: CPU high, a disk filling, a pod restarting. A
+**symptom** alert fires on something that does hurt: senders getting errors, mail taking too long to
+send.
+
+<Depth>
+  <ELI5>
+    A cause alert says "this might be a problem". A symptom alert says "people are having a problem
+    right now". Wake people for the second kind. Look at the first kind in the morning.
+  </ELI5>
+  <Operator>
+    Page on symptoms users feel: error rate, latency, availability, measured where users meet the
+    service (the gate, for Ravenpost). Cause signals (saturation, restarts, node pressure) go on
+    dashboards and in tickets, and are where you look **after** a symptom pages you. One symptom
+    alert covers many causes, including ones you didn't predict.
+  </Operator>
+</Depth>
+
+<Rosetta id="nagios-alert-rule" />
+
+</Step>
+
+<Step id="slos" title="Service level objectives">
+
+An <Term id="slo">SLO</Term> is a target for how good the service should be, in the user's terms: "99.5%
+of send requests succeed, measured over 30 days". The 0.5% that's allowed to fail is the **error
+budget**.
+
+Alerts built on an SLO ask one question: are we using up the budget fast enough to miss the target? A
+short burst of errors that the budget can absorb waits for the morning. A steady burn that would empty it
+by Friday pages someone now.
+
+<Depth>
+  <ELI5>
+    An SLO is a promise, like "almost every email gets sent". A few failures are allowed. The alert
+    goes off when failures pile up fast enough to break the promise.
+  </ELI5>
+  <Operator>
+    Burn-rate alerts compare the error ratio over a window with the ratio the SLO allows. A fast
+    burn over a short window pages; a slow burn over a long window opens a ticket. You'll build
+    these in Signalwood.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="pages" title="Pages that matter">
+
+Every page should mean: users are affected, and someone needs to act. If an alert fires and the right
+response is "ignore it", it shouldn't page.
+
+That's a relief more than a rule. Fewer pages, each one real, each one with a <Term id="runbook">runbook</Term>
+link that says where to look first.
+
+<Rosetta id="noc-dashboards" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="watching-symptom" />
+
+<Check id="watching-slo" />
+
+<Check id="watching-page" />
+
+</Step>

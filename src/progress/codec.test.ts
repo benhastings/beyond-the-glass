@@ -328,6 +328,17 @@ describe('progress code', () => {
     expect(exportFile(p)).not.toContain('xxxx')
   })
 
+  it('keeps a finished capstone (its badge) in codes', async () => {
+    const p = {
+      ...emptyProgress(NOW),
+      scenarios: { 'the-long-night': { snapshot: { big: 1 }, completedAt: NOW, notes: 'n' } },
+    }
+    const back = await decodeProgress(await encodeProgress(p), NOW)
+    expect(back.ok && back.progress.scenarios).toEqual({
+      'the-long-night': { completedAt: NOW, notes: 'n' },
+    })
+  })
+
   it('says when this browser cannot unpack a compressed code', async () => {
     const code = await encodeProgress(emptyProgress(NOW))
     const original = globalThis.DecompressionStream

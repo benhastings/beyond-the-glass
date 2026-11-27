@@ -92,6 +92,8 @@ export const rosettaFile = z.strictObject({
   entries: z
     .array(
       z.strictObject({
+        /** Stable: lessons reference it with `<Rosetta id>`. */
+        id: slug,
         then: z.string().min(1),
         now: z.string().min(1),
         why: z.string().min(1),
