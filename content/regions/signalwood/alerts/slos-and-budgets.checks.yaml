@@ -1,0 +1,44 @@
+checks:
+  - id: slo-minutes
+    type: matching
+    required: true
+    prompt: Match each 30-day SLO to its error budget, in time.
+    explanation: The budget is what's left of 100%, times 30 days.
+    pairs:
+      - id: three
+        left: 99.9%
+        right: About 43 minutes
+      - id: four
+        left: 99.99%
+        right: About 4 minutes
+      - id: two
+        left: 99%
+        right: About 7 hours
+  - id: slo-burn
+    type: single
+    prompt: A burn rate of 1 means…
+    explanation: Spending the budget at exactly the rate that uses it all by the end of the window.
+    options:
+      - id: one
+        text: The budget runs out exactly at the end of the window
+        correct: true
+      - id: gone
+        text: The budget is gone
+        feedback: It's being spent at the sustainable rate.
+      - id: percent
+        text: 1% of requests are failing
+        feedback: Burn rate is relative to the budget, not a percentage of requests.
+  - id: slo-decide
+    type: single
+    prompt: Ten days into the month, 90% of the error budget is spent. What does the team do?
+    explanation: Reliability work first; risky releases wait until the budget recovers.
+    options:
+      - id: ship
+        text: Ship as usual
+        feedback: With the budget nearly gone, one more incident breaks the SLO.
+      - id: pause
+        text: Put reliability work first, and hold risky releases
+        correct: true
+      - id: change
+        text: Lower the SLO
+        feedback: That hides the problem rather than fixing it.

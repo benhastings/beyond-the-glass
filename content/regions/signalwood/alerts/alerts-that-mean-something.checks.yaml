@@ -1,0 +1,44 @@
+checks:
+  - id: alert-pending
+    type: single
+    required: true
+    prompt: An error-rate rule has `for` 5m. The rate crossed its threshold 2 minutes ago. What state is the alert in?
+    explanation: Pending. It fires only once the condition has held for the whole 5 minutes.
+    options:
+      - id: firing
+        text: Firing
+        feedback: Not yet. It must hold for the whole for duration first.
+      - id: pending
+        text: Pending
+        correct: true
+      - id: inactive
+        text: Inactive
+        feedback: The condition holds, so it's at least pending.
+  - id: alert-severity
+    type: matching
+    prompt: Match each alert to the severity it deserves.
+    explanation: Page on symptoms users feel; ticket the causes that can wait.
+    pairs:
+      - id: errors
+        left: 8% of sends failing at the gate
+        right: page
+      - id: memory
+        left: A container at 90% of its memory limit
+        right: ticket
+      - id: restart
+        left: A pod restarted twice in an hour
+        right: ticket
+  - id: alert-symptom
+    type: single
+    prompt: The gate's error-rate alert fires. What does it tell you?
+    explanation: Users are affected. It doesn't say which service behind the gate is the cause.
+    options:
+      - id: gate
+        text: The gate is broken
+        feedback: Maybe, but the gate reports errors from anything behind it.
+      - id: users
+        text: Senders are seeing errors; the cause may be anywhere behind the gate
+        correct: true
+      - id: nothing
+        text: Nothing until someone confirms it
+        feedback: It's measured where users meet the service, so it's real.

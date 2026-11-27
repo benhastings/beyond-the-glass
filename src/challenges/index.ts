@@ -16,6 +16,7 @@ import p99ByService from '@/challenges/p99-by-service.yaml'
 import whenDidItBreak from '@/challenges/when-did-it-break.yaml'
 import brokenTraces from '@/challenges/broken-traces.yaml'
 import slowRequest from '@/challenges/slow-request.yaml'
+import readThePage from '@/challenges/read-the-page.yaml'
 import mostRestarts from '@/challenges/most-restarts.yaml'
 import readThePipelines from '@/challenges/read-the-pipelines.yaml'
 import rightContext from '@/challenges/right-context.yaml'
@@ -59,4 +60,5 @@ export const CHALLENGES: Readonly<Record<string, Challenge>> = {
   [p99ByService.id]: p99ByService,
   [slowRequest.id]: slowRequest,
   [brokenTraces.id]: brokenTraces,
+  [readThePage.id]: readThePage,
 }

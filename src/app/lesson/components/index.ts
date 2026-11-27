@@ -7,6 +7,7 @@ import { DeepDive } from './DeepDive'
 import { Depth } from './Depth'
 import { Diagram } from './Diagram'
 import { ELI5 } from './ELI5'
+import { IncidentNote } from './IncidentNote'
 import { LessonCallout } from './LessonCallout'
 import { LessonTerminal } from './LessonTerminal'
 import { Operator } from './Operator'
@@ -36,4 +37,5 @@ export const LESSON_COMPONENTS: Readonly<Record<string, ComponentType<any>>> = {
   DeepDive,
   OtelPipeline: LessonOtelPipeline,
   Rosetta,
+  IncidentNote,
 }

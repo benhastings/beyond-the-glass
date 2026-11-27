@@ -1,4 +1,5 @@
 import { STARTER_QUERIES } from '../sim/promql/library.ts'
+import { FIRST_FIVE_MINUTES, FIRST_FIVE_SECTIONS } from './firstFive.ts'
 
 /**
  * Printable field cards (E2-07): one US Letter page each, for the desk or the on-call bag. Commands use
@@ -263,48 +264,21 @@ export const FIELD_CARDS: readonly FieldCard[] = [
     title: 'The first 5 minutes of an incident',
     intro: 'Paged? Breathe. These five minutes are for understanding, not fixing.',
     kind: 'checklist',
-    sections: [
-      {
-        heading: 'Minute 1: own it',
-        ordered: true,
-        items: [
-          { text: 'Acknowledge the page, so nobody else starts the same work.' },
-          { text: 'Say in the incident channel that you’re looking, and what the alert says.' },
-        ],
-      },
-      {
-        heading: 'Minutes 2–3: how bad, since when',
-        ordered: true,
-        items: [
-          {
-            text: 'Open the Service Overview dashboard: which service’s errors or latency rose first, and when?',
-          },
-          {
-            command: 'kubectl config current-context',
-            text: 'Confirm which cluster you’re looking at.',
-          },
-          {
-            command: 'argocd app history <app>',
-            text: 'What changed shortly before it started? A deploy is the usual suspect.',
-          },
-        ],
-      },
-      {
-        heading: 'Minutes 4–5: where',
-        ordered: true,
-        items: [
-          { command: 'kubectl get pods -n <namespace>', text: 'Anything not Running and Ready?' },
-          {
-            command: 'kubectl get events -n <namespace> --sort-by=.lastTimestamp',
-            text: 'The newest warnings.',
-          },
-          { text: 'Open a slow or failing trace: which span is slow or erroring, on which pod?' },
-          {
-            text: 'Write down what you know and what you’ve ruled out. Then decide: roll back, or keep digging.',
-          },
-        ],
-      },
-    ],
+    // Built from the sequence the Signalwood lesson teaches (E9-11), so the two can't drift apart.
+    sections: FIRST_FIVE_SECTIONS.map((sec, i, all) => ({
+      heading: sec.heading,
+      ordered: true,
+      items: [
+        ...sec.steps.flatMap((id) => FIRST_FIVE_MINUTES.find((s) => s.id === id)?.card ?? []),
+        ...(i === all.length - 1
+          ? [
+              {
+                text: 'Write down what you know and what you’ve ruled out. Then decide: roll back, or keep digging.',
+              },
+            ]
+          : []),
+      ],
+    })),
   },
 ]
 
