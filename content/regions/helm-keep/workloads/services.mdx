@@ -1,0 +1,66 @@
+---
+id: services
+title: Services and DNS
+order: 1
+objectives:
+  - Say why pods need a Service in front of them
+  - Trace a Service to the pods it sends traffic to, through its endpoints
+  - Name the DNS name another pod uses to reach a Service
+estimatedMinutes: 14
+domain: kubernetes
+level: deckhand
+scenario: ravenpost
+terms: [service, label, pod]
+prerequisites: [reconciliation]
+---
+
+<Step id="moving-targets" title="Stable addresses for moving targets">
+
+<Rosetta id="vip-service" />
+
+Pods come and go, and each new one has a new IP address. A <Term id="service">Service</Term> gives a
+group of pods one stable name and address. It finds its pods with a label selector, the same way a
+Deployment does, and sends each request to one of the pods that are **Ready**.
+
+</Step>
+
+<Step id="endpoints" title="Endpoints">
+
+<Depth>
+  <ELI5>
+    A Service keeps a list of the pods that are ready to answer. That list is called its endpoints. If
+    the list is empty, nobody answers.
+  </ELI5>
+  <Operator>
+    The endpoints are the IPs and ports of the pods the selector matches **and** that are Ready. `kubectl
+    get endpoints NAME` shows them. An empty list (`<none>`) means the selector matches no pods, or none
+    of them is Ready: requests to the Service fail even though pods may be running.
+  </Operator>
+</Depth>
+
+<Terminal scenario="ravenpost" challenge="trace-a-service" required />
+
+</Step>
+
+<Step id="dns" title="Names inside the cluster">
+
+Inside the cluster, a Service is reachable by name. From a pod in the same namespace, `ravenpost-api`
+is enough; from another namespace, `ravenpost-api.ravenpost`; the full name is
+`ravenpost-api.ravenpost.svc.cluster.local`. Programs are configured with these names, never with pod IPs.
+
+<Callout kind="info">
+  When a pod can't resolve a name, the error is DNS-shaped: "no such host". You saw one in the
+  notifier's logs: it was looking for a relay outside the cluster that doesn't exist.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="services-endpoints" />
+
+<Check id="services-dns" />
+
+<Check id="services-ready" />
+
+</Step>

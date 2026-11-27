@@ -1,0 +1,82 @@
+---
+id: shipping-containers
+title: Shipping containers for software
+order: 0
+objectives:
+  - Say what a container isolates, and what it shares with the machine it runs on
+  - Tell a container from a virtual machine, with one difference that matters in operations
+  - Explain why "it works on my machine" stops being a problem
+estimatedMinutes: 12
+domain: containers
+level: wayfarer
+terms: [container, image, node]
+---
+
+<Step id="the-problem" title="It worked on my machine">
+
+<Analogy
+  then="A release went out, and broke on the one server where a library was a version behind."
+  now="The release ships with its libraries inside it, so it runs the same on every node."
+/>
+
+You've seen the release that worked in test and failed in production, because production had a different
+library, a different config path or a different version of the runtime. Containers make that much rarer.
+
+A <Term id="container">container</Term> is a program packed with everything it needs to run: its
+libraries, its runtime and its files. The package is an <Term id="image">image</Term>. Run the image on
+any machine with a container runtime, and the program sees the same files every time.
+
+</Step>
+
+<Step id="isolation" title="What a container isolates">
+
+<Depth>
+  <ELI5>
+    A container is like a room in a shared house. It has its own furniture and its own door. But
+    every room uses the same roof, the same pipes and the same power.
+  </ELI5>
+  <Operator>
+    A container is an ordinary process on the host, with its own view of the filesystem, process
+    list, network and hostname, and with limits on CPU and memory. It shares the host's kernel. To
+    the node, it's a process you can see in `ps`; to the program, it's alone on a small machine.
+  </Operator>
+  <DeepDive>
+    Isolation comes from Linux namespaces (mount, PID, network, UTS, IPC, user) and limits from
+    cgroups. The image's layers are stacked with an overlay filesystem, with a thin writable layer
+    on top that disappears when the container is removed.
+  </DeepDive>
+</Depth>
+
+Two things follow. A container starts in about the time its program does, because nothing boots. And
+anything a container writes to its own filesystem is lost when it's replaced, so data that matters goes
+somewhere else.
+
+<Rosetta id="process-container" />
+
+</Step>
+
+<Step id="vms" title="Containers and virtual machines">
+
+<Analogy
+  then="Each VM had its own operating system, patched and backed up, from a golden template."
+  now="Containers share the node's kernel. There's no OS inside to patch; you rebuild the image instead."
+/>
+
+A virtual machine pretends to be a whole computer, with its own kernel. A container pretends to be a
+whole computer to one program, and shares the kernel underneath. So containers are smaller and faster to
+start, and you run many more of them on one node.
+
+The operational difference that matters most: you don't log in to a container to patch it. You build a new
+image with the fix, and replace the containers. The next lesson shows how images make that safe.
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="containers-share" />
+
+<Check id="containers-vm" />
+
+<Check id="containers-writes" />
+
+</Step>
