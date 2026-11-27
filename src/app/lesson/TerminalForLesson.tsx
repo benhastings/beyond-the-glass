@@ -5,6 +5,7 @@ import { Callout } from '../ui'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
 import { PipelinesPanel } from '../gitops/PipelinesPanel'
+import { SmallScreenNote } from '../ui/SmallScreenNote'
 
 /** `<Terminal scenario="…" challenge="…">`: a terminal on the scenario, with the challenge beside it if given. */
 export default function TerminalForLesson({
@@ -26,6 +27,15 @@ export default function TerminalForLesson({
       </Callout>
     )
   const panel = view === 'pipelines' ? (sim: Simulator) => <PipelinesPanel sim={sim} /> : undefined
-  if (c) return <ChallengeTerminal challenge={c} scenario={s} {...(panel ? { view: panel } : {})} />
-  return <ScenarioTerminal scenario={s} />
+  const terminal = c ? (
+    <ChallengeTerminal challenge={c} scenario={s} {...(panel ? { view: panel } : {})} />
+  ) : (
+    <ScenarioTerminal scenario={s} />
+  )
+  return (
+    <>
+      <SmallScreenNote what="The terminal" />
+      {terminal}
+    </>
+  )
 }

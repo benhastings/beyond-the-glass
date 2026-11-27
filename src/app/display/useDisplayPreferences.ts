@@ -6,7 +6,8 @@ import { applyDisplay, displayAttributes } from './display'
 const media = (query: string) =>
   typeof window.matchMedia === 'function' ? window.matchMedia(query) : undefined
 
-function useMedia(query: string): boolean {
+/** Whether a media query matches now, kept up to date (false where matchMedia is missing, as in tests). */
+export function useMedia(query: string): boolean {
   return useSyncExternalStore(
     (onChange) => {
       const m = media(query)

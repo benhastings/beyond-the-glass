@@ -1,0 +1,44 @@
+checks:
+  - id: images-tag-digest
+    type: matching
+    required: true
+    prompt: Match each part of an image to what it tells you.
+    explanation: The tag is a chosen name that can move; the digest is the contents' fingerprint, and changes only if they do.
+    pairs:
+      - id: tag
+        left: 'The tag (1.14.0)'
+        right: The version someone chose to call it, which can be moved
+      - id: digest
+        left: 'The digest (sha256:77f3…)'
+        right: A fingerprint of exactly what's inside, which never changes
+      - id: registry
+        left: The registry (registry.example)
+        right: The server the image is pulled from
+  - id: images-latest
+    type: single
+    prompt: Two pods of the same Deployment both use api:latest, but behave differently. What's the likeliest cause?
+    explanation: latest was moved to a new image between the two pod starts, so they pulled different images.
+    options:
+      - id: node
+        text: They're on different nodes
+        feedback: The same image runs the same on any node. The images themselves differ here.
+      - id: moved
+        text: latest was pushed again between the two pod starts, so they run different images
+        correct: true
+      - id: cache
+        text: One pod's cache is full
+        feedback: There's no such cache. Their Image IDs would show two different digests.
+  - id: images-pull
+    type: single
+    prompt: A release asks for api:v1.15.0, but CI publishes 1.15.0 (no v). What will the new pods show?
+    explanation: The registry has no v1.15.0, so the pull fails, ErrImagePull then ImagePullBackOff, with "not found" in the events.
+    options:
+      - id: crash
+        text: CrashLoopBackOff
+        feedback: That's a container starting and exiting. Here it never starts, because the image can't be pulled.
+      - id: running
+        text: Running, with the old version
+        feedback: New pods have nothing to run. The old ones may keep running, depending on the rollout.
+      - id: pull
+        text: ErrImagePull, then ImagePullBackOff
+        correct: true
