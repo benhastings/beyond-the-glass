@@ -1,0 +1,92 @@
+---
+id: probes-and-resources
+title: Probes, requests and limits
+order: 3
+objectives:
+  - Tell a readiness probe from a liveness probe, and say what each failure does
+  - Spot a probe that checks the wrong path or port
+  - Say what requests are used for, and what limits enforce
+  - Say what OOMKilled means, and where you see it
+estimatedMinutes: 16
+domain: kubernetes
+level: deckhand
+scenario: ravenpost
+terms: [probe, oom, pod]
+prerequisites: [config]
+---
+
+<Step id="probes" title="Readiness and liveness">
+
+<Rosetta id="lb-health-check-probes" />
+
+<Depth>
+  <ELI5>
+    The cluster asks each copy two questions. "Are you ready for work?" If not, no work is sent to
+    it. "Are you still alive?" If not, it gets restarted.
+  </ELI5>
+  <Operator>
+    A **readiness** probe failing takes the pod out of its Services' endpoints; nothing restarts. A
+    **liveness** probe failing makes the kubelet restart the container. Both are usually an HTTP GET
+    on a path and port the program serves. A wrong path (404) or port (connection refused) fails
+    every time.
+  </Operator>
+</Depth>
+
+<CodeBlock
+  language="yaml"
+  caption="ravenpost-api's readiness probe"
+  code={`readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  periodSeconds: 5`}
+/>
+
+</Step>
+
+<Step id="wrong" title="When a probe is wrong">
+
+A readiness probe on a path the program doesn't serve never passes. The pods run, but none is Ready, so
+the Service has no endpoints and every request fails. The events say why: `Readiness probe failed: HTTP
+probe failed with statuscode: 404`. A rolling update with a bad probe stalls; with Recreate, it takes
+the service down.
+
+<Check id="probes-bug" />
+
+</Step>
+
+<Step id="resources" title="Requests and limits">
+
+<Depth>
+  <ELI5>
+    A request is how much room a program says it needs, so the cluster can find it a machine with
+    space. A limit is the most it is allowed to use. Go over the memory limit, and the program is
+    stopped.
+  </ELI5>
+  <Operator>
+    **Requests** are for scheduling: the scheduler places a pod only where its requests fit.
+    **Limits** are enforced: CPU over the limit is throttled (slowed); memory over the limit gets
+    the container killed by the kernel, shown as `OOMKilled`, exit code 137, in `describe pod`'s
+    Last State.
+  </Operator>
+</Depth>
+
+<Rosetta id="out-of-memory" />
+
+</Step>
+
+<Step id="see" title="Where you see it">
+
+`kubectl top pod` shows what each pod uses now. `kubectl describe pod` shows its requests and limits, and
+a container that was killed shows `Last State: Terminated, Reason: OOMKilled`. A limit set below what the
+program needs gets each new pod killed soon after it starts.
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="probes-which" />
+
+<Check id="probes-oom" />
+
+</Step>

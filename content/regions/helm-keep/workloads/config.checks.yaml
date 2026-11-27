@@ -1,0 +1,44 @@
+checks:
+  - id: config-why
+    type: single
+    required: true
+    prompt: Why does the relay address live in a ConfigMap rather than the image?
+    explanation: The same image runs in every environment; settings that differ live outside it.
+    options:
+      - id: size
+        text: To make the image smaller
+        feedback: A few settings don't change the image's size much. It's about running one image everywhere.
+      - id: same
+        text: So the same image can run in test and production with different settings
+        correct: true
+      - id: secret
+        text: Because addresses are secret
+        feedback: An address isn't secret. Secrets are for passwords and keys.
+  - id: config-secret
+    type: single
+    prompt: What actually protects a Secret's value in a real cluster?
+    explanation: Values are only base64-encoded; access rules on who and what can read them are the protection.
+    options:
+      - id: encoding
+        text: Its base64 encoding
+        feedback: base64 is encoding, not encryption. Anyone can decode it.
+      - id: access
+        text: Rules about who, and which pods, may read it
+        correct: true
+      - id: redaction
+        text: kubectl hiding the value
+        feedback: That's this course's simulator being careful. A real kubectl shows the encoded value.
+  - id: config-missing
+    type: single
+    prompt: A new version starts, then exits, again and again. Its last log line names a missing setting. Where would you add it?
+    explanation: The setting belongs in the ConfigMap the pod reads, through the same change process as the release.
+    options:
+      - id: configmap
+        text: In the ConfigMap the pod reads
+        correct: true
+      - id: image
+        text: In the image
+        feedback: Settings live outside the image, so it can run everywhere.
+      - id: pod
+        text: In the running pod, by hand
+        feedback: The pod would be replaced, and the setting lost.
