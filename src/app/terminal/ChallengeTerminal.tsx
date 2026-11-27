@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
 import { attach, ChallengeRun, type Evaluation } from '@/sim/challenges/engine'
 import type { Challenge } from '@/sim/challenges/schema'
 import { transcript } from '@/sim/commands'
@@ -29,9 +29,12 @@ function resume(scenario: Scenario, snapshot: unknown): Simulator {
 export function ChallengeTerminal({
   challenge,
   scenario,
+  view,
 }: {
   challenge: Challenge
   scenario: Scenario
+  /** Something else to read about the same simulation, shown under the terminal (a lesson's `view`). */
+  view?: (sim: Simulator) => ReactNode
 }) {
   const saveScenario = useProgress((s) => s.saveScenario)
   const updateChallenge = useProgress((s) => s.updateChallenge)
@@ -88,6 +91,7 @@ export function ChallengeTerminal({
           onChange={refresh}
           label={`${challenge.title} terminal`}
         />
+        {view && <div className="mt-4">{view(sim)}</div>}
       </div>
       <aside aria-labelledby={`${id}-title`} className="grid content-start gap-3">
         <h2 id={`${id}-title`} className="text-lg font-bold">

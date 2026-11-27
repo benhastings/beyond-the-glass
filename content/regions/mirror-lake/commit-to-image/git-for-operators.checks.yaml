@@ -1,0 +1,47 @@
+checks:
+  - id: git-mr-analogy
+    type: multiple
+    required: true
+    prompt: A merge request is like a change request. What does it add that a form never had?
+    explanation: The exact diff, checks the pipeline runs automatically, review in place, and a permanent record in Git.
+    options:
+      - id: diff
+        text: The exact change, as a diff
+        correct: true
+      - id: checks
+        text: Automatic checks, run by the pipeline before anyone reviews it
+        correct: true
+      - id: audit
+        text: A full audit trail of who changed what, and who approved it
+        correct: true
+      - id: skip
+        text: A way to skip review when it's urgent
+        feedback: Review still applies; urgent changes are reviewed fast, not skipped.
+  - id: git-commit
+    type: single
+    prompt: What does a commit record?
+    explanation: The change itself, who made it, when, and a message saying why.
+    options:
+      - id: file
+        text: A copy of one file
+        feedback: A commit records the change to every file it touched, with who, when and why.
+      - id: all
+        text: What changed, who changed it, when, and why
+        correct: true
+      - id: deploy
+        text: That the change was deployed
+        feedback: Committing doesn't deploy anything by itself.
+  - id: git-branch
+    type: single
+    prompt: You want to change a deploy file without affecting main until it's reviewed. What do you do?
+    explanation: Make the change on a branch, and open a merge request into main.
+    options:
+      - id: main
+        text: Commit straight to main
+        feedback: That skips the review and the pipeline's checks.
+      - id: cluster
+        text: Edit the cluster first, and Git later
+        feedback: The cluster would be put back to match Git at the next sync.
+      - id: branch
+        text: Commit on a branch, then open a merge request
+        correct: true

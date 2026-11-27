@@ -9,6 +9,7 @@ import traceAService from '@/challenges/trace-a-service.yaml'
 import whichNode from '@/challenges/which-node.yaml'
 import readTheImage from '@/challenges/read-the-image.yaml'
 import mostRestarts from '@/challenges/most-restarts.yaml'
+import readThePipelines from '@/challenges/read-the-pipelines.yaml'
 import rightContext from '@/challenges/right-context.yaml'
 import triageCrashloop from '@/challenges/triage-crashloop.yaml'
 import triageImagepull from '@/challenges/triage-imagepull.yaml'
@@ -16,6 +17,7 @@ import triageConfig from '@/challenges/triage-config.yaml'
 import triageOom from '@/challenges/triage-oom.yaml'
 import triagePending from '@/challenges/triage-pending.yaml'
 import triageNotReady from '@/challenges/triage-not-ready.yaml'
+import whichTagShipped from '@/challenges/which-tag-shipped.yaml'
 import whyIsItCrashing from '@/challenges/why-is-it-crashing.yaml'
 import type { Challenge } from '@/sim/challenges/schema'
 
@@ -39,4 +41,6 @@ export const CHALLENGES: Readonly<Record<string, Challenge>> = {
   [triageOom.id]: triageOom,
   [triagePending.id]: triagePending,
   [triageNotReady.id]: triageNotReady,
+  [whichTagShipped.id]: whichTagShipped,
+  [readThePipelines.id]: readThePipelines,
 }

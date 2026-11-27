@@ -1,0 +1,71 @@
+---
+id: git-for-operators
+title: Git in five minutes, for operators
+order: 0
+objectives:
+  - Say what a commit, a branch and a merge request are
+  - Read a merge request as a change request you can diff
+  - Say why the history in Git is the audit trail for a system's changes
+estimatedMinutes: 12
+domain: delivery
+level: wayfarer
+terms: [merge-request, gitops]
+---
+
+<Step id="commits" title="Commits and history">
+
+Git keeps every version of a set of files. Each saved change is a **commit**: what changed (a diff), who
+changed it, when, and a message saying why. Commits form a history you can read back to the first one, and
+you can return to any of them.
+
+<Depth>
+  <ELI5>
+    Git is a notebook that never loses a page. Every change is a new page with a note: who, when and
+    why. You can turn back to any page.
+  </ELI5>
+  <Operator>
+    A commit is identified by a hash such as `0720046a`. `git log` lists commits; `git diff` shows
+    what changed between two. CI often tags the image it builds with the commit's short hash, so an
+    image can always be traced to the exact source it came from.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="branches" title="Branches and merge requests">
+
+A **branch** is a line of work: you make commits on your branch without touching `main`. When the work is
+ready, you open a <Term id="merge-request">merge request</Term> (MR): a proposal to bring your branch into
+`main`. The MR shows the full diff, runs the pipeline on it, and collects reviews. Merging it is the change.
+
+<Analogy
+  then="A change request: you described the change in a form, attached a plan, waited for the change board, and recorded the outcome in the change log."
+  now="A merge request is that change request, with the exact diff attached, automatic checks run by the pipeline before anyone reviews it, peer review in place, and a full audit trail kept by Git."
+/>
+
+<Rosetta id="change-ticket-mr" />
+
+</Step>
+
+<Step id="why" title="Why operators care">
+
+In Mirror Lake, Git is where the desired state lives. A change to production is a merge request to a
+deploy repository; Argo CD makes the cluster match what's merged. So the questions you used to ask the
+change log (what changed, who, when, and was it reviewed?) are answered by Git history.
+
+<Callout kind="habit">
+  Change through Git. A change that only exists in the cluster is undone at the next sync, and
+  nobody can see it in the history.
+</Callout>
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="git-mr-analogy" />
+
+<Check id="git-commit" />
+
+<Check id="git-branch" />
+
+</Step>

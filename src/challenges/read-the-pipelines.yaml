@@ -1,0 +1,37 @@
+id: read-the-pipelines
+title: Two pipelines that didn't ship
+scenario: pipelines
+brief: >-
+  Two of this afternoon's ravenpost-api pipelines failed. For "Batch ledger lookups per message", say which
+  job failed and why. For "Move to the new base image", say which tag it produced, if any.
+questions:
+  - id: job
+    prompt: Which job failed in "Batch ledger lookups per message"?
+  - id: why
+    prompt: Why did it fail?
+  - id: tag
+    prompt: Which image tag did "Move to the new base image" produce? (Answer none if it produced none.)
+objectives:
+  - id: job
+    text: Name the failed job
+    check: { type: answered, question: job, matcher: { matches: '^\s*unit-tests\s*$' } }
+  - id: why
+    text: Say why it failed
+    check: { type: answered, question: why, matcher: { matches: '(404|500|parcel|test)' } }
+  - id: tag
+    text: Say what the scan-failed pipeline produced
+    check:
+      type: answered
+      question: tag
+      matcher: { matches: '^\s*(none|no tag|nothing|no image|no new tag)\b' }
+hints:
+  - level: nudge
+    text: A failed pipeline marks the job that failed; the jobs after it are skipped.
+  - level: pointer
+    text: "Open the failed job's log and read the end. Then check whether the package stage ran at all."
+  - level: command
+    text: '`answer job unit-tests`, `answer why <the failing test>`, then, since push-image was skipped, `answer tag none`.'
+expertPath:
+  - answer job unit-tests
+  - answer why GET /parcels/:id returned 500 where the test expected 404
+  - answer tag none

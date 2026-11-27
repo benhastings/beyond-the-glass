@@ -1,0 +1,47 @@
+# Test out of "From commit to image" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-ci-mr
+    type: single
+    review: { lesson: git-for-operators, step: branches }
+    prompt: What is a merge request?
+    explanation: A proposal to merge a branch, with its diff, pipeline checks and reviews.
+    options:
+      - id: deploy
+        text: A command that deploys to production
+        feedback: Merging can lead to a deploy, but the MR is the proposal and its review.
+      - id: mr
+        text: A proposal to bring a branch into main, with its diff, checks and reviews
+        correct: true
+      - id: ticket
+        text: A ticket in a separate tool
+        feedback: It lives with the code, in Git.
+  - id: test-out-ci-push
+    type: single
+    review: { lesson: reading-a-pipeline, step: stages }
+    prompt: Which job pushes the image to the registry?
+    explanation: push-image, in the package stage.
+    options:
+      - id: compile
+        text: compile
+        feedback: That builds it.
+      - id: scan
+        text: image-scan
+        feedback: That checks it.
+      - id: push
+        text: push-image
+        correct: true
+  - id: test-out-ci-skip
+    type: single
+    review: { lesson: when-a-pipeline-fails, step: stop }
+    prompt: image-scan failed. Did the pipeline produce a tag in the registry?
+    explanation: No. push-image comes after the scan, and was skipped.
+    options:
+      - id: yes
+        text: Yes, compile tagged it
+        feedback: compile tags it locally; it's only in the registry once push-image runs.
+      - id: no
+        text: No, push-image was skipped
+        correct: true
+      - id: half
+        text: Yes, but marked as failed
+        feedback: Nothing was pushed.
