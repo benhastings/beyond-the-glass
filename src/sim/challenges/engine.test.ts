@@ -216,6 +216,8 @@ describe('E6-10 engine', () => {
         expect(Number(process.hrtime.bigint() - start) / 1e6 / n, c.id).toBeLessThan(5)
       }
     },
+    // Loading every scenario (some warm up for an hour of sim time) takes longer than 5 s; each evaluation is timed.
+    60_000,
   )
 
   acTest(
