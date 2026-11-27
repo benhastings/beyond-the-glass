@@ -7,6 +7,7 @@ import rollOutWeb from '@/challenges/roll-out-web.yaml'
 import scaleTheWorker from '@/challenges/scale-the-worker.yaml'
 import traceAService from '@/challenges/trace-a-service.yaml'
 import whichNode from '@/challenges/which-node.yaml'
+import readTheImage from '@/challenges/read-the-image.yaml'
 import whyIsItCrashing from '@/challenges/why-is-it-crashing.yaml'
 import type { Challenge } from '@/sim/challenges/schema'
 
@@ -17,6 +18,7 @@ export const CHALLENGES: Readonly<Record<string, Challenge>> = {
   [whichNode.id]: whichNode,
   [countSystemPods.id]: countSystemPods,
   [podsByLabel.id]: podsByLabel,
+  [readTheImage.id]: readTheImage,
   [replaceAPod.id]: replaceAPod,
   [scaleTheWorker.id]: scaleTheWorker,
   [rollOutWeb.id]: rollOutWeb,
