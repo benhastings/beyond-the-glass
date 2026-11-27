@@ -1,0 +1,43 @@
+id: replace-a-pod
+title: Pull one out, and watch it come back
+scenario: ravenpost
+brief: >-
+  Delete one of the two ravenpost-web pods, then list the web pods again and watch the Deployment replace
+  it.
+objectives:
+  - id: delete
+    text: Delete one web pod
+    check: { type: mutated, verb: delete, kind: Pod }
+  - id: look
+    text: List the web pods again
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+get\s+(po|pod|pods)\b.*(ravenpost-web|app=ravenpost-web)'
+  - id: back
+    text: Two web pods are running again
+    check:
+      type: resourceState
+      resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-web }
+      path: status.availableReplicas
+      equals: '2'
+  - id: hands-off
+    text: Leave the Deployment in place
+    check:
+      {
+        type: noForbidden,
+        pattern: 'kubectl\s+delete\s+(deploy|deployment|deployments|rs|replicaset)\b',
+      }
+forbidden:
+  - pattern: 'kubectl\s+delete\s+(deploy|deployment|deployments)\b'
+    message: Deleting the Deployment removes the web completely, and nothing brings it back.
+hints:
+  - level: nudge
+    text: Pick one of the web pods by name, delete it, then look again.
+  - level: pointer
+    text: '`kubectl get pods -n ravenpost -l app=ravenpost-web` lists them; `kubectl delete pod NAME -n ravenpost` removes one.'
+  - level: command
+    text: 'Run `kubectl delete pod ravenpost-web -n ravenpost` (a prefix picks one), then `kubectl get pods -n ravenpost -l app=ravenpost-web`.'
+expertPath:
+  - kubectl get pods -n ravenpost -l app=ravenpost-web
+  - kubectl delete pod ravenpost-web-74d9fdfcd5-252jk -n ravenpost
+  - kubectl get pods -n ravenpost -l app=ravenpost-web

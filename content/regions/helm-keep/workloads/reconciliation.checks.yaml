@@ -1,0 +1,43 @@
+checks:
+  - id: reconcile-chain
+    type: ordering
+    required: true
+    prompt: Put these in order, from what you write to what runs.
+    explanation: A Deployment makes a ReplicaSet per version, the ReplicaSet makes pods, and each pod runs its containers.
+    items:
+      - id: deploy
+        text: Deployment
+      - id: rs
+        text: ReplicaSet
+      - id: pod
+        text: Pod
+      - id: container
+        text: Container
+  - id: reconcile-rollout
+    type: single
+    prompt: A rollout of a new image stalls, with one new pod that never becomes Ready. What happens to the old pods?
+    explanation: A rolling update removes old pods only as new ones become Ready, so the old pods keep serving.
+    options:
+      - id: gone
+        text: They're all removed, and the service is down
+        feedback: That's what Recreate does. A rolling update waits for new pods to be Ready.
+      - id: serve
+        text: Most keep running and serving, while the rollout waits
+        correct: true
+      - id: restart
+        text: They're restarted with the new image
+        feedback: Pods aren't changed in place; new ones are created from the new ReplicaSet.
+  - id: reconcile-recreate
+    type: single
+    prompt: Which command goes back to the previous version of ravenpost-web?
+    explanation: rollout undo returns the Deployment to its previous ReplicaSet's template.
+    options:
+      - id: delete
+        text: kubectl delete deploy ravenpost-web -n ravenpost
+        feedback: That removes the web completely.
+      - id: restart
+        text: kubectl rollout restart deploy/ravenpost-web -n ravenpost
+        feedback: That restarts the pods on the same version.
+      - id: undo
+        text: kubectl rollout undo deploy/ravenpost-web -n ravenpost
+        correct: true

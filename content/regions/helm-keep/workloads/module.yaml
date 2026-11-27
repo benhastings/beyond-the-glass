@@ -1,0 +1,5 @@
+id: workloads
+title: Deployments, Services, config and resources
+order: 1
+summary: How a Deployment keeps pods running and rolls out new versions, how Services find them, where config lives, and how probes and resources keep a service healthy.
+domain: kubernetes
