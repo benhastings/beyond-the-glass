@@ -34,3 +34,16 @@ or one maximized; below 1024 px they become tabs. Each pane is a region with a l
 to a pane, Alt+M maximizes or restores, and ? lists the shortcuts. The layout is kept in `localStorage`
 (`btg:war-room-layout`); the incident (a simulator snapshot) and the notes are kept with progress. A gentle
 background clock moves the simulation 15 seconds every 5 seconds while the page is open.
+
+## The debrief (E10-05)
+
+When the last act is over, the war room records the night as finished (`completedAt` in progress, kept in
+progress codes; the map then shows "The Long Night" badge) and shows the debrief above the panes
+(`src/app/stormwatch/Debrief.tsx`). It is all text: what went well (only what's true, never a grade); per act,
+the cause, the learner's answer, a table of what each signal showed and whether the learner looked there,
+one way through, and what's worth knowing next time; the night minute by minute; the learner's notes beside
+the scenario's `exemplarNote`; and lessons to practise next.
+
+"Looked there" comes from commands (`kubectl get/describe/logs/top`, `argocd …`) and from the panes and
+Explore tabs the war room showed during the act (`CapstoneRun.viewed`). Practice links come from each act's
+`practice`; the content build fails if one names a lesson that doesn't exist.

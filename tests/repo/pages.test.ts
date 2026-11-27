@@ -70,5 +70,6 @@ describe('E0-03 Pages deploy workflow', () => {
       expect(listed, title).toContain(title)
     }
     expect(listed).not.toContain('expectNoA11yViolations fails')
-  })
+    // Starting Playwright to list the tests can take longer than 5 s on a busy CI runner.
+  }, 30_000)
 })

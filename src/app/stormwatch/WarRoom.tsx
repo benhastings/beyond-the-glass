@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { SCENARIOS } from '@/scenarios'
-import { CapstoneRun } from '@/sim/capstone/engine'
+import { CapstoneRun, type View } from '@/sim/capstone/engine'
 import { holds } from '@/sim/capstone/script'
 import { parseDuration } from '@/sim/core/duration'
 import { transcript } from '@/sim/commands'
@@ -27,6 +27,7 @@ import { RadioGroup } from '../ui/RadioGroup'
 import { StatusPill } from '../ui/StatusPill'
 import { Tabs } from '../ui/Tabs'
 import { cx, focusRing } from '../ui/styles'
+import { Debrief } from './Debrief'
 import {
   bringUp,
   loadLayout,
@@ -104,6 +105,7 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
   const [layout, setLayoutState] = useState<Layout>(() => loadLayout(storage()))
   const [tab, setTab] = useState<PaneId>('incident')
   const [trace, setTrace] = useState<{ traceId: string; spanId?: string }>()
+  const [explore, setExplore] = useState('traces')
   const wide = useWide()
   const setLayout = (l: Layout, { deferred = false } = {}) => {
     // Bringing a pane up by shortcut is a transition: a heavy pane (dashboards) renders in pieces, not
@@ -120,12 +122,37 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
     run.tick()
     if (run.actIndex !== before) {
       const act = run.current
-      setAnnounce(act ? `${act.clock}: ${act.title}. ${act.narrative}` : 'The night is over.')
+      setAnnounce(
+        act
+          ? `${act.clock}: ${act.title}. ${act.narrative}`
+          : 'The night is over. Your debrief is at the top of the war room.',
+      )
       setHint(undefined)
     }
     setVersion((v) => v + 1)
     saveScenario(scenario.id, { snapshot: sim.snapshot(), act: run.actIndex, notes })
   }
+  // The night is over: recorded once (the map's badge, and the progress code).
+  const finished = run.finished
+  useEffect(() => {
+    if (finished && !useProgress.getState().progress.scenarios[scenario.id]?.completedAt)
+      saveScenario(scenario.id, { completedAt: new Date().toISOString() })
+  }, [finished, saveScenario, scenario.id])
+  // What's on screen counts as looking (found vs missed, in the debrief).
+  const onScreen = wide ? visiblePanes(layout) : [tab]
+  useEffect(() => {
+    for (const p of onScreen) {
+      const view: View | undefined =
+        p === 'explore'
+          ? explore === 'logs'
+            ? 'logs'
+            : 'traces'
+          : p === 'argo' || p === 'dashboards' || p === 'changes'
+            ? p
+            : undefined
+      if (view) run.viewed(view)
+    }
+  })
   // The gentle background clock: the incident moves on a little while you read.
   useEffect(() => {
     if (!backgroundClock) return
@@ -245,6 +272,8 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
         return (
           <Tabs
             label="Explore"
+            value={explore}
+            onValueChange={setExplore}
             items={[
               {
                 id: 'traces',
@@ -332,6 +361,7 @@ export default function WarRoom({ backgroundClock = true }: { backgroundClock?: 
       <p role="status" aria-live="polite" className="sr-only">
         {announce}
       </p>
+      {finished && <Debrief run={run} notes={notes} exemplar={scenario.exemplarNote} />}
       {act && (
         <p className="flex flex-wrap items-center gap-2">
           <StatusPill status="alert">{`${act.clock} · ${act.title}`}</StatusPill>

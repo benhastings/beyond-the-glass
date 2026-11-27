@@ -4,7 +4,7 @@ import type { Simulator } from '../core/simulator.ts'
 import { application } from '../gitops/argo.ts'
 import { mergeRequests } from '../gitops/git.ts'
 import { LEARNER } from '../gitops/mr.ts'
-import { actsOf, actSolved, startAct, type Act } from './script.ts'
+import { actsOf, actSolved, SIGNALS, startAct, type Act } from './script.ts'
 
 /**
  * The capstone engine (E10-03): runs the acts in order, starting each when the one before is over, keeps
@@ -14,7 +14,7 @@ import { actsOf, actSolved, startAct, type Act } from './script.ts'
 export interface Action {
   t: number
   act: number
-  kind: 'command' | 'merge' | 'hint' | 'diagnosis'
+  kind: 'command' | 'merge' | 'hint' | 'diagnosis' | 'view'
   text: string
 }
 
@@ -75,9 +75,31 @@ const LOOKS =
 const CHANGES =
   /^(kubectl (delete|scale|edit|set|label|annotate|apply|rollout (undo|restart))|argocd app (sync|rollback|set))\b/
 
+export type Signal = (typeof SIGNALS)[number]
+/** Views the war room reports (`viewed`), and the signals each shows. */
+export const VIEWS = {
+  argo: ['argo'],
+  dashboards: ['metrics'],
+  logs: ['logs'],
+  traces: ['traces'],
+  changes: ['argo'],
+} as const satisfies Record<string, readonly Signal[]>
+export type View = keyof typeof VIEWS
+/** Commands, and the signals each shows. */
+const SIGNAL_COMMANDS: [RegExp, Signal[]][] = [
+  [/^kubectl (get|describe)\b.*\bevents?\b|^kubectl events\b/, ['events']],
+  [/^kubectl describe\b/, ['kubectl', 'events']],
+  [/^kubectl (get|rollout status|top)\b/, ['kubectl']],
+  [/^kubectl top\b/, ['metrics']],
+  [/^kubectl logs\b/, ['logs']],
+  [/^argocd\b/, ['argo']],
+]
+
 export interface ActScore {
   id: string
   title: string
+  /** The act was reached (acts begin one after another). */
+  started: boolean
   over: boolean
   startedAt: number
   endedAt?: number
@@ -92,6 +114,8 @@ export interface ActScore {
   diagnosis?: { answer?: string; correct: boolean }
   /** Commands run while pointed at the wrong cluster. */
   wrongContext: string[]
+  /** Which signals the learner looked at during the act (found vs missed, in the debrief). */
+  looked: Record<Signal, boolean>
 }
 
 export class CapstoneRun {
@@ -158,6 +182,14 @@ export class CapstoneRun {
     if (!h) return undefined
     st.actions.push({ t: this.sim.now, act: st.act, kind: 'hint', text: h.level })
     return h.text
+  }
+
+  /** The war room showed `view` (a pane or an Explore tab). Counted once per act. */
+  viewed(view: View): void {
+    const st = state(this.sim)
+    if (!this.current) return
+    if (st.actions.some((a) => a.act === st.act && a.kind === 'view' && a.text === view)) return
+    st.actions.push({ t: this.sim.now, act: st.act, kind: 'view', text: view })
   }
 
   /** The learner's answer to an act's "what caused this?". */
@@ -233,6 +265,7 @@ export class CapstoneRun {
       return {
         id: act.id,
         title: act.title,
+        started: st.startedAt[i] !== undefined,
         over: end !== undefined,
         startedAt: start,
         ...(end !== undefined ? { endedAt: end } : {}),
@@ -253,6 +286,7 @@ export class CapstoneRun {
             }
           : {}),
         wrongContext: this.wrongContext(i),
+        looked: lookedAt(mine),
       }
     })
   }
@@ -273,4 +307,16 @@ export class CapstoneRun {
       ),
     ]
   }
+}
+
+function lookedAt(actions: readonly Action[]): Record<Signal, boolean> {
+  const seen = new Set<Signal>()
+  for (const a of actions) {
+    if (a.kind === 'view')
+      for (const sig of (VIEWS as Record<string, readonly Signal[]>)[a.text] ?? []) seen.add(sig)
+    if (a.kind === 'command')
+      for (const [re, sigs] of SIGNAL_COMMANDS)
+        if (re.test(a.text)) for (const sig of sigs) seen.add(sig)
+  }
+  return Object.fromEntries(SIGNALS.map((s) => [s, seen.has(s)])) as Record<Signal, boolean>
 }
