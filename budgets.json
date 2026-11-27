@@ -2,7 +2,16 @@
   "$comment": "The one place to change a budget (E0-08). AGENTS.md §5 must match; tests/repo/budgets.test.ts checks it.",
   "initialJsGzipKb": 250,
   "lighthouse": {
-    "routes": ["./", "./#/threshold"],
+    "routes": [
+      "./",
+      "./#/threshold",
+      "./#/map",
+      "./#/region/chartroom",
+      "./#/lesson/your-first-look",
+      "./#/guide",
+      "./#/settings",
+      "./#/stormwatch"
+    ],
     "minScores": { "performance": 90, "accessibility": 100, "best-practices": 95 }
   },
   "simCommandMs": 5,
