@@ -11,6 +11,7 @@ import { PipelinesPanel } from '../gitops/PipelinesPanel'
 import { DashboardView } from '../o11y/dashboards/DashboardView'
 import { ObservabilityWorkspace } from '../o11y/ObservabilityWorkspace'
 import { PromqlExplorer } from '../o11y/PromqlExplorer'
+import { SmallScreenNote } from '../ui/SmallScreenNote'
 
 export type LessonView =
   'pipelines' | 'changes' | 'argo' | 'dashboards' | 'promql' | 'observability'
@@ -58,6 +59,15 @@ export default function TerminalForLesson({
       </Callout>
     )
   const panel = view ? VIEWS[view] : undefined
-  if (c) return <ChallengeTerminal challenge={c} scenario={s} {...(panel ? { view: panel } : {})} />
-  return <ScenarioTerminal scenario={s} />
+  const terminal = c ? (
+    <ChallengeTerminal challenge={c} scenario={s} {...(panel ? { view: panel } : {})} />
+  ) : (
+    <ScenarioTerminal scenario={s} />
+  )
+  return (
+    <>
+      <SmallScreenNote what="The terminal" />
+      {terminal}
+    </>
+  )
 }

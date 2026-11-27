@@ -40,7 +40,7 @@ describe('E0-08 budgets', () => {
       return { code: r.status, out: r.stdout + r.stderr }
     }
 
-    it('[E0-08.AC2] the real build is within budget', () => {
+    it('[E0-08.AC2] [E11-02.AC3] the real build is within budget', () => {
       const r = check()
       expect(r.code, r.out).toBe(0)
       expect(r.out).toMatch(/initial JS: [\d.]+ KB gzipped \(budget 250 KB\)/)
