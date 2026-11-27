@@ -1,0 +1,47 @@
+# Test out of "Argo CD and GitOps discipline" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-gitops-status
+    type: single
+    review: { lesson: lake-and-reflection, step: two-statuses }
+    prompt: Git has a new release nobody has synced, and the old one is running fine. What does Argo CD show?
+    explanation: OutOfSync (Git differs) and Healthy (what's running works).
+    options:
+      - id: out
+        text: OutOfSync and Healthy
+        correct: true
+      - id: degraded
+        text: Synced and Degraded
+        feedback: The cluster doesn't match Git, so it can't be Synced.
+      - id: missing
+        text: Missing
+        feedback: Nothing is missing; the old release runs.
+  - id: test-out-gitops-drift
+    type: single
+    review: { lesson: drift, step: drift }
+    prompt: With self-heal on, how do you make a change that lasts?
+    explanation: Through Git, with a merge request.
+    options:
+      - id: kubectl
+        text: kubectl edit, then tell the team
+        feedback: Self-heal puts it back within minutes.
+      - id: git
+        text: A merge request to the deploy repo
+        correct: true
+      - id: sync
+        text: argocd app sync
+        feedback: That applies what Git already says.
+  - id: test-out-gitops-rollback
+    type: single
+    review: { lesson: rolling-back, step: two-ways }
+    prompt: Which way back keeps Git true?
+    explanation: A git revert through a merge request.
+    options:
+      - id: rollback
+        text: argocd app rollback
+        feedback: That leaves Git asking for the bad release.
+      - id: revert
+        text: A git revert through a merge request
+        correct: true
+      - id: scale
+        text: Scaling to zero
+        feedback: That takes the service down.

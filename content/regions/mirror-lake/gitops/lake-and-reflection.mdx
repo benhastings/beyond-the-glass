@@ -1,0 +1,67 @@
+---
+id: lake-and-reflection
+title: The lake and its reflection
+order: 0
+objectives:
+  - Say what Argo CD compares, and what it does about a difference
+  - Tell sync status from health status, with an example of each
+  - Read both from `argocd app get`
+estimatedMinutes: 12
+domain: delivery
+level: deckhand
+scenario: stormwatch
+terms: [gitops]
+prerequisites: [when-a-pipeline-fails]
+---
+
+<Step id="reflection" title="Git is the shore; the cluster is its reflection">
+
+<Rosetta id="manual-change-gitops" />
+
+In GitOps, a Git repository holds the desired state: every Deployment,
+Service and ConfigMap, as files. **Argo CD** watches that repository and the cluster, compares the two, and
+makes the cluster match Git. Like still water, the cluster should reflect the shore exactly; a ripple on the
+surface is **drift**.
+
+<Depth>
+  <ELI5>
+    Git holds the plan. Argo CD looks at the plan and at the cluster, again and again. If they
+    differ, it can make the cluster match the plan.
+  </ELI5>
+  <Operator>
+    An Argo CD **application** points at a path in a repo and a namespace in a cluster. Every few
+    minutes (three, by default) it renders the manifests and compares them with the live objects.
+    With automated sync it applies the difference; with self-heal it also undoes changes made
+    directly in the cluster.
+  </Operator>
+</Depth>
+
+</Step>
+
+<Step id="two-statuses" title="Sync and health are different questions">
+
+- **Sync status** asks: does the cluster match Git? `Synced` or `OutOfSync`.
+- **Health status** asks: is what's running working? `Healthy`, `Progressing`, `Degraded`, `Missing`.
+
+They're independent. An app can be **Synced and Degraded** (Git asked for something broken, and the cluster
+faithfully runs it), or **OutOfSync and Healthy** (Git has a change nobody has applied yet).
+
+<CodeBlock
+  language="console"
+  caption="Both, at the top of the application"
+  code="argocd app get ravenpost"
+/>
+
+<Terminal scenario="stormwatch" />
+
+</Step>
+
+<Step id="check" title="Check your understanding">
+
+<Check id="lake-statuses" />
+
+<Check id="lake-synced-degraded" />
+
+<Check id="lake-what" />
+
+</Step>

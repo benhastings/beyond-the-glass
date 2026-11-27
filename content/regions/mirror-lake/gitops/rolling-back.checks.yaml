@@ -1,0 +1,47 @@
+checks:
+  - id: rollback-git
+    type: single
+    required: true
+    prompt: After `argocd app rollback`, what does Git still say?
+    explanation: Git still asks for the bad release, so it must be reverted there too, or the next sync redeploys it.
+    options:
+      - id: good
+        text: The good release, because Argo CD updated it
+        feedback: Argo CD never writes to Git.
+      - id: bad
+        text: The bad release, until someone reverts it
+        correct: true
+      - id: nothing
+        text: Nothing; the app is removed from Git
+        feedback: Git is unchanged.
+  - id: rollback-after
+    type: multiple
+    prompt: You used `argocd app rollback` in an emergency. What must happen next?
+    explanation: Revert in Git so it says what's running, turn auto-sync back on, and tell the team.
+    options:
+      - id: revert
+        text: Revert the bad release in Git, through a merge request
+        correct: true
+      - id: sync
+        text: Turn auto-sync back on
+        correct: true
+      - id: tell
+        text: Say what you did in the incident channel
+        correct: true
+      - id: nothing
+        text: Nothing; the rollback is permanent
+        feedback: The next sync from Git would bring the bad release back.
+  - id: rollback-choose
+    type: single
+    prompt: A release is broken, the pipeline takes eight minutes, and every minute is failing messages. Which fits?
+    explanation: Roll back in Argo CD now, then revert in Git and turn auto-sync back on.
+    options:
+      - id: wait
+        text: Revert in Git and wait for the pipeline
+        feedback: That's the careful way, but eight minutes of failures may be too long here.
+      - id: kubectl
+        text: kubectl set image to the old version
+        feedback: Self-heal would put the bad release back.
+      - id: rollback
+        text: Argo CD rollback now, then the revert in Git
+        correct: true

@@ -8,6 +8,10 @@ import scaleTheWorker from '@/challenges/scale-the-worker.yaml'
 import traceAService from '@/challenges/trace-a-service.yaml'
 import whichNode from '@/challenges/which-node.yaml'
 import readTheImage from '@/challenges/read-the-image.yaml'
+import makeItStick from '@/challenges/make-it-stick.yaml'
+import syncTheRelease from '@/challenges/sync-the-release.yaml'
+import readTheFailedSync from '@/challenges/read-the-failed-sync.yaml'
+import rollBackTheRelease from '@/challenges/roll-back-the-release.yaml'
 import mostRestarts from '@/challenges/most-restarts.yaml'
 import readThePipelines from '@/challenges/read-the-pipelines.yaml'
 import rightContext from '@/challenges/right-context.yaml'
@@ -43,4 +47,8 @@ export const CHALLENGES: Readonly<Record<string, Challenge>> = {
   [triageNotReady.id]: triageNotReady,
   [whichTagShipped.id]: whichTagShipped,
   [readThePipelines.id]: readThePipelines,
+  [makeItStick.id]: makeItStick,
+  [syncTheRelease.id]: syncTheRelease,
+  [readTheFailedSync.id]: readTheFailedSync,
+  [rollBackTheRelease.id]: rollBackTheRelease,
 }

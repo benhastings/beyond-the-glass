@@ -23,7 +23,9 @@ function solve(id: string) {
   const sh = createShell(sim, session)
   const run = new ChallengeRun(sim, c, session.history)
   attach(run, session)
-  const out = c.expertPath.map((line) => sh.run(line).stdout).join('\n')
+  const out = c.expertPath
+    .map((line) => (typeof line === 'string' ? sh.run(line).stdout : ''))
+    .join('\n')
   return { complete: run.evaluate().complete, out }
 }
 

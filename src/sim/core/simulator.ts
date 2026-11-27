@@ -208,6 +208,11 @@ export class Simulator {
     return this.clusterMap.get(name)
   }
 
+  /** Every cluster in the scenario. */
+  clusters(): Cluster[] {
+    return [...this.clusterMap.values()]
+  }
+
   get clusterNames(): string[] {
     return [...this.clusterMap.keys()]
   }

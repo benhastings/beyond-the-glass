@@ -7,7 +7,7 @@ import { acTest } from '@/test/ac'
 import { createShell } from '../commands'
 import { loadSimulation } from '../controllers'
 import { pipelines } from '../gitops/pipeline'
-import { attach, ChallengeRun } from './engine'
+import { attach, ChallengeRun, playChallengePath } from './engine'
 
 const DIR = join(import.meta.dirname, '../../../content/regions/mirror-lake/commit-to-image')
 const mdx = (id: string) => readFileSync(join(DIR, `${id}.mdx`), 'utf8')
@@ -45,7 +45,7 @@ describe('E9-07 Mirror Lake I', () => {
       sh.run('answer job image-scan')
       sh.run('answer tag 34298e12')
       expect(run.evaluate().objectives.filter((o) => o.done)).toEqual([])
-      for (const line of c.expertPath) sh.run(line)
+      playChallengePath(sim, sh, c.expertPath)
       expect(run.evaluate().complete).toBe(true)
     },
   )

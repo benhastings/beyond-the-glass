@@ -1,0 +1,43 @@
+checks:
+  - id: drift-what
+    type: single
+    required: true
+    prompt: You scale a self-healing app's Deployment with kubectl. What happens?
+    explanation: Argo CD sees the difference from Git at its next reconcile, and puts Git's replica count back.
+    options:
+      - id: stays
+        text: It stays until the next release
+        feedback: With self-heal, it lasts only until the next reconcile, a few minutes.
+      - id: back
+        text: Argo CD puts Git's replica count back within minutes
+        correct: true
+      - id: git
+        text: Argo CD writes the new count into Git
+        feedback: Argo CD never writes to Git; changes flow from Git to the cluster.
+  - id: drift-lasting
+    type: ordering
+    prompt: Put these in order to make a lasting change to a GitOps-managed Deployment.
+    explanation: Change the file through a merge request, let the pipeline check it, merge, and Argo CD syncs it.
+    items:
+      - id: mr
+        text: Open a merge request changing the manifest
+      - id: pipeline
+        text: Let the pipeline check it
+      - id: merge
+        text: Merge it
+      - id: sync
+        text: Argo CD syncs it to the cluster
+  - id: drift-feature
+    type: single
+    prompt: Why is self-heal a feature?
+    explanation: The cluster always matches Git, so Git's history is the true record of every change.
+    options:
+      - id: speed
+        text: It makes kubectl faster
+        feedback: It undoes kubectl changes; speed isn't the point.
+      - id: record
+        text: The cluster always matches Git, so the history is always the truth
+        correct: true
+      - id: nobody
+        text: It means nobody needs to review changes
+        feedback: Changes are reviewed in the merge request.
