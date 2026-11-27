@@ -26,6 +26,7 @@ describe('parseScenario', () => {
       'the-long-night',
       'triage',
       'pipelines',
+      'signals',
       'gitops-drift',
       'gitops-manual-sync',
       'gitops-sync-failed',

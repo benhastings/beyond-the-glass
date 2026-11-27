@@ -1,6 +1,7 @@
 // Scenario timelines (YAML), validated at build time by ./vite-plugin.ts. See docs/sim/scenarios.md.
 import pipelines from '@/scenarios/pipelines.yaml'
 import ravenpost from '@/scenarios/ravenpost.yaml'
+import signals from '@/scenarios/signals.yaml'
 import stormwatch from '@/scenarios/stormwatch.yaml'
 import theLongNight from '@/scenarios/the-long-night.yaml'
 import triage from '@/scenarios/triage.yaml'
@@ -14,6 +15,7 @@ export const SCENARIOS: Readonly<Record<string, Scenario>> = {
   [theLongNight.id]: theLongNight,
   [triage.id]: triage,
   [pipelines.id]: pipelines,
+  [signals.id]: signals,
   // Built from the GitOps fragments (E9-08), in code rather than YAML.
   ...Object.fromEntries(FRAGMENT_SCENARIO_LIST.map((s) => [s.id, s])),
 }

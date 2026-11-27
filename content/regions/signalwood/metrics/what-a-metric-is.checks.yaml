@@ -1,0 +1,44 @@
+checks:
+  - id: metric-types
+    type: matching
+    required: true
+    prompt: Match each metric to its type.
+    explanation: Totals that only grow are counters; values that rise and fall are gauges; bucketed observations are histograms.
+    pairs:
+      - id: counter
+        left: http_server_requests_total
+        right: Counter
+      - id: gauge
+        left: container_memory_working_set_bytes
+        right: Gauge
+      - id: histogram
+        left: http_server_request_duration_seconds_bucket
+        right: Histogram
+  - id: metric-counter
+    type: single
+    prompt: Why do you rarely look at a counter's raw value?
+    explanation: It depends on when the process started. How fast it rises (its rate) is what tells you about now.
+    options:
+      - id: start
+        text: It depends on when the process started; its rate is the signal
+        correct: true
+      - id: wrong
+        text: It's often wrong
+        feedback: It's right; it's a running total since the process started.
+      - id: secret
+        text: It's hidden by Prometheus
+        feedback: You can query it; it's not useful on its own.
+  - id: metric-series
+    type: single
+    prompt: What is one series?
+    explanation: One metric name with one combination of label values.
+    options:
+      - id: metric
+        text: Every value of one metric name
+        feedback: One name has many series, one per label combination.
+      - id: series
+        text: One metric name with one combination of label values
+        correct: true
+      - id: dashboard
+        text: One panel on a dashboard
+        feedback: A panel can show many series.

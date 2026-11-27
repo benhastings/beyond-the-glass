@@ -1,0 +1,5 @@
+id: metrics
+title: Metrics, Prometheus and Grafana
+order: 0
+summary: What a metric is, what to look at first, how to read a dashboard, and the PromQL you'll use every day.
+domain: observability

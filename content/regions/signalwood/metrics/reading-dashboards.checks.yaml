@@ -1,0 +1,44 @@
+checks:
+  - id: dash-range
+    type: single
+    required: true
+    prompt: The error panel is high from its left edge to its right. What do you do first?
+    explanation: Widen the time range until the left of the graph looks normal, so you can see when it changed.
+    options:
+      - id: widen
+        text: Widen the time range until the start looks normal
+        correct: true
+      - id: narrow
+        text: Narrow it to the last five minutes
+        feedback: That hides when it started.
+      - id: refresh
+        text: Refresh until it changes
+        feedback: Refreshing shows the same range again.
+  - id: dash-annotation
+    type: single
+    prompt: What does a deploy annotation on Ravenpost's dashboards mark?
+    explanation: An Argo CD sync, with when it happened and which revision went out.
+    options:
+      - id: alert
+        text: When an alert fired
+        feedback: Alerts are shown elsewhere; these mark deploys.
+      - id: sync
+        text: An Argo CD sync, and the revision it deployed
+        correct: true
+      - id: commit
+        text: Every commit to every repo
+        feedback: Only syncs that changed the cluster.
+  - id: dash-correlate
+    type: single
+    prompt: Errors climb at 20:46, and a sync went out at 20:45. What's the best next step?
+    explanation: Look at what that revision changed, and consider rolling it back while you find out why.
+    options:
+      - id: diff
+        text: See what that revision changed, and consider rolling it back
+        correct: true
+      - id: wait
+        text: Wait an hour to see whether it settles
+        feedback: Users are seeing errors now.
+      - id: restart
+        text: Restart every pod
+        feedback: They'd restart on the same release.
