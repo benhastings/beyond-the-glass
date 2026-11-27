@@ -3,6 +3,7 @@ import { SCENARIOS } from '@/scenarios'
 import { Callout } from '../ui'
 import { ChallengeTerminal } from '../terminal/ChallengeTerminal'
 import { ScenarioTerminal } from '../terminal/ScenarioTerminal'
+import { SmallScreenNote } from '../ui/SmallScreenNote'
 
 /** `<Terminal scenario="…" challenge="…">`: a terminal on the scenario, with the challenge beside it if given. */
 export default function TerminalForLesson({
@@ -20,6 +21,10 @@ export default function TerminalForLesson({
         This terminal needs the scenario “{scenario}”, which isn’t available.
       </Callout>
     )
-  if (c) return <ChallengeTerminal challenge={c} scenario={s} />
-  return <ScenarioTerminal scenario={s} />
+  return (
+    <>
+      <SmallScreenNote what="The terminal" />
+      {c ? <ChallengeTerminal challenge={c} scenario={s} /> : <ScenarioTerminal scenario={s} />}
+    </>
+  )
 }
