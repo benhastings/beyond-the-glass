@@ -1,0 +1,46 @@
+id: triage-oom
+title: The archive that runs out of room
+scenario: triage
+brief: >-
+  The archive's new pod keeps restarting. Find out how it ends, say why, then give it a limit it fits in
+  (`fixes/archive.yaml`).
+questions:
+  - id: cause
+    prompt: Why does the archive's container stop?
+objectives:
+  - id: describe
+    text: Read how its last run ended
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+describe\s+(po|pod|pods)\b.*ravenpost-archive'
+  - id: cause
+    text: Say why it stops
+    check: { type: answered, question: cause, matcher: { matches: '(oom|memory|limit)' } }
+  - id: fix
+    text: The archive runs within its limit
+    check:
+      type: all
+      of:
+        - { type: answered, question: cause, matcher: { matches: '(oom|memory|limit)' } }
+        - type: resourceState
+          resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-archive } }
+          path: 'spec.containers[0].resources.limits.memory'
+          equals: 512Mi
+          quantifier: all
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-archive }
+          path: status.availableReplicas
+          equals: '1'
+hints:
+  - level: nudge
+    text: Its logs end abruptly, with no error. Something outside the program stopped it.
+  - level: pointer
+    text: '`kubectl describe pod` shows Last State: its reason and exit code. `kubectl top pod` shows what it uses.'
+  - level: command
+    text: 'Run `kubectl describe pod ravenpost-archive -n ravenpost`, then `answer cause <the reason under Last State>`.'
+expertPath:
+  - kubectl get pods -n ravenpost -l app=ravenpost-archive
+  - kubectl describe pod ravenpost-archive-594bcb4f88 -n ravenpost
+  - answer cause OOMKilled, its memory limit is below what it uses
+  - kubectl apply -f fixes/archive.yaml
+  - kubectl rollout status deploy/ravenpost-archive -n ravenpost

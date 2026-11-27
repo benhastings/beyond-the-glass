@@ -1,0 +1,62 @@
+# Test out of "The triage flow and common failures" (E4-05): each question says which step teaches it.
+checks:
+  - id: test-out-triage-first
+    type: single
+    review: { lesson: triage-flow, step: flow }
+    prompt: What's the first step of the triage flow?
+    explanation: Know which cluster and namespace you're looking at.
+    options:
+      - id: logs
+        text: Read the logs
+        feedback: Logs come later, once you know which pod and what state.
+      - id: restart
+        text: Restart the failing pods
+        feedback: That changes things before you know why.
+      - id: context
+        text: Check the context and namespace
+        correct: true
+  - id: test-out-triage-pull
+    type: single
+    review: { lesson: pulls-and-config, step: imagepull }
+    prompt: A pod is in ImagePullBackOff with "not found" in its events. What do you check?
+    explanation: 'The image reference: its registry, repository and tag.'
+    options:
+      - id: ref
+        text: The image reference, and whether that tag exists
+        correct: true
+      - id: memory
+        text: Its memory limit
+        feedback: Memory matters once a container runs. This one never did.
+      - id: probe
+        text: Its readiness probe
+        feedback: Probes need a running container.
+  - id: test-out-triage-oom
+    type: single
+    review: { lesson: resources-and-scheduling, step: oom }
+    prompt: Exit code 137 and Reason OOMKilled. What do you change?
+    explanation: Give the container a memory limit it fits in (or find why it uses more than it should).
+    options:
+      - id: request
+        text: Lower its memory request
+        feedback: Requests affect placement; the limit is what it was killed for.
+      - id: limit
+        text: Raise its memory limit to fit what it uses
+        correct: true
+      - id: replicas
+        text: Add replicas
+        feedback: Each new copy would be killed the same way.
+  - id: test-out-triage-ready
+    type: single
+    review: { lesson: not-ready, step: quiet }
+    prompt: Why can a Service have no endpoints while its pods are Running?
+    explanation: Endpoints list only Ready pods; Running but not Ready counts for nothing.
+    options:
+      - id: ready
+        text: None of the pods is Ready
+        correct: true
+      - id: crash
+        text: The pods are crashing
+        feedback: They're Running, not restarting.
+      - id: dns
+        text: DNS hasn't caught up
+        feedback: It's not DNS; the endpoints list is empty.

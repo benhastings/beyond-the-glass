@@ -1,0 +1,46 @@
+id: triage-config
+title: The worker that can't be created
+scenario: triage
+brief: >-
+  The worker's new release can't create its container. Find which setting it can't find, say which, then put
+  the ConfigMap right (`fixes/ravenpost-config.yaml` has every key).
+questions:
+  - id: cause
+    prompt: What is the new worker pod missing?
+objectives:
+  - id: describe
+    text: Describe the new worker pod
+    check:
+      type: ranCommand
+      pattern: '^kubectl\s+(describe\s+(po|pod|pods)|get\s+(ev|events)|events)\b'
+  - id: cause
+    text: Name the missing key
+    check: { type: answered, question: cause, matcher: { matches: 'QUEUE_URL' } }
+  - id: fix
+    text: Both workers run 1.14.1
+    check:
+      type: all
+      of:
+        - { type: answered, question: cause, matcher: { matches: 'QUEUE_URL' } }
+        - type: resourceState
+          resource: { kind: Pod, namespace: ravenpost, labels: { app: ravenpost-worker } }
+          path: 'spec.containers[0].image'
+          equals: registry.example/ravenpost/worker:1.14.1
+          quantifier: all
+        - type: resourceState
+          resource: { kind: Deployment, namespace: ravenpost, name: ravenpost-worker }
+          path: status.availableReplicas
+          equals: '2'
+hints:
+  - level: nudge
+    text: The container was never created, so look at what the kubelet reported, not at logs.
+  - level: pointer
+    text: "`kubectl describe pod` shows the waiting reason, and the events name the key it couldn't find."
+  - level: command
+    text: 'Run `kubectl get events -n ravenpost --sort-by=.lastTimestamp`, then `answer cause <the key>`.'
+expertPath:
+  - kubectl get pods -n ravenpost -l app=ravenpost-worker
+  - kubectl get events -n ravenpost --sort-by=.lastTimestamp
+  - answer cause QUEUE_URL is missing from ravenpost-config
+  - kubectl apply -f fixes/ravenpost-config.yaml
+  - kubectl rollout status deploy/ravenpost-worker -n ravenpost

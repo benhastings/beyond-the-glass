@@ -18,6 +18,7 @@ To add a scenario: create `src/scenarios/<id>.yaml`, then add one line to the ma
 | `title`, `description` | title | Shown to authors and in the sim inspector |
 | `seed` | no (1998) | Seeds the RNG: pod-name suffixes, UIDs and Service IPs |
 | `startTime` | no (`2026-03-14T02:10:00Z`) | Wall-clock moment the scenario starts |
+| `warmUp` | no | Plays the timeline for this long (`+3m`) before the learner arrives, so early faults are already showing, with their restarts, events and logs (E9-06) |
 | `currentContext` | yes | One of `contexts[].name` |
 | `contexts` | yes | `name`, `cluster`, `user`, optional default `namespace` (like a kubeconfig) |
 | `clusters` | yes | See below |

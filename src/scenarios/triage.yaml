@@ -1,0 +1,374 @@
+# The Chartroom's triage night (E9-06): Ravenpost, healthy at first, where six releases go out in the first
+# minutes and each breaks one service in one of the common ways. Each mini-scenario in "The triage flow" and the
+# lessons after it asks about one of them. Fixes are made with kubectl here (before GitOps): the corrected
+# manifests are in the operator's home folder. Format: docs/sim/scenarios.md
+id: triage
+title: Ravenpost, a night of releases
+description: >-
+  Six changes went out at the start of your shift, and each broke something different. Find out what, and why,
+  one service at a time.
+seed: 2041
+startTime: 2026-03-14T02:10:00Z
+# The releases go out in the first minute; the learner arrives three minutes in, with every fault showing.
+warmUp: +3m
+currentContext: kind-ravenpost
+files:
+  README.md: |
+    Corrected manifests, ready to apply once you know what's wrong.
+
+    fixes/ravenpost-config.yaml   the ConfigMap, with every key the services read
+    fixes/archive.yaml            the archive, with a memory limit it fits in
+    fixes/reports.yaml            the reports job runner, asking for what it needs
+    fixes/api.yaml                the api, with its readiness probe on the path it serves
+
+    Look first: `kubectl diff -f <file>` shows what applying it would change.
+  fixes/ravenpost-config.yaml: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: ravenpost-config
+      namespace: ravenpost
+    data:
+      LOG_LEVEL: info
+      QUEUE_URL: amqp://ravenpost-queue.ravenpost.svc:5672
+      SMTP_HOST: smtp.ravenpost.example
+  fixes/archive.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ravenpost-archive
+      namespace: ravenpost
+      labels:
+        app: ravenpost-archive
+        app.kubernetes.io/part-of: ravenpost
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ravenpost-archive
+      template:
+        metadata:
+          labels:
+            app: ravenpost-archive
+            app.kubernetes.io/part-of: ravenpost
+        spec:
+          containers:
+            - name: archive
+              image: registry.example/ravenpost/archive:1.2.0
+              ports:
+                - name: http
+                  containerPort: 8080
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 384Mi
+                limits:
+                  memory: 512Mi
+  fixes/reports.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ravenpost-reports
+      namespace: ravenpost
+      labels:
+        app: ravenpost-reports
+        app.kubernetes.io/part-of: ravenpost
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ravenpost-reports
+      template:
+        metadata:
+          labels:
+            app: ravenpost-reports
+            app.kubernetes.io/part-of: ravenpost
+        spec:
+          containers:
+            - name: reports
+              image: registry.example/ravenpost/reports:0.4.0
+              ports:
+                - name: http
+                  containerPort: 8080
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  memory: 512Mi
+  fixes/api.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ravenpost-api
+      namespace: ravenpost
+      labels:
+        app: ravenpost-api
+        app.kubernetes.io/part-of: ravenpost
+    spec:
+      replicas: 2
+      strategy:
+        type: Recreate
+      selector:
+        matchLabels:
+          app: ravenpost-api
+      template:
+        metadata:
+          labels:
+            app: ravenpost-api
+            app.kubernetes.io/part-of: ravenpost
+        spec:
+          containers:
+            - name: api
+              image: registry.example/ravenpost/api:1.14.0
+              ports:
+                - name: http
+                  containerPort: 8080
+              readinessProbe:
+                httpGet:
+                  path: /ready
+                  port: http
+                periodSeconds: 5
+images:
+  registry.example/ravenpost/web:2.3.1: { cpuMillis: 4, memoryMi: 58, healthPaths: [/healthz] }
+  registry.example/ravenpost/web:2.3.2: { cpuMillis: 4, memoryMi: 60, healthPaths: [/healthz] }
+  # The tag the release asked for, which CI never published.
+  registry.example/ravenpost/web:v2.3.2: { pull: notFound }
+  registry.example/ravenpost/api:1.14.0:
+    { cpuMillis: 22, memoryMi: 174, healthPaths: [/ready, /healthz] }
+  registry.example/ravenpost/worker:1.14.0: { cpuMillis: 35, memoryMi: 141 }
+  registry.example/ravenpost/worker:1.14.1: { cpuMillis: 35, memoryMi: 141 }
+  registry.example/ravenpost/notifier:0.9.2: { cpuMillis: 3, memoryMi: 48 }
+  registry.example/ravenpost/archive:1.2.0: { cpuMillis: 12, memoryMi: 300 }
+  registry.example/ravenpost/reports:0.4.0: { cpuMillis: 8, memoryMi: 120 }
+contexts:
+  - name: kind-ravenpost
+    cluster: ravenpost
+    user: kind-ravenpost
+clusters:
+  - name: ravenpost
+    server: https://127.0.0.1:40125
+    kubernetesVersion: v1.34.0
+    system: kind
+    age: -12d
+    nodes:
+      - { name: ravenpost-control-plane, role: control-plane }
+      - { name: ravenpost-worker }
+      - { name: ravenpost-worker2 }
+    resources:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: ravenpost
+          creationTimestamp: -9d
+          labels: { app.kubernetes.io/part-of: ravenpost }
+
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata: { name: ravenpost-config, namespace: ravenpost, creationTimestamp: -9d }
+        data:
+          LOG_LEVEL: info
+          QUEUE_URL: amqp://ravenpost-queue.ravenpost.svc:5672
+          SMTP_HOST: smtp.ravenpost.example
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-web
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-web, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: ravenpost-web } }
+          template:
+            metadata: { labels: { app: ravenpost-web, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: web
+                  image: registry.example/ravenpost/web:2.3.1
+                  ports: [{ name: http, containerPort: 8080 }]
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-api
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-api, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 2
+          strategy: { type: Recreate }
+          selector: { matchLabels: { app: ravenpost-api } }
+          template:
+            metadata: { labels: { app: ravenpost-api, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: api
+                  image: registry.example/ravenpost/api:1.14.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  readinessProbe:
+                    httpGet: { path: /ready, port: http }
+                    periodSeconds: 5
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-worker
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-worker, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 2
+          selector: { matchLabels: { app: ravenpost-worker } }
+          template:
+            metadata: { labels: { app: ravenpost-worker, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: worker
+                  image: registry.example/ravenpost/worker:1.14.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  env:
+                    - name: QUEUE_URL
+                      valueFrom: { configMapKeyRef: { name: ravenpost-config, key: QUEUE_URL } }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-notifier
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-notifier, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: ravenpost-notifier } }
+          template:
+            metadata: { labels: { app: ravenpost-notifier, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: notifier
+                  image: registry.example/ravenpost/notifier:0.9.2
+                  ports: [{ name: http, containerPort: 8080 }]
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-archive
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-archive, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: ravenpost-archive } }
+          template:
+            metadata: { labels: { app: ravenpost-archive, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: archive
+                  image: registry.example/ravenpost/archive:1.2.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  resources:
+                    requests: { cpu: 100m, memory: 384Mi }
+                    limits: { memory: 512Mi }
+
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ravenpost-reports
+          namespace: ravenpost
+          creationTimestamp: -9d
+          labels: { app: ravenpost-reports, app.kubernetes.io/part-of: ravenpost }
+        spec:
+          replicas: 1
+          selector: { matchLabels: { app: ravenpost-reports } }
+          template:
+            metadata: { labels: { app: ravenpost-reports, app.kubernetes.io/part-of: ravenpost } }
+            spec:
+              containers:
+                - name: reports
+                  image: registry.example/ravenpost/reports:0.4.0
+                  ports: [{ name: http, containerPort: 8080 }]
+                  resources:
+                    requests: { cpu: 100m, memory: 256Mi }
+                    limits: { memory: 512Mi }
+
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: ravenpost-web,
+            namespace: ravenpost,
+            creationTimestamp: -9d,
+            labels: { app: ravenpost-web },
+          }
+        spec:
+          selector: { app: ravenpost-web }
+          ports: [{ name: http, port: 8080, targetPort: http }]
+
+      - apiVersion: v1
+        kind: Service
+        metadata:
+          {
+            name: ravenpost-api,
+            namespace: ravenpost,
+            creationTimestamp: -9d,
+            labels: { app: ravenpost-api },
+          }
+        spec:
+          selector: { app: ravenpost-api }
+          ports: [{ name: http, port: 8080, targetPort: http }]
+
+timeline:
+  # 1. CrashLoopBackOff: the notifier's new release exits at startup.
+  - at: +1m
+    type: setImage
+    namespace: ravenpost
+    deployment: ravenpost-notifier
+    container: notifier
+    image: registry.example/ravenpost/notifier:0.10.0
+    behaviour:
+      exitAfterMs: 1500
+      exitCode: 1
+      log:
+        - '{"level":"info","msg":"notifier 0.10.0 starting"}'
+        - '{"level":"fatal","msg":"template directory /app/templates not found","exit_code":1}'
+  # 2. ImagePullBackOff: the web release asks for a tag CI never published (a stray v).
+  - at: +1m
+    type: setImage
+    namespace: ravenpost
+    deployment: ravenpost-web
+    container: web
+    image: registry.example/ravenpost/web:v2.3.2
+  # 3. CreateContainerConfigError: a ConfigMap clean-up removed a key, and the worker's next release needs it.
+  - at: +1m
+    type: deleteConfigKey
+    namespace: ravenpost
+    configMap: ravenpost-config
+    key: QUEUE_URL
+  - at: +1m30s
+    type: setImage
+    namespace: ravenpost
+    deployment: ravenpost-worker
+    container: worker
+    image: registry.example/ravenpost/worker:1.14.1
+  # 4. OOMKilled: the archive's limit was trimmed below what it uses.
+  - at: +1m
+    type: setResources
+    namespace: ravenpost
+    deployment: ravenpost-archive
+    container: archive
+    limits: { memory: 128Mi }
+  # 5. Pending: the reports runner now asks for more memory than any node has.
+  - at: +1m
+    type: setResources
+    namespace: ravenpost
+    deployment: ravenpost-reports
+    container: reports
+    requests: { memory: 20Gi }
+  # 6. Running but not Ready: the api's probe now checks a path it doesn't serve, and Recreate left no old pods.
+  - at: +1m
+    type: setReadinessPath
+    namespace: ravenpost
+    deployment: ravenpost-api
+    container: api
+    path: /readyz
